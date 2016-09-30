@@ -1,2 +1,2 @@
 # stuff
-Like a turkey. :turkey:
+Like a turkey. :chicken:
