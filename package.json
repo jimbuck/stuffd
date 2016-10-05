@@ -1,0 +1,57 @@
+{
+  "name": "stuff",
+  "version": "0.0.1",
+  "description": "Like a turkey.",
+  "main": "index.js",
+  "scripts": {
+    "clean": "gulp clean",
+    "rebuild": "gulp build",
+    "watch": "gulp watch",
+    "test": "gulp test",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "preversion": "npm test",
+    "version": "git add -A",
+    "postversion": "git push && git push --tags && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JimmyBoh/stuff.git"
+  },
+  "author": "Jim Buck <jim@jimmyboh.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JimmyBoh/stuff/issues"
+  },
+  "homepage": "https://github.com/JimmyBoh/stuff#readme",
+  "devDependencies": {
+    "@types/node": "^6.0.42",
+    "@types/reflect-metadata": "0.0.4",
+    "ava": "^0.16.0",
+    "coveralls": "^2.11.14",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-shell": "^0.5.2",
+    "nyc": "^8.3.0",
+    "typescript": "^2.0.3",
+    "yargs": "^6.0.0"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.8"
+  },
+  "ava": {
+    "files": [
+      "./dist/**/*.spec.js"
+    ],
+    "source": [
+      "./dist/**/*.js"
+    ]
+  },
+  "nyc": {
+    "include": [
+      "dist/**/*.js"
+    ],
+    "exclude": [
+      "dist/**/*.spec.js"
+    ]
+  }
+}
