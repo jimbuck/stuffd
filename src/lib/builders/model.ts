@@ -1,5 +1,5 @@
 
-import { Lookup } from '../models/lookup';
+import { Dictionary } from '../models/dictionary';
 import { Type } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
 import { PropertyDefinition } from '../models/property-definition';
@@ -10,7 +10,7 @@ export class Model {
 
   private _modelDefinition: ModelDefinition;
 
-  constructor(private _modelBuilderCache: Lookup<Model>, modelDef: ModelDefinition) {
+  constructor(private _modelBuilderCache: Dictionary<Model>, modelDef: ModelDefinition) {
     this._modelDefinition = modelDef;
     this._modelDefinition.properties = this._modelDefinition.properties || {};
   }

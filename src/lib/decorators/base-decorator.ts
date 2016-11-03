@@ -1,8 +1,8 @@
-import { ILookup } from '../models/lookup';
+import { Lookup } from '../models/dictionary';
 import { StuffMetadata } from '../models/types';
 import { PropertyDefinition } from '../models/property-definition';
 
-export const _propRegistry: ILookup<string[]> = {};
+export const _propRegistry: Lookup<string[]> = {};
 
 export function Stuff(def?: PropertyDefinition) {
     def = def || {};

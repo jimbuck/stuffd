@@ -1,15 +1,15 @@
 
 import { isDefined } from '../utils/extensions';
 
-export type ILookup<T> = { [key: string]: T };
+export type Lookup<T> = { [key: string]: T };
 
-export class Lookup<T> {
+export class Dictionary<T> {
   
   private _keys: Set<string>;
-  private _store: ILookup<T>  = {};
+  private _store: Lookup<T>  = {};
 
-  constructor(defaultStore: ILookup<T> = {}) {
-    this._store = defaultStore || {};
+  constructor(defaultStore: Lookup<T> = {}) {
+    this._store = defaultStore;
     this._updateKeys();
   }
 

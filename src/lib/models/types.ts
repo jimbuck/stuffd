@@ -11,11 +11,7 @@ export type Type = Function | Symbol | Model;
 export type Lazy<T> = T | (() => T);
 
 export function lazyVal<T>(lazy: Lazy<T>): T {
-  if (typeof lazy === 'function') {
-    return lazy();
-  } else {
-    return lazy;
-  }
+  return typeof lazy === 'function' ? lazy() : lazy;
 }
 
 export type PropertySelector<TParent, TChild> = (target: TParent) => TChild;

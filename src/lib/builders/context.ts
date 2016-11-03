@@ -1,5 +1,5 @@
 
-import { Lookup, ILookup } from '../models/lookup';
+import { Dictionary, Lookup } from '../models/dictionary';
 import { Task } from '../builders/task';
 import { ModelDefinition } from '../models/model-definition';
 import { Model } from './model';
@@ -8,11 +8,11 @@ export type TaskDefinition = (t: Task) => void;
 
 export class Context {
 
-    private _modelCache: Lookup<Model>;
-    private _taskCache: Lookup<TaskDefinition>;
+    private _modelCache: Dictionary<Model>;
+    private _taskCache: Dictionary<TaskDefinition>;
 
     constructor() {
-        this._modelCache = new Lookup<Model>();
+        this._modelCache = new Dictionary<Model>();
     }
 
     public model(id: string): Model {
@@ -47,8 +47,8 @@ export class Context {
         });
     }
 
-    private _build(): ILookup<ModelDefinition> {
-        let result: ILookup<ModelDefinition> = {};
+    private _build(): Lookup<ModelDefinition> {
+        let result: Lookup<ModelDefinition> = {};
         this._modelCache.forEach((mb, id) => {
             result[id] = mb.build();
         });

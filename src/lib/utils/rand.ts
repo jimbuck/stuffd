@@ -1,5 +1,5 @@
 
-// TODO: Find a RNG that supports seeds!
+// TODO: Install and use random-seed!
 
 export class Rand {
 

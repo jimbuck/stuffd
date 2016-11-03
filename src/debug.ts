@@ -38,15 +38,14 @@ let defaultTask = ctx.task('default', (t) => {
     let scienceClasses = t.create(Class, 6);
 
     let students = t.create(Student, 50);
-      
-    historyClasses.join(historyTeachers, 'teacherIdentifier', { sequential: false, duplicates: true });
-    scienceClasses.join(scienceTeachers, 'teacherIdentifier');
+    
+    // In progress work...
+    // historyClasses.join(historyTeachers, 'teacherIdentifier', { sequential: false, duplicates: true });
+    // scienceClasses.join(scienceTeachers, 'teacherIdentifier');
 
-    let classes = t.combine(historyClasses, scienceClasses);
+    // let classes = t.combine(historyClasses, scienceClasses);
 
-    let grades = t.cross(classes, students).to(Grade);
-
-      
+    // let grades = t.cross(classes, students).to(Grade);
 });
   
 let testTask = ctx.task('test', t => {
