@@ -1,5 +1,5 @@
 
-import { AggregateDefinition, LazyArray } from './types';
+import { AggregateDefinition, Lazy, Type } from './types';
 
 /**
  * Set of properties which are used to define model properties.
@@ -24,14 +24,16 @@ export interface PropertyDefinition {
    * @memberOf PropertyDefinition
    */
   name?: string;
-  
+
   /**
-   * Is this property a primary key?
+   * Is this property the primary key?
    * 
    * @type {boolean}
    * @memberOf PropertyDefinition
    */
   key?: boolean;
+
+  ref?: Type;
 
   /**
    * The minimum indicator, for numbers, dates, string lengths, etc.
@@ -42,11 +44,12 @@ export interface PropertyDefinition {
   min?: number | Date;
   max?: number | Date;
   length?: number;
+  pattern?: RegExp;
   optional?: number;
   unique?: boolean;
   type?: any;
   secondaryType?: any;
   decimals?: number,
   sum?: AggregateDefinition<any, any, number>;
-  choices?: LazyArray<any>
+  choices?: Lazy<any[]>
 }

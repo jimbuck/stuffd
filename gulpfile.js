@@ -68,7 +68,7 @@ gulp.task('test', ['build'], Tasks.test);
 gulp.task('coverage', ['build'], Tasks.coverage);
 
 // Used for better development (watch with TAP output) (but also because we now are moving more files around)
-gulp.task('watch', ['build'], Tasks.watch);
+gulp.task('watch', ['clean'], Tasks.watch);
 
 // Set up the git version helpers...
 ['patch', 'minor', 'major'].forEach(step => {

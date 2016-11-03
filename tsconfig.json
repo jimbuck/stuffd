@@ -4,6 +4,7 @@
     "module": "commonjs",
     "target": "es6",
     "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "inlineSourceMap": true,
     "removeComments": false,
     "rootDir": "src",

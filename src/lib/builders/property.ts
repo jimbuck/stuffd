@@ -1,9 +1,9 @@
 
-import { Enum, MapExpr, ReduceExpr, AggregateDefinition, LazyArray, TypeIdentifier } from '../models/types';
+import { Enum, MapExpr, ReduceExpr, AggregateDefinition, Lazy, Type, Index, Guid } from '../models/types';
 
 import { PropertyDefinition } from '../models/property-definition';
 
-export class PropertyBuilder {
+export class Property {
 
   private _definition: PropertyDefinition;
 
@@ -16,13 +16,23 @@ export class PropertyBuilder {
     return this;
   }
 
+  public key(): this {
+    this._definition.key = true;
+    return this;
+  }
+
+  public ref(type: Type): this {
+    this._definition.ref = type;
+    return this;
+  }
+
   public min(min: number): this {
     this._definition.min = min;
     return this;
   }
 
   public max(max: number): this {
-    this._definition.min = max;
+    this._definition.max = max;
     return this;
   }
 
@@ -41,7 +51,7 @@ export class PropertyBuilder {
     return this;
   }
 
-  public type(type: TypeIdentifier, secondaryType?: TypeIdentifier): this {
+  public type(type: Type, secondaryType?: Type): this {
     this._definition.type = type;
     if (secondaryType) {
       this._definition.secondaryType = secondaryType;
@@ -49,12 +59,51 @@ export class PropertyBuilder {
     return this;
   }
 
-  public array(secondaryType?: TypeIdentifier): this {
-    return this.type(Array, secondaryType);
+  public integer(min: number = Number.MIN_SAFE_INTEGER, max: number = Number.MAX_SAFE_INTEGER): this {    
+    return this
+      .type(Number)
+      .decimals(0)
+      .min(min)
+      .max(max);
   }
 
-  public enum(secondaryType?: TypeIdentifier): this {
-    return this.type(Enum, secondaryType);
+  public float(min: number = Number.MIN_VALUE, max: number = Number.MAX_VALUE): this {    
+    return this
+      .type(Number)
+      .min(min)
+      .max(max);
+  }
+
+  public string(pattern?: string | RegExp): this {
+    this.type(String);
+    
+    if (pattern) {
+      this.pattern(pattern);
+    }
+    
+    return this;
+  }
+
+  public array(itemType?: Type): this {
+    return this.type(Array, itemType);
+  }
+
+  public enum(referenceType?: Type): this {
+    return this.type(Enum, referenceType);
+  }
+
+  public guid(): this {
+    return this.type(Guid);
+  }
+
+  public pattern(pattern: string | RegExp): this {
+    // TODO: Convert wildcard string into regexp...
+    this._definition.pattern = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+    return this;
+  }
+
+  public index(): this {
+    return this.type(Index);
   }
 
   public decimals(decimals: number): this {
@@ -75,7 +124,7 @@ export class PropertyBuilder {
     return this;
   }
 
-  public choices<T>(choices: LazyArray<T>): this {
+  public choices<T>(choices: Lazy<T[]>): this {
     this._definition.choices = choices;
 
     return this;

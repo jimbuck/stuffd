@@ -1,15 +1,16 @@
 
 import { Lookup } from '../models/lookup';
+import { Type } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
 import { PropertyDefinition } from '../models/property-definition';
 
-import { PropertyBuilder } from './property-builder';
+import { Property } from './property';
 
-export class ModelBuilder {
+export class Model {
 
   private _modelDefinition: ModelDefinition;
 
-  constructor(private _modelBuilderCache: Lookup<ModelBuilder>, modelDef: ModelDefinition) {
+  constructor(private _modelBuilderCache: Lookup<Model>, modelDef: ModelDefinition) {
     this._modelDefinition = modelDef;
     this._modelDefinition.properties = this._modelDefinition.properties || {};
   }
@@ -19,12 +20,7 @@ export class ModelBuilder {
     return this;
   }
 
-  public abstract(): this {
-    this._modelDefinition.abstract = true;
-    return this;
-  }
-
-  public inherits<TParent>(id: string|ModelBuilder): this {
+  public inherits<TParent>(id: string|Model): this {
     let originalId: string;
     if (typeof id === 'string') {
       originalId = id;
@@ -41,11 +37,19 @@ export class ModelBuilder {
     return this;
   }
 
-  public prop(id: string, cb?: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
+  public prop(id: string, cb: (propBuilder: Property) => Property): this {
     let propDef = this._modelDefinition.properties[id] || { id };
-    this._modelDefinition.properties[id] = cb(new PropertyBuilder(propDef)).build();
+    this._modelDefinition.properties[id] = cb(new Property(propDef)).build();
 
     return this;
+  }
+
+  public key(id: string, cb: (propBuilder: Property) => Property): this {
+    return this.prop(id, i => cb(i.key()));
+  }
+
+  public ref(id: string, type: Type): this {
+    return this.prop(id, x => x.ref(type));
   }
 
   public build(): ModelDefinition {

@@ -1,27 +1,56 @@
-import { Context } from './lib';
+import { Context } from './';
 
 let ctx = new Context();
 
-let Person = ctx.model('person')
-  .prop('FirstName', fn => fn.type(String))
-  .prop('LastName', ln => ln.type(String))
-  .prop('DateOfBirth', dob => dob.type(Date));
+let Person = ctx.model('Person')
+    .prop('firstName', fn => fn.type(String))
+    .prop('lastName', ln => ln.string())
+    .prop('dateOfBirth', dob => dob.type(Date));
 
-let Teacher = ctx.model('teacher')
-  .inherits(Person)
-  .name('Teachers')
-  .prop('room', r => r.name('Room').type(Number).min(100).max(300));
+let Student = ctx.model('Student')
+    .inherits(Person)
+    .key('identifier', id => id.guid())
+    .prop('graduationYear', t => t.integer(1900, (new Date().getFullYear()) + 4));
 
-let Student = ctx.model('student')
-  .inherits(Person)
-  .name('Students')
-  .prop('grades', g => g.name('Grades').array((Number)))
-  .prop('currentGrade', cg => cg.name('CurrentGrade').sum('Grades'));
+let Teacher = ctx.model('Teacher')
+    .inherits(Person)
+    .key('identifier', id => id.guid())
+    .prop('degree', d=> d.choices(['Science', 'History']))
+    .prop('salary', s => s.float(30000, 150000).decimals(2));
+
+let Class = ctx.model('Class')
+    .key('identifier', id => id.guid())
+    .prop('period', st => st.type(Number).integer(1, 9))
+    .prop('name', s => s.string())
+    .ref('teacherIdentifier', Teacher);
+
+let Grade = ctx.model('Grade')
+    .prop('identifier', id => id.key().guid())
+    .prop('grade', g => g.float(0, 100).decimals(2))
+    .ref('studentIdentifier', Student)
+    .ref('classIdentifier', Class)
+
+let defaultTask = ctx.task('default', (t) => {
+    let historyTeachers = t.create(Teacher, 3, { degree: 'history' });
+    let scienceTeachers = t.create(Teacher, 3, { degree: 'science' });
+      
+    let historyClasses = t.create(Class, 4)
+    let scienceClasses = t.create(Class, 6);
+
+    let students = t.create(Student, 50);
+      
+    historyClasses.join(historyTeachers, 'teacherIdentifier', { sequential: false, duplicates: true });
+    scienceClasses.join(scienceTeachers, 'teacherIdentifier');
+
+    let classes = t.combine(historyClasses, scienceClasses);
+
+    let grades = t.cross(classes, students).to(Grade);
+
+      
+});
   
-// ctx.task('default')
-//   .make(3, Teacher)
-//   .make(10, Student);
+let testTask = ctx.task('test', t => {
+    t.create(Teacher, 10);
+});
 
-let def = ctx.build();
-
-console.log(def);
+//ctx.run(defaultTask, new SqlConnector('some connection string'));

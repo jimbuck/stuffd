@@ -1,16 +1,35 @@
 
-export const StuffDecoratorMetadata = Symbol.for('jimmyboh.stuff.decorator');
-export const Enum = Symbol.for('jimmyboh.stuff.enum');
+import { Model } from '../builders/model';
 
-export type TypeIdentifier = Function | Symbol;
-export type LazyArray<T> = Array<T> | (() => Array<T>);
+export const StuffMetadata = Symbol('jimmyboh.stuff.metadata');
+export const Enum = Symbol('jimmyboh.stuff.enum');
+export const Index = Symbol('jimmyboh.stuff.index');
+export const Guid = Symbol('jimmyboh.stuff.guid');
+
+export type Type = Function | Symbol | Model;
+
+export type Lazy<T> = T | (() => T);
+
+export function lazyVal<T>(lazy: Lazy<T>): T {
+  if (typeof lazy === 'function') {
+    return lazy();
+  } else {
+    return lazy;
+  }
+}
 
 export type PropertySelector<TParent, TChild> = (target: TParent) => TChild;
 export type CollectionSelector<TParent, TChild> = PropertySelector<TParent, Array<TChild>>;
 
-export type FilterExpr<TModel> = (target: TModel) => boolean;
-export type MapExpr<TModel, TResult> = (target: TModel) => TResult;
-export type ReduceExpr<TModel, TResult> = (target: TModel, curr: TResult) => TResult;
+export interface FilterExpr<TModel> {
+  (target: TModel): boolean;
+}
+export interface MapExpr<TModel, TResult> {
+  (target: TModel): TResult;
+}
+export interface ReduceExpr<TModel, TResult> {
+  (target: TModel, curr: TResult): TResult;
+}
 
 export interface MapReduceDefinition<TParent, TChild, TResult> {
   map?: MapExpr<TParent, TChild>;

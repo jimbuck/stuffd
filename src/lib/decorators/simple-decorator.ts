@@ -1,5 +1,5 @@
 
-import { Enum as EnumType, MapExpr, ReduceExpr, TypeIdentifier, LazyArray } from '../models/types';
+import { Enum as EnumType, MapExpr, ReduceExpr, Type, Lazy } from '../models/types';
 import { Stuff } from './base-decorator';
 
 export function Length(length: number) {
@@ -26,15 +26,15 @@ export function Decimals(count: number) {
     return Stuff({decimals: count});
 }
 
-export function Type(type: TypeIdentifier, secondaryType: TypeIdentifier) {
+export function Type(type: Type, secondaryType: Type) {
   return Stuff({ type, secondaryType });
 }
 
-export function Enum(type: TypeIdentifier) {
+export function Enum(type: Type) {
     return Type(EnumType, type );
 }
 
-export function Array(type: TypeIdentifier) {
+export function Array(type: Type) {
   return Type(Array, type);
 }
 
@@ -42,6 +42,6 @@ export function Sum<TTarget, TProp>(map: MapExpr<TTarget, Array<TProp>>, reduce:
   return Stuff({ sum: { map, reduce } });
 }
 
-export function Choice<T>(choices: LazyArray<T>) {
+export function Choice<T>(choices: Lazy<T[]>) {
   return Stuff({ choices });
 }

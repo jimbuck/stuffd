@@ -1,4 +1,6 @@
 
+import { isDefined } from '../utils/extensions';
+
 export type ILookup<T> = { [key: string]: T };
 
 export class Lookup<T> {
@@ -43,11 +45,11 @@ export class Lookup<T> {
     return this.get(key);
   }
 
-  public set(key: string, val: T): this {
+  public set(key: string, val: T): T {
     this._store[key] = val;
     this._updateKeys();
 
-    return this;
+    return val;
   }
 
   public has(item: T): boolean {
@@ -60,15 +62,16 @@ export class Lookup<T> {
     return false;
   }
 
-  public delete(key: string): this {
+  public delete(key: string): T {
     
     if (!this.hasKey(key)) {
-      return this;
+      return;
     }
 
+    let deletedVal = this._store[key];    
     this._store[key] = null;
     this._updateKeys();
-    return this;    
+    return deletedVal;    
   }  
 
   public forEach(callback: (value: T, key: string) => void, thisArg?: any): void {
@@ -108,7 +111,7 @@ export class Lookup<T> {
   private _updateKeys(): void {
     this._keys = new Set<string>();
     Object.keys(this._store).forEach(key => {
-      if (key && this._store[key]) {
+      if (key && isDefined(this._store[key])) {
         this._keys.add(key);
       }
     });

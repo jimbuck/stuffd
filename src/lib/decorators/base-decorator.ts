@@ -1,5 +1,5 @@
 import { ILookup } from '../models/lookup';
-import { StuffDecoratorMetadata } from '../models/types';
+import { StuffMetadata } from '../models/types';
 import { PropertyDefinition } from '../models/property-definition';
 
 export const _propRegistry: ILookup<string[]> = {};
@@ -11,16 +11,16 @@ export function Stuff(def?: PropertyDefinition) {
         _propRegistry[target.constructor] = _propRegistry[target.constructor] || [];
         _propRegistry[target.constructor].push(prop);
                 
-        let prevOpts = Reflect.getMetadata(StuffDecoratorMetadata, target, prop);
+        let prevOpts = Reflect.getMetadata(StuffMetadata, target, prop);
 
         if (prevOpts) {
             def = Object.assign(prevOpts, def);
         }
 
         if (!def.type) {
-            def.type = Reflect.getMetadata(StuffDecoratorMetadata, target, prop) || target[prop].constructor;
+            def.type = Reflect.getMetadata(StuffMetadata, target, prop) || target[prop].constructor;
         }
 
-        return Reflect.defineMetadata(StuffDecoratorMetadata, def, target, prop);
+        return Reflect.defineMetadata(StuffMetadata, def, target, prop);
     }
 }

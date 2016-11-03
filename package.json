@@ -36,7 +36,9 @@
     "yargs": "^6.0.0"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.8"
+    "meow": "^3.7.0",
+    "reflect-metadata": "^0.1.8",
+    "require-from-string": "^1.2.1"
   },
   "ava": {
     "files": [
