@@ -21,7 +21,7 @@ Create lots of random data, then cram it into your database, REST Endpoint, CSV,
 ## Features:
  - Fluid API for super smooth model descriptions.
  - Available TS decorators to sprinkle on existing models.
- - Built-in connectors to shove that data into your favorite databases.
+ - Built-in receivers to shove that data into your favorite databases.
  - CLI tool for kickin' back and running tasks.
  - Easily interfaces with gulp/grunt/ANYTHING via promises.
  

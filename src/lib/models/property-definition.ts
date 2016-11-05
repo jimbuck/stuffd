@@ -41,8 +41,8 @@ export interface PropertyDefinition {
    * @type {number}
    * @memberOf PropertyDefinition
    */
-  min?: number | Date;
-  max?: number | Date;
+  min?: number;
+  max?: number;
   length?: number;
   pattern?: RegExp;
   optional?: number;
