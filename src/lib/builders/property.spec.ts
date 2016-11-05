@@ -101,7 +101,7 @@ test(`Property#integer accepts min and max values`, t => {
   const expectedMax = 81;
   const customPropDef = newProp().integer(expectedMin, expectedMax).build();
   t.is(customPropDef.type, Number);
-  t.true(isZero(customPropDef.decimals));
+  t.is(customPropDef.decimals, 0);
   t.is(customPropDef.min, expectedMin);
   t.is(customPropDef.max, expectedMax);
 });
@@ -126,16 +126,4 @@ test.todo(`Property#sum provides easy totals`, null);
 
 function newProp(initialDef?: PropertyDefinition): Property {
   return new Property(initialDef);
-}
-
-function isZero(num: number): boolean {
-  num = Math.abs(num);
-
-  if (Math.round(num) > 0) {
-    return false;
-  }
-
-  let decimals = num % 1;
-
-  return decimals < (1 / Math.pow(10, 9));
 }
