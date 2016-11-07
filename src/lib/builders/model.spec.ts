@@ -1,8 +1,15 @@
 import { test } from 'ava';
 
 import { Model } from './model';
-import { Dictionary } from '../models/dictionary';
+import { ModelCache } from '../models/model-cache';
 import { ModelDefinition } from '../models/model-definition';
+
+test(`Model#id references the ModelDefinition id`, t => {
+  const expectedId = 'TestModelIdentifier';
+  const m = newModel(expectedId);
+
+  t.is(m.id, expectedId);
+});
 
 test(`Model#name sets the friendly name`, t => {
   const expectedName = 'TestModel';
@@ -56,8 +63,62 @@ test(`Model#ref creates a Property marked as a reference`, t => {
   t.is(modelDef.properties[expectedPropName].ref, expectedRefType);
 });
 
-test.todo(`Model#inherit links models from the cache`, null);
+test(`Model#inherit fails for models missing from the cache`, t => {
+  const modelCacheA = new ModelCache();
+  const modelCacheB = new ModelCache();
+  const Animal = modelCacheA.add({ id: 'Animal' });
+  const Eagle = modelCacheB.add({ id: 'Eagle' });
+
+  t.throws(() => Eagle.inherits(Animal)); // Different cache (context)
+});
+
+test(`Model#inherit fails for invalid model identifiers`, t => {
+  const modelCache = new ModelCache();
+  const Animal = modelCache.add({ id: 'Animal' });
+  const Eagle = modelCache.add({ id: 'Eagle' });
+
+  t.throws(() => Eagle.inherits('Aminal')); // Spelled wrong!
+});
+
+test(`Model#inherit links models from the cache`, t => {
+  const modelCache = new ModelCache();
+  const Animal = modelCache.add({ id: 'Animal' });
+  const Eagle = modelCache.add({ id: 'Eagle' });
+
+  Eagle.inherits(Animal);
+
+  const eagleDef = Eagle.build();
+  t.is(eagleDef.inherits, Animal);
+});
+
+test(`Model#build properly inherits properties from parent`, t => {
+  const modelCache = new ModelCache();
+  const Animal = modelCache.add({ id: 'Animal' });
+  const Eagle = modelCache.add({ id: 'Eagle' });
+
+  const dietKey = 'Diet';  
+  const dietChoices = ['herbivore', 'carnivore', 'omnivore'];
+
+  const lifespanKey = 'Lifespan';
+  const lifespanMin = 20;
+  const lifespanMax = 30;
+
+  Animal
+    .prop(dietKey, x => x.choices(dietChoices))
+    .prop(lifespanKey, x => x.integer(0, 200).key());
+
+  Eagle.inherits(Animal)
+    .prop(lifespanKey, x => x.integer(lifespanMin, lifespanMax));
+
+  const eagleDef = Eagle.build();
+  t.is(eagleDef.inherits, Animal);
+  t.is(eagleDef.properties[dietKey].choices, dietChoices);
+  t.is(eagleDef.properties[lifespanKey].type, Number);
+  t.is(eagleDef.properties[lifespanKey].min, lifespanMin);
+  t.is(eagleDef.properties[lifespanKey].max, lifespanMax);
+  t.falsy(eagleDef.properties[lifespanKey].key);
+});
 
 function newModel(id?: string) {
-  return new Model(new Dictionary<Model>(), { id: id || Math.random().toString(36).substr(2, 5) });
+  return new Model(new ModelCache(), { id: id || Math.random().toString(36).substr(2, 5) });
 }

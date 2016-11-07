@@ -1,5 +1,5 @@
 
-import { Dictionary } from '../models/dictionary';
+import { ModelCache } from '../models/model-cache';
 import { Type } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
 import { PropertyDefinition } from '../models/property-definition';
@@ -8,7 +8,11 @@ import { Property } from './property';
 
 export class Model {
 
-  constructor(private _modelBuilderCache: Dictionary<Model>, private _modelDefinition: ModelDefinition) {
+  public get id(): string {
+    return this._modelDefinition.id;
+  }
+
+  constructor(private _modelBuilderCache: ModelCache, private _modelDefinition: ModelDefinition) {
     this._modelDefinition.properties = this._modelDefinition.properties || {};
   }
 
@@ -32,28 +36,31 @@ export class Model {
     return this.prop(id, x => x.ref(type));
   }
 
-  public inherits<TParent>(id: string|Model): this {
+  public inherits<TParent>(model: string | Model): this {
     let originalId: string;
-    if (typeof id === 'string') {
-      originalId = id;
-      id = this._modelBuilderCache.get(id);
-    } else if(!this._modelBuilderCache.has(id)) {
-      throw new Error(`Specified model does not exist in context!`);      
+    if (typeof model === 'string') {
+      originalId = model;
+      model = this._modelBuilderCache.get(model);
+    } else if (!this._modelBuilderCache.has(model)) {
+      throw new Error(`Specified model (${model.id}) does not exist in context!`);
     }
 
-    if (!id) {
-      throw new Error(`Unknown model specified: '${originalId || id}''!`);
+    if (!model) {
+      throw new Error(`Unknown model specified: '${originalId}''!`);
     }
     
-    this._modelDefinition.inherits = id;
+    this._modelDefinition.inherits = model;
     return this;
   }
 
   public build(): ModelDefinition {
-    // TODO: Fix this...
-
     if (this._modelDefinition.inherits) {
-      return Object.assign({}, this._modelDefinition.inherits.build(), this._modelDefinition);
+      const parentDef = this._modelDefinition.inherits.build();
+      const thisDef = Object.assign({}, this._modelDefinition);
+      
+      thisDef.properties = Object.assign({}, parentDef.properties, thisDef.properties);
+      
+      return thisDef;
     } else {
       return Object.assign({}, this._modelDefinition);
     }
