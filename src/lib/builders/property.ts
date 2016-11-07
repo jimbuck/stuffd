@@ -105,19 +105,6 @@ export class Property {
       .max(max);
   }
   
-  public sum<TModel,TProp>(prop: MapExpr<TModel, Array<TProp>> | string, val?: ReduceExpr<TProp, number>): this {
-    if (typeof prop !== 'function' && (!prop.length || prop.length < 1)) {
-      throw new Error(`'prop' must be defined!`);
-    }
-    this._definition.type = Number;
-    this._definition.sum = {
-      map: typeof prop === 'function' ? prop : (x => x[prop]),
-      reduce: val || (x => x)
-    };
-
-    return this;
-  }
-  
   public build(): PropertyDefinition {
     return Object.assign({}, this._definition);
   }
