@@ -1,6 +1,5 @@
 
 import { Dictionary, Lookup } from '../models/dictionary';
-import { ModelCache } from '../models/model-cache';
 import { Task } from '../builders/task';
 import { ModelDefinition } from '../models/model-definition';
 import { Model } from './model';
@@ -9,11 +8,12 @@ export type TaskDefinition = (t: Task) => void;
 
 export class Context {
 
-    private _modelCache: ModelCache;
+    private _modelCache: Dictionary<Model>;
     private _taskCache: Dictionary<TaskDefinition>;
 
     constructor() {
-        this._modelCache = new ModelCache();
+        this._modelCache = new Dictionary<Model>();
+        this._taskCache = new Dictionary<TaskDefinition>();
     }
 
     public model(id: string): Model {
@@ -22,7 +22,7 @@ export class Context {
             throw new Error(`Model '${id}' has already been defined!'`);  
         }
 
-        return this._modelCache.add({ id });
+        return this._modelCache.set(id, new Model({ id }));
     }
 
     public task(taskName: string, task: TaskDefinition): string {
@@ -48,12 +48,18 @@ export class Context {
         });
     }
 
+    // TODO: Make this return a ContextDefinition...?    
     private _build(): Lookup<ModelDefinition> {
-        let result: Lookup<ModelDefinition> = {};
+        let modelDefinitions: Lookup<ModelDefinition> = {};
         this._modelCache.forEach((mb, id) => {
-            result[id] = mb.build();
+            const baseModel = mb['_modelDefinition'].inherits;
+            if (baseModel && !this._modelCache.hasKey(baseModel.id)) {
+                throw new Error(`Specified model (${baseModel.id}) does not exist in this context!`);
+            }
+
+            modelDefinitions[id] = mb['_build']();
         });
 
-        return result;
+        return modelDefinitions;
     }
 }

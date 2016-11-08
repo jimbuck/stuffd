@@ -122,8 +122,6 @@ test(`Property#float accepts min and max values`, t => {
   t.is(customPropDef.max, expectedMax);
 });
 
-test.todo(`Property#sum provides easy totals`, null);
-
 function newProp(initialDef?: PropertyDefinition): Property {
   return new Property(initialDef);
 }

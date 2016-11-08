@@ -12,7 +12,7 @@ export class Task {
   }
 
   public create(type: Type, count: number = 1, constantProps: {} = {}): OrderDefinition {
-    console.log(`Ordering ${count} ${type}'s...`);
+    console.log(`Ordering ${count} ${type}(s)...`);
     let order = new OrderDefinition(type, count);
 
     this._orderDefs.add(order);

@@ -2,18 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Tests",
+      "name": "debug.js",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/node_modules/ava/cli.js",
+      "program": "${workspaceRoot}/dist/debug.js",
       "stopOnEntry": false,
-      "args": ["-s", "-v"],
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "build",
       "runtimeExecutable": null,
       "runtimeArgs": [
-        "--nolazy",
-        "--debug-brk"
+        "--nolazy"
       ],
       "env": {
         "NODE_ENV": "development"

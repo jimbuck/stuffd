@@ -17,6 +17,20 @@ test(`Dictionary#get retrieves the value`, t => {
   t.is(d.get(propName), initialStore[propName]);
 });
 
+test(`Dictionary#get safely handles undefined keys`, t => {
+  let propName: string;
+
+  const d = new Dictionary<any>();
+  t.is(typeof d.get(propName), 'undefined');
+});
+
+test(`Dictionary#get safely handles undefined values`, t => {
+  const propName = 'propName';
+
+  const d = new Dictionary<any>();
+  t.is(typeof d.get(propName), 'undefined');
+});
+
 test(`Dictionary#hasKey properly checks for keys`, t => {
   const existingKey = 'exists';
   const nonExistentKey = 'doesNotExist';
