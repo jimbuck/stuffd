@@ -29,7 +29,7 @@ Create lots of random data, then cram it into your database, REST Endpoint, CSV,
  
  0. Fork it
  1. `npm i`
- 2. `gulp watch`
+ 2. `npm run watch`
  3. Make changes and **write tests**.
  4. Send pull request! :sunglasses:
  
