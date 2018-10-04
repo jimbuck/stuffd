@@ -2,23 +2,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "debug.js",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/dist/debug.js",
-      "stopOnEntry": false,
-      "cwd": "${workspaceRoot}",
-      "preLaunchTask": "build",
-      "runtimeExecutable": null,
-      "runtimeArgs": [
-        "--nolazy"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      },
-      "console": "internalConsole",
-      "sourceMaps": true,
-      "outDir": "${workspaceRoot}/dist"
+      "name": "Launch Fluid",
+      "program": "${workspaceFolder}/dist/debug-fluid.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Decorator",
+      "program": "${workspaceFolder}/dist/debug-decorator.js"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach by Process ID",
+      "processId": "${command:PickProcess}"
     }
   ]
 }

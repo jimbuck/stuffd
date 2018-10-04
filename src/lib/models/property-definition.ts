@@ -52,4 +52,5 @@ export interface PropertyDefinition {
   decimals?: number,
   sum?: AggregateDefinition<any, any, number>;
   choices?: any[] | (() => any[]);
+  ignore?: boolean;
 }

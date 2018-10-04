@@ -1,37 +1,45 @@
 
 import { Enum as EnumType, MapExpr, ReduceExpr, TypeDefinition } from '../models/types';
-import { Stuff } from './base-decorator';
+import { Prop } from './base-decorator';
+
+export function Ignore(ignore = true) {
+  return Prop({ ignore });
+}
 
 export function Length(length: number) {
-    return Stuff({ length });
+    return Prop({ length });
 }
 
 export function Optional(rate: number = 0.5) {
-  return Stuff({ optional: rate });
+  return Prop({ optional: rate });
 }
 
 export function Unique(unique = true) {
-  return Stuff({ unique });
+  return Prop({ unique });
 }
 
 export function Min(min: number) {
-    return Stuff({min});
+    return Prop({min});
 }
 
 export function Max(max: number) {
-    return Stuff({ max });
+    return Prop({ max });
 }
 
 export function Decimals(count: number) {
-    return Stuff({decimals: count});
+    return Prop({decimals: count});
 }
 
-export function Type(type: TypeDefinition, secondaryType: TypeDefinition) {
-  return Stuff({ type, secondaryType });
+export function Integer() {
+  return Decimals(0);
+}
+
+export function Type(type: TypeDefinition, secondaryType: TypeDefinition = null) {
+  return Prop({ type, secondaryType });
 }
 
 export function Enum(type: TypeDefinition) {
-    return Type(EnumType, type );
+    return Type(EnumType, type);
 }
 
 export function Array(type: TypeDefinition) {
@@ -39,9 +47,13 @@ export function Array(type: TypeDefinition) {
 }
 
 export function Sum<TTarget, TProp>(map: MapExpr<TTarget, Array<TProp>>, reduce: ReduceExpr<TProp, number>) {
-  return Stuff({ sum: { map, reduce } });
+  return Prop({ sum: { map, reduce } });
 }
 
 export function Choice<T>(choices: T[] | (() => T[])) {
-  return Stuff({ choices });
+  return Prop({ choices });
+}
+
+export function Pattern(pattern: RegExp) {
+  return Prop({ pattern });
 }

@@ -1,15 +1,51 @@
-import { Lookup } from '../models/dictionary';
-import { StuffMetadata } from '../models/types';
+import { StuffMetadata, TypeDefinition } from '../models/types';
 import { PropertyDefinition } from '../models/property-definition';
 
-export const _propRegistry: Lookup<string[]> = {};
+const stuffMetaKey = Symbol('jimmyboh:stuff:meta');
 
-export function Stuff(def?: PropertyDefinition) {
+interface StuffDecorator {
+    (): Function;
+    create<T>(): T;
+    create<T>(count: number): T[];
+}
+
+// Class Decorator
+export const Stuff: StuffDecorator = Object.assign(function () {
+    return function (Target: any) {
+        return function (...args: any[]) {
+            let instance = new Target(...args);
+
+            let meta = instance[stuffMetaKey];
+    
+            if (meta) {
+                for (let prop in meta) {
+                    instance[prop] = instance[prop] || meta[prop]();
+                }
+            }
+
+            return instance;
+        } as any;
+    }
+}, {
+        create<T>(count: number = 1): T | T[] {
+            if (typeof count === 'number') {
+                let results: T[] = [];
+    
+                return results;
+            } else {
+                return null;
+            }
+        }
+    });
+
+// Property Decorator
+export function Prop(def?: PropertyDefinition) {
     def = def || {};
 
     return function (target: any, prop: string) {
-        _propRegistry[target.constructor] = _propRegistry[target.constructor] || [];
-        _propRegistry[target.constructor].push(prop);
+        debugger;
+        //_propRegistry[target.constructor] = _propRegistry[target.constructor] || [];
+        //_propRegistry[target.constructor].push(prop);
                 
         let prevOpts = Reflect.getMetadata(StuffMetadata, target, prop);
 
