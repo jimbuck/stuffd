@@ -1,5 +1,5 @@
 
-import { Enum as EnumType, MapExpr, ReduceExpr, Type } from '../models/types';
+import { Enum as EnumType, MapExpr, ReduceExpr, TypeDefinition } from '../models/types';
 import { Stuff } from './base-decorator';
 
 export function Length(length: number) {
@@ -26,15 +26,15 @@ export function Decimals(count: number) {
     return Stuff({decimals: count});
 }
 
-export function Type(type: Type, secondaryType: Type) {
+export function Type(type: TypeDefinition, secondaryType: TypeDefinition) {
   return Stuff({ type, secondaryType });
 }
 
-export function Enum(type: Type) {
+export function Enum(type: TypeDefinition) {
     return Type(EnumType, type );
 }
 
-export function Array(type: Type) {
+export function Array(type: TypeDefinition) {
   return Type(Array, type);
 }
 

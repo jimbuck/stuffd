@@ -1,5 +1,5 @@
 
-import { AggregateDefinition, Type } from './types';
+import { AggregateDefinition, TypeDefinition } from './types';
 
 /**
  * Set of properties which are used to define model properties.
@@ -33,7 +33,7 @@ export interface PropertyDefinition {
    */
   key?: boolean;
 
-  ref?: Type;
+  ref?: TypeDefinition;
 
   /**
    * The minimum indicator, for numbers, dates, string lengths, etc.

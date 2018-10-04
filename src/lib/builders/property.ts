@@ -1,5 +1,5 @@
 
-import { Enum, MapExpr, ReduceExpr, AggregateDefinition, Type, Index, Guid } from '../models/types';
+import { TypeDefinition, Guid } from '../models/types';
 
 import { PropertyDefinition } from '../models/property-definition';
 
@@ -21,7 +21,7 @@ export class Property {
     return this;
   }
 
-  public ref(type: Type): this {
+  public ref(type: TypeDefinition): this {
     this._definition.ref = type;
     return this;
   }
@@ -57,7 +57,7 @@ export class Property {
     return this;
   }
 
-  public type(type: Type, secondaryType?: Type): this {
+  public type(type: TypeDefinition, secondaryType?: TypeDefinition): this {
     this._definition.type = type;
     if (secondaryType) {
       this._definition.secondaryType = secondaryType;
@@ -65,7 +65,7 @@ export class Property {
     return this;
   }
 
-  public array(itemType?: Type): this {
+  public array(itemType?: TypeDefinition): this {
     return this.type(Array, itemType);
   }
 

@@ -1,5 +1,5 @@
 
-import { Type } from '../models/types';
+import { TypeDefinition } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
 import { PropertyDefinition } from '../models/property-definition';
 import { Dictionary } from '../models/dictionary';
@@ -32,7 +32,7 @@ export class Model {
     return this.prop(id, i => cb(i.key()));
   }
 
-  public ref(id: string, type: Type): this {
+  public ref(id: string, type: TypeDefinition): this {
     return this.prop(id, x => x.ref(type));
   }
 

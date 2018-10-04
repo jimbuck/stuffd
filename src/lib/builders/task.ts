@@ -1,5 +1,5 @@
 
-import { Type } from '../models/types';
+import { TypeDefinition } from '../models/types';
 import { TaskDefinition } from '../models/task-definition';
 import { OrderDefinition } from '../models/order-definition';
 
@@ -11,7 +11,7 @@ export class Task {
     this._orderDefs = new Set<any>();
   }
 
-  public create(type: Type, count: number = 1, constantProps: {} = {}): OrderDefinition {
+  public create(type: TypeDefinition, count: number = 1, constantProps: {} = {}): OrderDefinition {
     console.log(`Ordering ${count} ${type}(s)...`);
     let order = new OrderDefinition(type, count);
 

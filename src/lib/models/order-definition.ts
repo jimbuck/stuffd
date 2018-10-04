@@ -1,11 +1,11 @@
 
-import { Type } from '../models/types';
+import { TypeDefinition } from '../models/types';
 
 export class OrderDefinition {
   
   public quantity: number;
 
-  constructor(public model: Type, quantity: number) {
+  constructor(public model: TypeDefinition, quantity: number) {
     quantity = Math.floor(quantity || 0);
     
     if (quantity < 1) {
