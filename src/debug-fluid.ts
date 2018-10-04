@@ -1,4 +1,4 @@
-import { Context } from './';
+import { Context } from '.';
 
 const ctx = new Context();
 
