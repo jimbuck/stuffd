@@ -1,17 +1,19 @@
 {
-  "name": "stuff",
+  "name": "@jimmyboh/stuff",
   "version": "0.0.1",
   "description": "Like a turkey.",
   "main": "index.js",
   "scripts": {
-    "clean": "gulp clean",
-    "rebuild": "gulp build",
-    "watch": "gulp watch",
-    "test": "gulp test",
+    "clean": "rimraf ./dist/** ./coverage",
+    "build": "tsc",
+    "watch": "concurrently npm:watch:*",
+    "watch:build": "tsc --watch",
+    "watch:test": "ava --watch",
+    "test": "tsc && nyc --cache --color -a ava -v",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "preversion": "npm test",
     "version": "git add -A",
-    "postversion": "git push && git push --tags && npm publish"
+    "postversion": "git push && git push --tags && npm publish --access=public"
   },
   "repository": {
     "type": "git",
@@ -24,21 +26,19 @@
   },
   "homepage": "https://github.com/JimmyBoh/stuff#readme",
   "devDependencies": {
-    "@types/node": "^6.0.42",
-    "@types/reflect-metadata": "0.0.4",
-    "ava": "^0.16.0",
-    "coveralls": "^2.11.14",
-    "del": "^2.2.2",
-    "gulp": "^3.9.1",
-    "gulp-shell": "^0.5.2",
-    "nyc": "^8.3.0",
-    "typescript": "^2.0.3",
-    "yargs": "^6.0.0"
+    "@types/node": "^10.11.4",
+    "@types/reflect-metadata": "0.1.0",
+    "ava": "^0.25.0",
+    "concurrently": "^4.0.1",
+    "coveralls": "^3.0.2",
+    "nyc": "^13.0.1",
+    "rimraf": "^2.6.2",
+    "typescript": "^3.1.1"
   },
   "dependencies": {
-    "meow": "^3.7.0",
-    "reflect-metadata": "^0.1.8",
-    "require-from-string": "^1.2.1"
+    "meow": "^5.0.0",
+    "reflect-metadata": "^0.1.12",
+    "require-from-string": "^2.0.2"
   },
   "ava": {
     "files": [

@@ -1,5 +1,5 @@
 
-import { AggregateDefinition, Lazy, Type } from './types';
+import { AggregateDefinition, Type } from './types';
 
 /**
  * Set of properties which are used to define model properties.
@@ -51,5 +51,5 @@ export interface PropertyDefinition {
   secondaryType?: any;
   decimals?: number,
   sum?: AggregateDefinition<any, any, number>;
-  choices?: Lazy<any[]>
+  choices?: any[] | (() => any[]);
 }

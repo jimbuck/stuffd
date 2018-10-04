@@ -1,5 +1,5 @@
 
-import { Enum, MapExpr, ReduceExpr, AggregateDefinition, Lazy, Type, Index, Guid } from '../models/types';
+import { Enum, MapExpr, ReduceExpr, AggregateDefinition, Type, Index, Guid } from '../models/types';
 
 import { PropertyDefinition } from '../models/property-definition';
 
@@ -51,7 +51,7 @@ export class Property {
     return this;
   }
 
-  public choices<T>(choices: Lazy<T[]>): this {
+  public choices<T>(choices: T[] | (() => T[])): this {
     this._definition.choices = choices;
 
     return this;

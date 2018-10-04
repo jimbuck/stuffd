@@ -1,5 +1,5 @@
 
-import { Enum as EnumType, MapExpr, ReduceExpr, Type, Lazy } from '../models/types';
+import { Enum as EnumType, MapExpr, ReduceExpr, Type } from '../models/types';
 import { Stuff } from './base-decorator';
 
 export function Length(length: number) {
@@ -42,6 +42,6 @@ export function Sum<TTarget, TProp>(map: MapExpr<TTarget, Array<TProp>>, reduce:
   return Stuff({ sum: { map, reduce } });
 }
 
-export function Choice<T>(choices: Lazy<T[]>) {
+export function Choice<T>(choices: T[] | (() => T[])) {
   return Stuff({ choices });
 }

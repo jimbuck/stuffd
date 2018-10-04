@@ -1,4 +1,4 @@
-import { test, ContextualTestContext } from 'ava';
+import { test, TestContext } from 'ava';
 
 import { Rand } from './rand';
 
@@ -42,7 +42,7 @@ test(`nextDate returns random dates between two values`, t => {
   });
 });
 
-function repeat(t: ContextualTestContext, count: number, operation: () => boolean): void {  
+function repeat(t: TestContext, count: number, operation: () => boolean): void {  
   for (let i = 0; i < count; i++) {
     if (!operation()) {
       return t.fail();

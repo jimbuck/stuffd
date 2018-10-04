@@ -8,10 +8,8 @@ export const Guid = Symbol('jimmyboh.stuff.guid');
 
 export type Type = Function | Symbol | Model;
 
-export type Lazy<T> = T | (() => T);
-
-export function lazyVal<T>(lazy: Lazy<T>): T {
-  return typeof lazy === 'function' ? lazy() : lazy;
+export function getVal<T>(lazy: T | (() => T)): T {
+  return typeof lazy === 'function' ? (lazy as Function)() : lazy;
 }
 
 export type PropertySelector<TParent, TChild> = (target: TParent) => TChild;
