@@ -1,5 +1,5 @@
 import { EOL } from 'os';
-import { Model, Integer, Range, Float, Pattern, Choice, Enum, Collection, Include } from './decorators';
+import { Model, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child } from './decorators';
 import { Activator } from './lib/services/activator';
 import { Bool } from './lib/decorators/common-decorators';
 
@@ -70,16 +70,16 @@ class Module {
 @Model()
 class Spaceship {
 
-  @Pattern(/[A-Z] Wing/)
+  @Pattern(/([A-Z] Wing|(Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus) [XXIIVVCD]{2,3})/)
   name: string;
 
-  @Include()
+  @Child()
   primaryEngines: Engine;
 
   @Integer() @Range(1, 5)
   primaryEngineCount: number;
 
-  @Include()
+  @Child()
   secondaryEngines: Engine;
 
   @Integer() @Range(0, 20)
@@ -108,15 +108,17 @@ class Spaceship {
   }
 
   public toString() {
-    return `${this.name}:
-  Engines:
-    ${this.primaryEngineCount}x ${this.primaryEngines}
-    ${this.secondaryEngineCount}x ${this.secondaryEngines}
-  Modules:
-    ${this.modules.map(m => m.toString()).join(EOL + '    ')}
-  Stats:
-    Total Thrust: ${this.totalThrust} tons
-    Total Mass: ${this.totalMass} kg`;
+    let str = [this.name + ':'];
+    str.push(`  Engines:`);
+    str.push(`    ${this.primaryEngineCount}x ${this.primaryEngines}`);
+    if (this.secondaryEngineCount > 0) str.push(`    ${this.secondaryEngineCount}x ${this.secondaryEngines}`);
+    str.push(`  Modules:`);
+    str.push(this.modules.map(m => m.toString()).join(EOL + '    '));
+    str.push(`  Stats:`);
+    str.push(`    Total Thrust: ${this.totalThrust} tons`);
+    str.push(`    Total Mass: ${this.totalMass} kg`);
+    
+    return str.join(EOL);
   }
 }
 

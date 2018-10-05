@@ -1,5 +1,5 @@
 
-import { TypeDefinition } from './types';
+import { TypeReference } from './types';
 
 /**
  * Set of properties which are used to define model properties.
@@ -33,7 +33,7 @@ export interface PropertyDefinition {
    */
   key?: boolean;
 
-  ref?: TypeDefinition;
+  ref?: TypeReference;
 
   /**
    * The minimum indicator, for numbers, dates, etc.

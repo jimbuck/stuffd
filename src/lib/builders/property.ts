@@ -1,5 +1,5 @@
 
-import { TypeDefinition, Guid } from '../models/types';
+import { TypeReference, Guid } from '../models/types';
 
 import { PropertyDefinition } from '../models/property-definition';
 
@@ -21,7 +21,7 @@ export class Property {
     return this;
   }
 
-  public ref(type: TypeDefinition): this {
+  public ref(type: TypeReference): this {
     this._definition.ref = type;
     return this;
   }
@@ -52,7 +52,7 @@ export class Property {
     return this;
   }
 
-  public type(type: TypeDefinition, secondaryType?: TypeDefinition): this {
+  public type(type: TypeReference, secondaryType?: TypeReference): this {
     this._definition.type = type;
     if (secondaryType) {
       this._definition.secondaryType = secondaryType;
@@ -60,7 +60,7 @@ export class Property {
     return this;
   }
 
-  public array(itemType?: TypeDefinition): this {
+  public array(itemType?: TypeReference): this {
     return this.type(Array, itemType);
   }
 

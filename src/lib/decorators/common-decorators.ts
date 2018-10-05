@@ -1,5 +1,5 @@
 
-import { Enum as EnumType, TypeDefinition, StoredEnum, Constructor } from '../models/types';
+import { Enum as EnumType, TypeReference, StoredEnum, Constructor } from '../models/types';
 import { Prop } from './base-decorator';
 import { Lookup } from '../models/dictionary';
 
@@ -71,6 +71,6 @@ export const Pattern: PatternDef = function Pattern(pattern: string | RegExp, fl
   return Prop({ pattern });
 }
 
-export function Include() {
+export function Child() {
   return Prop({});
 }

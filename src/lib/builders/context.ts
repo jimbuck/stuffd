@@ -2,27 +2,27 @@
 import { Dictionary, Lookup } from '../models/dictionary';
 import { Task } from '../builders/task';
 import { ModelDefinition } from '../models/model-definition';
-import { Model } from './model';
+import { ModelBuilder } from './model';
 
 export type TaskDefinition = (t: Task) => void;
 
 export class Context {
 
-    private _modelCache: Dictionary<Model>;
+    private _modelCache: Dictionary<ModelBuilder>;
     private _taskCache: Dictionary<TaskDefinition>;
 
     constructor() {
-        this._modelCache = new Dictionary<Model>();
+        this._modelCache = new Dictionary<ModelBuilder>();
         this._taskCache = new Dictionary<TaskDefinition>();
     }
 
-    public model(id: string): Model {
+    public model(id: string): ModelBuilder {
 
         if (this._modelCache.hasKey(id)) {
             throw new Error(`Model '${id}' has already been defined!'`);  
         }
 
-        return this._modelCache.set(id, new Model({ id }));
+        return this._modelCache.set(id, new ModelBuilder({ id }));
     }
 
     public task(taskName: string, task: TaskDefinition): string {

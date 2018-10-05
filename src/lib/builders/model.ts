@@ -1,18 +1,21 @@
 
-import { TypeDefinition } from '../models/types';
+import { TypeReference } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
-import { PropertyDefinition } from '../models/property-definition';
-import { Dictionary } from '../models/dictionary';
+
 
 import { Property } from './property';
 
-export class Model {
+export class ModelBuilder {
+
+  private _modelDefinition: ModelDefinition;
+  private _inherits: ModelBuilder;
 
   public get id(): string {
     return this._modelDefinition.id;
   }
 
-  constructor(private _modelDefinition: ModelDefinition) {
+  constructor(modelDefinition: ModelDefinition) {
+    this._modelDefinition = modelDefinition;
     this._modelDefinition.props = this._modelDefinition.props || {};
   }
 
@@ -32,12 +35,12 @@ export class Model {
     return this.prop(id, i => cb(i.key()));
   }
 
-  public ref(id: string, type: TypeDefinition): this {
+  public ref(id: string, type: TypeReference): this {
     return this.prop(id, x => x.ref(type));
   }
 
-  public inherits<TParent>(model: Model): this {    
-    this._modelDefinition.inherits = model;
+  public inherits(model: ModelBuilder): this {    
+    this._inherits = model;
     return this;
   }
 
@@ -46,11 +49,11 @@ export class Model {
   }
 
   private _build(): ModelDefinition {
-    if (this._modelDefinition.inherits) {
-      const parentDef = this._modelDefinition.inherits._build();
-      const thisDef = Object.assign({}, this._modelDefinition);
+    if (this._inherits) {
+      const parentModelDef = this._inherits._build();
+      const thisDef = Object.assign({}, parentModelDef, this._modelDefinition);
       
-      thisDef.props = Object.assign({}, parentDef.props, thisDef.props);
+      thisDef.props = Object.assign({}, parentModelDef.props, this._modelDefinition.props);
       
       return thisDef;
     } else {

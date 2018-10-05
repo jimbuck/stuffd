@@ -57,7 +57,7 @@
     ],
     "exclude": [
       "dist/**/*.spec.js",
-      "dist/debug.js",
+      "dist/debug-*.js",
       "dist/index.js",
       "dist/bin/stuff.js"
     ]

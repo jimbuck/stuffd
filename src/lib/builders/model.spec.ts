@@ -1,6 +1,6 @@
 import { test } from 'ava';
 
-import { Model } from './model';
+import { ModelBuilder } from './model';
 import { Dictionary } from '../models/dictionary';
 import { ModelDefinition } from '../models/model-definition';
 
@@ -101,9 +101,9 @@ test(`Model#build properly inherits properties from parent`, t => {
 });
 
 function newModel(id: string) {
-  return new Model({ id });
+  return new ModelBuilder({ id });
 }
 
-function build(model: Model): ModelDefinition {
+function build(model: ModelBuilder): ModelDefinition {
   return model['_build']();
 }

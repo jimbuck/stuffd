@@ -1,11 +1,11 @@
 
-import { TypeDefinition } from '../models/types';
+import { TypeReference } from '../models/types';
 
 export class OrderDefinition {
   
   public quantity: number;
 
-  constructor(public model: TypeDefinition, quantity: number) {
+  constructor(public model: TypeReference, quantity: number) {
     quantity = Math.floor(quantity || 0);
     
     if (quantity < 1) {
