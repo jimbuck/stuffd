@@ -41,17 +41,6 @@ test(`Property can set simple fields properly`, t => {
   });
 });
 
-test(`Property#unique defaults to true`, t => {
-  const defaultDef = newProp().unique().build();
-  t.true(defaultDef.unique);
-
-  const trueRef = newProp().unique(true).build();
-  t.true(trueRef.unique);
-
-  const falseRef = newProp().unique(false).build();
-  t.false(falseRef.unique);
-});
-
 test(`Property#type accepts a type as well as secondary type`, t => {
   const nullTypeDef = newProp().type(null).build();
   t.is(nullTypeDef.type, null);
@@ -83,7 +72,7 @@ test(`Property#string accepts strings, Regexp, or neither`, t => {
   const regex = new RegExp('regexTest');
   const regexPropDef = newProp().string(regex).build();
   t.is(regexPropDef.type, String);
-  t.is(regexPropDef.pattern, regex);
+  t.deepEqual(regexPropDef.pattern, regex);
 
   const defaultPropDef = newProp().string().build();
   t.is(defaultPropDef.type, String);

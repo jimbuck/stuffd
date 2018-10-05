@@ -7,5 +7,5 @@ export interface ModelDefinition {
   id: string;
   name?: string;
   inherits?: Model;
-  properties?: Lookup<PropertyDefinition>
+  props?: Lookup<PropertyDefinition>
 }

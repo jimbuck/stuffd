@@ -13,7 +13,7 @@ export class Model {
   }
 
   constructor(private _modelDefinition: ModelDefinition) {
-    this._modelDefinition.properties = this._modelDefinition.properties || {};
+    this._modelDefinition.props = this._modelDefinition.props || {};
   }
 
   public name(name: string): this {
@@ -22,8 +22,8 @@ export class Model {
   }
 
   public prop(id: string, cb: (propBuilder: Property) => Property): this {
-    let propDef = this._modelDefinition.properties[id] || { id };
-    this._modelDefinition.properties[id] = cb(new Property(propDef)).build();
+    let propDef = this._modelDefinition.props[id] || { id };
+    this._modelDefinition.props[id] = cb(new Property(propDef)).build();
 
     return this;
   }
@@ -50,7 +50,7 @@ export class Model {
       const parentDef = this._modelDefinition.inherits._build();
       const thisDef = Object.assign({}, this._modelDefinition);
       
-      thisDef.properties = Object.assign({}, parentDef.properties, thisDef.properties);
+      thisDef.props = Object.assign({}, parentDef.props, thisDef.props);
       
       return thisDef;
     } else {

@@ -27,7 +27,7 @@ test(`Model#prop creates a new Property`, t => {
 
   const modelDef = build(m);
 
-  t.is(modelDef.properties[expectedPropName].type, expectedPropType);
+  t.is(modelDef.props[expectedPropName].type, expectedPropType);
 });
 
 test(`Model#prop mergers existing Properties`, t => {
@@ -40,8 +40,8 @@ test(`Model#prop mergers existing Properties`, t => {
   
   const modelDef = build(m);
 
-  t.is(modelDef.properties[expectedPropName].type, expectedPropType);
-  t.is(modelDef.properties[expectedPropName].length, expectedLength);
+  t.is(modelDef.props[expectedPropName].type, expectedPropType);
+  t.is(modelDef.props[expectedPropName].length, expectedLength);
 });
 
 test(`Model#key creates a Property marked as a key`, t => {
@@ -50,7 +50,7 @@ test(`Model#key creates a Property marked as a key`, t => {
 
   const modelDef = build(m);
 
-  t.true(modelDef.properties[expectedPropName].key);
+  t.true(modelDef.props[expectedPropName].key);
 });
 
 test(`Model#ref creates a Property marked as a reference`, t => {
@@ -60,7 +60,7 @@ test(`Model#ref creates a Property marked as a reference`, t => {
 
   const modelDef = build(m);
 
-  t.is(modelDef.properties[expectedPropName].ref, expectedRefType);
+  t.is(modelDef.props[expectedPropName].ref, expectedRefType);
 });
 
 test(`Model#inherit links models`, t => {
@@ -93,11 +93,11 @@ test(`Model#build properly inherits properties from parent`, t => {
 
   const eagleDef = build(Eagle);
   t.is(eagleDef.inherits, Animal);
-  t.is(eagleDef.properties[dietKey].choices, dietChoices);
-  t.is(eagleDef.properties[lifespanKey].type, Number);
-  t.is(eagleDef.properties[lifespanKey].min, lifespanMin);
-  t.is(eagleDef.properties[lifespanKey].max, lifespanMax);
-  t.falsy(eagleDef.properties[lifespanKey].key);
+  t.is(eagleDef.props[dietKey].choices, dietChoices);
+  t.is(eagleDef.props[lifespanKey].type, Number);
+  t.is(eagleDef.props[lifespanKey].min, lifespanMin);
+  t.is(eagleDef.props[lifespanKey].max, lifespanMax);
+  t.falsy(eagleDef.props[lifespanKey].key);
 });
 
 function newModel(id: string) {

@@ -46,11 +46,6 @@ export class Property {
     return this;
   }
 
-  public unique(unique = true): this {
-    this._definition.unique = unique;
-    return this;
-  }
-
   public choices<T>(choices: T[] | (() => T[])): this {
     this._definition.choices = choices;
 
@@ -78,7 +73,7 @@ export class Property {
     
     if (pattern) {
       // TODO: Convert wildcard string into regexp...
-      this._definition.pattern = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+      this._definition.pattern = new RegExp(pattern);
     }
     
     return this;

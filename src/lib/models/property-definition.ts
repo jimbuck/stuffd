@@ -1,5 +1,5 @@
 
-import { AggregateDefinition, TypeDefinition } from './types';
+import { TypeDefinition } from './types';
 
 /**
  * Set of properties which are used to define model properties.
@@ -36,21 +36,21 @@ export interface PropertyDefinition {
   ref?: TypeDefinition;
 
   /**
-   * The minimum indicator, for numbers, dates, string lengths, etc.
+   * The minimum indicator, for numbers, dates, etc.
    * 
-   * @type {number}
+   * @type {number | Date}
    * @memberOf PropertyDefinition
    */
-  min?: number;
-  max?: number;
+  min?: number | Date;
+  max?: number | Date;
   length?: number;
   pattern?: RegExp;
+  patternFn?: () => string;
   optional?: number;
-  unique?: boolean;
   type?: any;
   secondaryType?: any;
+  designType?: any;
   decimals?: number,
-  sum?: AggregateDefinition<any, any, number>;
   choices?: any[] | (() => any[]);
-  ignore?: boolean;
+  truthRate?: number;
 }

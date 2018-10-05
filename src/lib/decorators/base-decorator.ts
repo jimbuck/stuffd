@@ -1,62 +1,33 @@
-import { StuffMetadata, TypeDefinition } from '../models/types';
+import { getDesignType, getModelDef, setModelDef } from '../services/meta-reader';
 import { PropertyDefinition } from '../models/property-definition';
 
-const stuffMetaKey = Symbol('jimmyboh:stuff:meta');
+// Class Decorator
+export function Model(id?: string): ClassDecorator {
+    return function (Target: any) {
+        id = id || Target.name;
+        let meta = getModelDef(Target);
+        
+        // for (let prop in meta.props) {
+        //     if (meta.props[prop].pattern) {
+        //         meta.props[prop].patternFn
+        //     }
+        // }
 
-interface StuffDecorator {
-    (): Function;
-    create<T>(): T;
-    create<T>(count: number): T[];
+        return Target;
+    }
 }
 
-// Class Decorator
-export const Stuff: StuffDecorator = Object.assign(function () {
-    return function (Target: any) {
-        return function (...args: any[]) {
-            let instance = new Target(...args);
-
-            let meta = instance[stuffMetaKey];
-    
-            if (meta) {
-                for (let prop in meta) {
-                    instance[prop] = instance[prop] || meta[prop]();
-                }
-            }
-
-            return instance;
-        } as any;
-    }
-}, {
-        create<T>(count: number = 1): T | T[] {
-            if (typeof count === 'number') {
-                let results: T[] = [];
-    
-                return results;
-            } else {
-                return null;
-            }
-        }
-    });
-
 // Property Decorator
-export function Prop(def?: PropertyDefinition) {
-    def = def || {};
+export function Prop(propDef?: PropertyDefinition): PropertyDecorator {
+    propDef = propDef || {};
 
     return function (target: any, prop: string) {
-        debugger;
-        //_propRegistry[target.constructor] = _propRegistry[target.constructor] || [];
-        //_propRegistry[target.constructor].push(prop);
-                
-        let prevOpts = Reflect.getMetadata(StuffMetadata, target, prop);
+        const type = getDesignType(target, prop);
+        let modelDef = getModelDef(target.constructor);
+        let prevPropDef = modelDef.props[prop] || {};
 
-        if (prevOpts) {
-            def = Object.assign(prevOpts, def);
-        }
+        modelDef.props[prop] = Object.assign({ type, designType: type }, prevPropDef, propDef);
 
-        if (!def.type) {
-            def.type = Reflect.getMetadata(StuffMetadata, target, prop) || target[prop].constructor;
-        }
-
-        return Reflect.defineMetadata(StuffMetadata, def, target, prop);
+        setModelDef(target.constructor, modelDef);
     }
 }

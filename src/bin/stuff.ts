@@ -1,7 +1,7 @@
 const meow: (options: string | {}, minimistOptions?: {}) => { inputs: Array<string>, flags: {} } = require('meow');
 import { Context } from '../lib/builders/context';
 import { Lookup } from '../lib/models/dictionary';
-import { FileLoader } from '../lib/cli/file-loader';
+import { FileLoader } from '../lib/services/file-loader';
 
 // Process:
 //  - Init service
