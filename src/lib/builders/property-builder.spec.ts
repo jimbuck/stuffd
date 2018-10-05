@@ -1,6 +1,6 @@
 import { test } from 'ava';
 
-import { Property } from './property';
+import { PropertyBuilder } from './property-builder';
 
 import { PropertyDefinition } from '../models/property-definition';
 import { Guid } from '../models/types';
@@ -111,6 +111,6 @@ test(`Property#float accepts min and max values`, t => {
   t.is(customPropDef.max, expectedMax);
 });
 
-function newProp(initialDef?: PropertyDefinition): Property {
-  return new Property(initialDef);
+function newProp(initialDef?: PropertyDefinition): PropertyBuilder {
+  return new PropertyBuilder(initialDef);
 }

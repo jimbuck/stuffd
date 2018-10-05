@@ -1,6 +1,6 @@
 import { test } from 'ava';
 
-import { ModelBuilder } from './model';
+import { ModelBuilder } from './model-builder';
 import { Dictionary } from '../models/dictionary';
 import { ModelDefinition } from '../models/model-definition';
 
@@ -68,7 +68,7 @@ test(`Model#inherit links models`, t => {
   const Eagle = newModel('Eagle');
 
   Eagle.inherits(Animal);
-
+  
   const eagleDef = build(Eagle);
   t.is(eagleDef.inherits, Animal);
 });

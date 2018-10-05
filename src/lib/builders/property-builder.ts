@@ -3,7 +3,7 @@ import { TypeReference, Guid } from '../models/types';
 
 import { PropertyDefinition } from '../models/property-definition';
 
-export class Property {
+export class PropertyBuilder {
 
   private _definition: PropertyDefinition;
 

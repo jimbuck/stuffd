@@ -1,5 +1,5 @@
 
-import { ModelBuilder } from '../builders/model';
+import { ModelBuilder } from '../builders/model-builder';
 
 export const Enum = Symbol('jimmyboh.stuff.enum');
 export const Index = Symbol('jimmyboh.stuff.index');

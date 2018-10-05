@@ -2,7 +2,7 @@
 import { Dictionary, Lookup } from '../models/dictionary';
 import { Task } from '../builders/task';
 import { ModelDefinition } from '../models/model-definition';
-import { ModelBuilder } from './model';
+import { ModelBuilder } from './model-builder';
 
 export type TaskDefinition = (t: Task) => void;
 

@@ -3,12 +3,11 @@ import { TypeReference } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
 
 
-import { Property } from './property';
+import { PropertyBuilder } from './property-builder';
 
 export class ModelBuilder {
 
   private _modelDefinition: ModelDefinition;
-  private _inherits: ModelBuilder;
 
   public get id(): string {
     return this._modelDefinition.id;
@@ -24,14 +23,14 @@ export class ModelBuilder {
     return this;
   }
 
-  public prop(id: string, cb: (propBuilder: Property) => Property): this {
+  public prop(id: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
     let propDef = this._modelDefinition.props[id] || { id };
-    this._modelDefinition.props[id] = cb(new Property(propDef)).build();
+    this._modelDefinition.props[id] = cb(new PropertyBuilder(propDef)).build();
 
     return this;
   }
 
-  public key(id: string, cb: (propBuilder: Property) => Property): this {
+  public key(id: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
     return this.prop(id, i => cb(i.key()));
   }
 
@@ -40,7 +39,7 @@ export class ModelBuilder {
   }
 
   public inherits(model: ModelBuilder): this {    
-    this._inherits = model;
+    this._modelDefinition.inherits = model;
     return this;
   }
 
@@ -49,12 +48,12 @@ export class ModelBuilder {
   }
 
   private _build(): ModelDefinition {
-    if (this._inherits) {
-      const parentModelDef = this._inherits._build();
+    if (this._modelDefinition.inherits) {
+      const parentModelDef = this._modelDefinition.inherits._build();
       const thisDef = Object.assign({}, parentModelDef, this._modelDefinition);
       
       thisDef.props = Object.assign({}, parentModelDef.props, this._modelDefinition.props);
-      
+      thisDef.inherits = this._modelDefinition.inherits;
       return thisDef;
     } else {
       return Object.assign({}, this._modelDefinition);
