@@ -55,12 +55,14 @@ test(`Model#key creates a Property marked as a key`, t => {
 
 test(`Model#ref creates a Property marked as a reference`, t => {
   const expectedPropName = 'propName';
-  const expectedRefType = RegExp;
+  const expectedForeignKey = 'specialId';
+  const expectedRefType = newModel('ForeignModel').key(expectedForeignKey, id => id.guid());
   const m = newModel('TestModel').ref(expectedPropName, expectedRefType);
 
   const modelDef = build(m);
 
   t.is(modelDef.props[expectedPropName].ref, expectedRefType);
+  t.is(modelDef.props[expectedPropName].foreignKey, expectedForeignKey);
 });
 
 test(`Model#inherit links models`, t => {

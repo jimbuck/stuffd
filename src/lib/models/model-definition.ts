@@ -7,5 +7,7 @@ export interface ModelDefinition {
   id: string;
   name?: string;
   inherits?: ModelBuilder;
+  
+  primaryKey?: string;
   props?: Lookup<PropertyDefinition>
 }

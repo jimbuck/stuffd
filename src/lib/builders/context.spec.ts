@@ -68,8 +68,6 @@ test(`Context#task updates the task cache`, t => {
   };
 
   ctx.task(taskId, testTask);
-
-  t.is(ctx['_taskCache'].get(taskId), testTask);
 });
 
 function build(ctx: Context): Lookup<ModelDefinition> {

@@ -1,7 +1,5 @@
 import { EOL } from 'os';
-import { Model, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child } from './decorators';
-import { Activator } from './lib/services/activator';
-import { Bool } from './lib/decorators/common-decorators';
+import { Activator, Model, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child, Bool } from './decorators';
 
 enum ModuleType {
   SleepingQuarters,

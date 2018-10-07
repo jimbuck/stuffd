@@ -1,8 +1,4 @@
-
-import { TypeReference } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
-
-
 import { PropertyBuilder } from './property-builder';
 
 export class ModelBuilder {
@@ -31,11 +27,13 @@ export class ModelBuilder {
   }
 
   public key(id: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
+    this._modelDefinition.primaryKey = id;
     return this.prop(id, i => cb(i.key()));
   }
 
-  public ref(id: string, type: TypeReference): this {
-    return this.prop(id, x => x.ref(type));
+  public ref(id: string, type: ModelBuilder, foreignKey?: string): this {
+    foreignKey = foreignKey || this._modelDefinition.primaryKey;
+    return this.prop(id, x => x.ref(type, foreignKey));
   }
 
   public inherits(model: ModelBuilder): this {    

@@ -34,6 +34,7 @@ export interface PropertyDefinition {
   key?: boolean;
 
   ref?: TypeReference;
+  foreignKey?: string;
 
   /**
    * The minimum indicator, for numbers, dates, etc.

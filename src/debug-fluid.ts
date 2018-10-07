@@ -10,7 +10,7 @@ const Person = ctx.model('Person')
 const Student = ctx.model('Student')
     .inherits(Person)
     .key('identifier', id => id.guid())
-    .prop('graduationYear', t => t.integer(1900, (new Date().getFullYear()) + 4));
+    .prop('graduationYear', t => t.integer(2000, (new Date().getFullYear()) + 4));
 
 const Teacher = ctx.model('Teacher')
     .inherits(Person)
@@ -31,27 +31,31 @@ const Grade = ctx.model('Grade')
     .ref('classIdentifier', Class)
 
 ctx.task('default', t => {
-    t.create(Teacher, 1);
-    t.create(Class, 1);
-    t.create(Student, 20);
-});
-
-ctx.task('test', t => {
-    const historyTeachers = t.create(Teacher, 3, { degree: 'history' });
-    const scienceTeachers = t.create(Teacher, 3, { degree: 'science' });
-      
-    const historyClasses = t.create(Class, 4)
-    const scienceClasses = t.create(Class, 6);
+    const historyTeachers = t.create(Teacher, 3, { degree: 'History' });
+    const scienceTeachers = t.create(Teacher, 3, { degree: 'Science' });
+    
+    const historyClasses = t.create(Class, 4).using(historyTeachers);
+    const scienceClasses = t.create(Class, 6).using(scienceTeachers);
 
     const students = t.create(Student, 50);
     
-    // In progress work...
-    // historyClasses.join(historyTeachers, 'teacherIdentifier', { sequential: false, duplicates: true });
-    // scienceClasses.join(scienceTeachers, 'teacherIdentifier');
+    // TODO: Make this better...
+    const historyGrades = t.create(Grade).cross(students, historyClasses);
+    const scienceGrades = t.create(Grade).cross(students, scienceClasses);
 
-    // const classes = t.combine(historyClasses, scienceClasses);
+    let stream = t.stream();
+    // returns readable object stream for each entity
 
-    // const grades = t.cross(classes, students).to(Grade);
+    let data = t.data();
+    // returns:
+    // {
+    //     teachers: [...historyTeachers.toArray(), ...scienceTeachers.toArray()],
+    //     students: students.toArray(),
+    //     classes: [...historyClasses.toArray(), ...scienceClasses.toArray()],
+    //     grades: [...historyGrades.toArray(), ...scienceGrades.toArray()]
+    // }
+
+    // TODO: Determine API for external storage...
 });
 
-ctx.run('default'); // TODO: Figure out Receivers...
+// const grades = t.cross(classes, students).to(Grade);

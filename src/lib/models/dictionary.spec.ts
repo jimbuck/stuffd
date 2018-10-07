@@ -43,39 +43,6 @@ test(`Dictionary#hasKey properly checks for keys`, t => {
   t.false(d.hasKey(nonExistentKey));
 });
 
-test(`Dictionary#getKey properly finds keys from objects`, t => {
-  const existingKey = 'exists';
-  const existingValue = 'this value exists!';
-  const nonExistentValue = 'doesNotExist';
-  
-  let d = new Dictionary({
-    [existingKey]: existingValue
-  });
-  
-  t.is(d.getKey(existingValue), existingKey);
-  t.is(typeof d.getKey(nonExistentValue), 'undefined');
-});
-
-test(`Dictionary#getOrAdd calls factory if key does not exist`, t => {
-  const existingKey = 'exists';
-  const existingValue = 'this is a value';
-  const nonExistentKey = 'doesNotExist';
-  const factoryValue = 'factory value!';
-
-  let d = new Dictionary({
-    [existingKey]: existingValue
-  });
-
-  const actualExistingValue = d.getOrAdd(existingKey, () => {
-    t.fail();
-    return null;
-  });
-  t.is(actualExistingValue, existingValue);
-
-  const actualNonexistentValue = d.getOrAdd(nonExistentKey, () => factoryValue);
-  t.is(actualNonexistentValue, factoryValue);  
-});
-
 test(`Dictionary#set adds or overwrites values`, t => {
   const {d, existingKey, existingValue, nonExistentKey, nonExistentValue} = createTestDictionary();
   const overwrittenValue = { answer: 42 };

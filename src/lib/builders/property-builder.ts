@@ -21,8 +21,9 @@ export class PropertyBuilder {
     return this;
   }
 
-  public ref(type: TypeReference): this {
+  public ref(type: TypeReference, foreignKey: string): this {
     this._definition.ref = type;
+    this._definition.foreignKey = foreignKey;
     return this;
   }
 

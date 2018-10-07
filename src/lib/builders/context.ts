@@ -1,19 +1,15 @@
 
 import { Dictionary, Lookup } from '../models/dictionary';
-import { Task } from '../builders/task';
 import { ModelDefinition } from '../models/model-definition';
 import { ModelBuilder } from './model-builder';
-
-export type TaskDefinition = (t: Task) => void;
+import { TaskBuilder } from './task-builder';
 
 export class Context {
 
     private _modelCache: Dictionary<ModelBuilder>;
-    private _taskCache: Dictionary<TaskDefinition>;
 
     constructor() {
         this._modelCache = new Dictionary<ModelBuilder>();
-        this._taskCache = new Dictionary<TaskDefinition>();
     }
 
     public model(id: string): ModelBuilder {
@@ -25,27 +21,11 @@ export class Context {
         return this._modelCache.set(id, new ModelBuilder({ id }));
     }
 
-    public task(taskName: string, task: TaskDefinition): string {
-        this._taskCache.set(taskName, task);
+    public task<T>(name: string, actions: (t: any) => T): T {
+        // Build dependency graph...
+        let t = new TaskBuilder();
 
-        return taskName;
-    }
-
-    public run(taskName: string, output?: any): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            let taskDef = this._taskCache.get(taskName);
-
-            if (!taskDef) {
-                return reject(new Error(`Unknown Task: '${taskName}'!`));
-            }
-
-            let task = new Task(taskName);
-            taskDef(task);
-
-            let orders = task.build();
-
-            // TODO: Actually implement this thing...
-        });
+        return actions(t);
     }
 
     // TODO: Make this return a ContextDefinition...?    

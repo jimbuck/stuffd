@@ -16,6 +16,10 @@ interface IntegerDef {
   (min: number, max: number): PropertyDecorator;
 }
 
+export function Key() {
+  return Prop({ key: true });
+}
+
 export function Length(length: number) {
     return Prop({ length });
 }
