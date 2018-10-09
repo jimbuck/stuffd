@@ -5,13 +5,10 @@ import { PropertyDefinition } from '../models/property-definition';
 export function Model(id?: string): ClassDecorator {
     return function (Target: any) {
         id = id || Target.name;
-        let meta = getModelDef(Target);
-        
-        // for (let prop in meta.props) {
-        //     if (meta.props[prop].pattern) {
-        //         meta.props[prop].patternFn
-        //     }
-        // }
+        let modelDef = getModelDef(Target);
+        modelDef.id = id;
+
+        setModelDef(Target, modelDef);
 
         return Target;
     }

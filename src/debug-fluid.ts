@@ -30,32 +30,29 @@ const Grade = ctx.model('Grade')
     .ref('studentIdentifier', Student)
     .ref('classIdentifier', Class)
 
-ctx.task('default', t => {
-    const historyTeachers = t.create(Teacher, 3, { degree: 'History' });
-    const scienceTeachers = t.create(Teacher, 3, { degree: 'Science' });
+ctx.run(async (t) => {
+    const historyTeachersRef = t.create(Teacher, 3, { degree: 'History' });
+    const scienceTeachersRef = t.create(Teacher, 3, { degree: 'Science' });
     
-    const historyClasses = t.create(Class, 4).using(historyTeachers);
-    const scienceClasses = t.create(Class, 6).using(scienceTeachers);
+    const historyClassesRef = t.create(Class, 4).using(historyTeachersRef);
+    const scienceClassesRef = t.create(Class, 6).using(scienceTeachersRef);
 
-    const students = t.create(Student, 50);
+    const studentsRef = t.create(Student, 50);
     
-    // TODO: Make this better...
-    const historyGrades = t.create(Grade).cross(students, historyClasses);
-    const scienceGrades = t.create(Grade).cross(students, scienceClasses);
+    const historyGrades = t.create(Grade).cross(studentsRef, historyClassesRef);
+    const scienceGrades = t.create(Grade).cross(studentsRef, scienceClassesRef);
 
-    let stream = t.stream();
+    let stream = t.toStream();
     // returns readable object stream for each entity
 
     let data = t.data();
     // returns:
     // {
-    //     teachers: [...historyTeachers.toArray(), ...scienceTeachers.toArray()],
-    //     students: students.toArray(),
-    //     classes: [...historyClasses.toArray(), ...scienceClasses.toArray()],
-    //     grades: [...historyGrades.toArray(), ...scienceGrades.toArray()]
+    //     teachers: [...],
+    //     students: [...],
+    //     classes: [...],
+    //     grades: [...]
     // }
 
     // TODO: Determine API for external storage...
 });
-
-// const grades = t.cross(classes, students).to(Grade);

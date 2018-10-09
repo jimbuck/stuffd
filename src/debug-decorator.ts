@@ -1,5 +1,8 @@
 import { EOL } from 'os';
 import { Activator, Model, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child, Bool } from './decorators';
+import { Context } from './lib/builders/context';
+
+const ctx = new Context();
 
 enum ModuleType {
   SleepingQuarters,

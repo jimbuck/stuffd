@@ -2,11 +2,14 @@
 import { Dictionary, Lookup } from '../models/dictionary';
 import { ModelDefinition } from '../models/model-definition';
 import { ModelBuilder } from './model-builder';
-import { TaskBuilder } from './task-builder';
+import { ExecutionContext } from './execution-context';
+
+type TaskAction = (t: ExecutionContext) => void|Promise<void>;
 
 export class Context {
 
     private _modelCache: Dictionary<ModelBuilder>;
+    private _tasks: Lookup<TaskAction> = {};
 
     constructor() {
         this._modelCache = new Dictionary<ModelBuilder>();
@@ -21,14 +24,23 @@ export class Context {
         return this._modelCache.set(id, new ModelBuilder({ id }));
     }
 
-    public task<T>(name: string, actions: (t: any) => T): T {
-        // Build dependency graph...
-        let t = new TaskBuilder();
-
-        return actions(t);
+    public task(name: string, actions: TaskAction): void {
+        this._tasks[name] = actions;
     }
 
-    // TODO: Make this return a ContextDefinition...?    
+    public run(name: string): Promise<void>;
+    public run(actions: TaskAction): Promise<void>;
+    public async run(nameOrActions: string | TaskAction): Promise<void> {
+        let modelDefinitions = this._build();
+        let tBuilder = new ExecutionContext(modelDefinitions);
+
+        if (typeof nameOrActions === 'string') {
+            await this._tasks[name](tBuilder);
+        } else {
+            await nameOrActions(tBuilder);
+        }        
+    }
+
     private _build(): Lookup<ModelDefinition> {
         let modelDefinitions: Lookup<ModelDefinition> = {};
         this._modelCache.forEach((mb, id) => {
@@ -37,7 +49,7 @@ export class Context {
                 throw new Error(`Specified model (${baseModel.id}) does not exist in this context!`);
             }
 
-            modelDefinitions[id] = mb['_build']();
+            modelDefinitions[id] = ModelBuilder.build(mb);
         });
 
         return modelDefinitions;

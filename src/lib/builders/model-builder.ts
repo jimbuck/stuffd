@@ -5,6 +5,10 @@ export class ModelBuilder {
 
   private _modelDefinition: ModelDefinition;
 
+  public static build(mb: ModelBuilder): ModelDefinition {
+    return mb._build();
+  }
+
   public get id(): string {
     return this._modelDefinition.id;
   }

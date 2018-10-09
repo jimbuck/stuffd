@@ -14,14 +14,23 @@ export class Activator {
 
   public create<T>(Type: Constructor<T>): T;
   public create<T>(Type: Constructor<T>, count: number): T[];
-  public create<T>(Type: Constructor<T>, count?: number): T | T[] {
-    if (typeof count === 'number') {
-      count = Math.floor(count);
-      if (count < 1) throw new Error(`'count' must be greater than zero!`);
-      return Array(count).fill(0).map(() => this._createInstance(Type));
+  public create<T>(modelDef: ModelDefinition, count: number): T[];
+  public create<T>(Type: Constructor<T>|ModelDefinition, count?: number): T | T[] {
+    if (typeof Type === 'function') {
+      if (typeof count === 'number') {
+        count = Math.floor(count);
+        if (count < 1) throw new Error(`'count' must be greater than zero!`);
+        return Array(count).fill(0).map(() => this._createInstance(Type));
+      } else {
+        return this._createInstance(Type);
+      }
     } else {
-      return this._createInstance(Type);
+      const modelDef = Type;
+      let FakeType = new Function(`"use strict";return (function ${modelDef.id}(){})`)();
+      return this._createModel(FakeType, modelDef);
     }
+    
+    
   }
 
   private _createInstance<T>(Type: Constructor<T>): T {
