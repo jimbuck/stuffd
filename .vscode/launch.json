@@ -15,6 +15,19 @@
     },
     {
       "type": "node",
+      "request": "launch",
+      "name": "Current Test File",
+      "program": "${workspaceFolder}/node_modules/ava/profile.js",
+      "args": [
+        "--serial",
+        "${workspaceFolder}/dist/lib/builders/model-builder.spec.js"
+      ],
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
       "request": "attach",
       "name": "Attach by Process ID",
       "processId": "${command:PickProcess}"

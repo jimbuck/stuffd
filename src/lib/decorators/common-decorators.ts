@@ -1,7 +1,10 @@
 
-import { Enum as EnumType, TypeReference, StoredEnum, Constructor } from '../models/types';
+import { Enum as EnumType, Guid as GuidType, TypeReference, StoredEnum } from '../models/types';
 import { Prop } from './base-decorator';
-import { Lookup } from '../models/dictionary';
+import { isConstructor } from '../utils/type-guards';
+import { ModelBuilder } from '../builders/model-builder';
+import { getModelDef } from '../services/meta-reader';
+import { ModelDefinition } from '../models/model-definition';
 
 interface RangeDef {
   (min: number, max: number): PropertyDecorator;
@@ -44,7 +47,11 @@ export function Bool(truthRate: number = 0.5) {
   return Prop({ truthRate });
 }
 
-export function Type<TPrimary, TSecondary>(type: Symbol|Constructor<TPrimary>, secondaryType: Symbol|StoredEnum|Constructor<TSecondary> = null) {
+export function Guid() {
+  return Type(GuidType);
+}
+
+export function Type<TPrimary, TSecondary>(type: TypeReference<TPrimary>, secondaryType: StoredEnum|TypeReference<TSecondary> = null) {
   return Prop({ type, secondaryType });
 }
 
@@ -62,7 +69,7 @@ export function Enum(specificType: any) {
   return Type(EnumType, storedEnum);
 }
 
-export function Collection(type: Symbol|StoredEnum|Constructor<any>) {
+export function Collection(type: StoredEnum|TypeReference<any>) {
   return Type(Array, type);
 }
 
@@ -75,6 +82,28 @@ export const Pattern: PatternDef = function Pattern(pattern: string | RegExp, fl
   return Prop({ pattern });
 }
 
+export function Ref(ref: TypeReference<any>, foreignKey?: string) {
+  foreignKey = foreignKey || _getForeignKey(ref);
+  return Prop({ ref, foreignKey });
+}
+
 export function Child() {
   return Prop({});
+}
+
+export function Custom(custom: (c: Chance.Chance) => any) {
+  return Prop({ custom });
+}
+
+function _getForeignKey(type: TypeReference<any>): string {
+  if (type === EnumType || type === GuidType) throw new Error(`Cannot use Ref with Enums or Guids!`);
+  
+  let modelDef: ModelDefinition;
+  if (isConstructor(type)) {
+    modelDef = getModelDef(type);
+  } else {
+    modelDef = ModelBuilder.build(type);
+  }
+
+  return modelDef.primaryKey;
 }

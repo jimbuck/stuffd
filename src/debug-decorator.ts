@@ -1,8 +1,7 @@
 import { EOL } from 'os';
-import { Activator, Model, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child, Bool } from './decorators';
-import { Context } from './lib/builders/context';
+import { Context, Model, Key, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child, Bool, Guid, Ref, Custom } from '.';
 
-const ctx = new Context();
+const EMPTY_STRING = '';
 
 enum ModuleType {
   SleepingQuarters,
@@ -25,10 +24,34 @@ enum ModuleSize {
   Large
 }
 
+// Create custom, re-usable attributes!
+function PersonName() {
+  return Custom(c => `${c.first()} ${c.letter({case: 'upper'})}. ${c.last()}`);
+}
+
+@Model()
+class Manufacturer {
+
+  @Key() @Guid()
+  id: string;
+
+  @Choice(['Rocketdyne', 'Areojet', 'Boeing', 'Lockheed', 'SpaceX', 'Kerbal'])
+  name: string;
+
+  @Range(new Date('01/01/1950'), new Date())
+  operatingSince: Date;
+  
+  @Custom(c => `${c.first()} ${c.letter({case: 'upper'})}. ${c.last()}`)
+  ceo: string;
+
+  @PersonName()
+  founder: string;
+}
+
 @Model()
 class Engine {
 
-  @Choice(['Rocketdyne', 'Areojet', 'Boeing', 'Lockheed', 'SpaceX', 'Kerbal'])
+  @Ref(Manufacturer)
   manufacturer: string;
 
   @Pattern(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/)
@@ -64,15 +87,18 @@ class Module {
   mass: number;
 
   public toString() {
-    return `${ModuleSize[this.size]} ${this.type} (Operational: ${this.operational})`;
+    return `${ModuleSize[this.size]} ${this.type}${this.operational ? EMPTY_STRING : ' (undergoing maintenance)'}`;
   }
 }
 
 @Model()
 class Spaceship {
 
-  @Pattern(/([A-Z] Wing|(Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus) [XXIIVVCD]{2,3})/)
+  @Pattern(/((Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus|Falcon|[A-Z] Wing) [XXIIVVCD]{2,3})/)
   name: string;
+
+  @PersonName()
+  captain: string;
 
   @Child()
   primaryEngines: Engine;
@@ -93,8 +119,11 @@ class Spaceship {
   hullMass: number;
 
   get totalThrust() {
-    return (this.primaryEngines.thrust * this.primaryEngineCount)
+    let total = (this.primaryEngines.thrust * this.primaryEngineCount)
       + (this.secondaryEngines.thrust * this.secondaryEngineCount);
+    
+    
+    return Math.round(total * 10) / 10;
   }
 
   get totalMass() {
@@ -105,16 +134,18 @@ class Spaceship {
     
     this.modules.forEach(m => total += m.mass);
 
-    return Math.round(total*100)/100;
+    return Math.round(total);
   }
 
   public toString() {
     let str = [this.name + ':'];
+    str.push(`  Crew:`);
+    str.push(`    ${this.captain}`);
     str.push(`  Engines:`);
     str.push(`    ${this.primaryEngineCount}x ${this.primaryEngines}`);
     if (this.secondaryEngineCount > 0) str.push(`    ${this.secondaryEngineCount}x ${this.secondaryEngines}`);
     str.push(`  Modules:`);
-    str.push(this.modules.map(m => m.toString()).join(EOL + '    '));
+    str.push('    ' + this.modules.map(m => m.toString()).join(EOL + '    '));
     str.push(`  Stats:`);
     str.push(`    Total Thrust: ${this.totalThrust} tons`);
     str.push(`    Total Mass: ${this.totalMass} kg`);
@@ -123,7 +154,19 @@ class Spaceship {
   }
 }
 
-let activator = new Activator();
+const ctx1 = new Context(135);
+const ctx2 = new Context(135);
 
-let things = activator.create(Spaceship, 10);
-console.log(things.map(t => t.toString()).join(EOL + EOL));
+let thing1 = ctx1.create(Spaceship, 2);
+let thing2a = ctx2.create(Spaceship, 1);
+let thing2b = ctx2.create(Spaceship, 1);
+let thing2 = [...thing2a, ...thing2b];
+
+ctx1.reset();
+
+console.log('Object:',thing1[0] === thing2[0]);
+console.log('toString:', thing1[0].toString() === thing2[0].toString());
+console.log('JSON:',JSON.stringify(thing1[0]) === JSON.stringify(thing2[0]));
+// console.log(thing1.map(t => t.toString()).join(EOL + EOL));
+// console.log(thing2.map(t => t.toString()).join(EOL + EOL));
+console.log('Done.');

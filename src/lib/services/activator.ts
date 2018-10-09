@@ -2,44 +2,58 @@ import { Constructor, Guid, Enum, StoredEnum } from '../models/types';
 import { PropertyDefinition } from '../models/property-definition';
 import { ModelDefinition } from '../models/model-definition';
 import { getModelDef } from '../services/meta-reader';
-import { Rand } from '../utils/rand';
+import { Random } from '../utils/random';
+import { Lookup } from '../models/dictionary';
+import { ModelBuilder } from '../builders/model-builder';
+import { isConstructor } from '../utils/type-guards';
 
 export class Activator {
 
-  private _rand: Rand;
+  private _rand: Random;
 
   constructor(seed?: number) {
-    this._rand = new Rand(seed);
+    this._rand = new Random(seed);
   }
 
-  public create<T>(Type: Constructor<T>): T;
-  public create<T>(Type: Constructor<T>, count: number): T[];
-  public create<T>(modelDef: ModelDefinition, count: number): T[];
-  public create<T>(Type: Constructor<T>|ModelDefinition, count?: number): T | T[] {
-    if (typeof Type === 'function') {
-      if (typeof count === 'number') {
-        count = Math.floor(count);
-        if (count < 1) throw new Error(`'count' must be greater than zero!`);
-        return Array(count).fill(0).map(() => this._createInstance(Type));
-      } else {
-        return this._createInstance(Type);
-      }
-    } else {
-      const modelDef = Type;
-      let FakeType = new Function(`"use strict";return (function ${modelDef.id}(){})`)();
-      return this._createModel(FakeType, modelDef);
+  public get seed() {
+    return this._rand.seed;
+  }
+
+  public create<T>(Type: Constructor<T>, count: number, constants?: Lookup<any>): T[];
+  public create<T>(modelDef: ModelDefinition, count: number, constants?: Lookup<any>): T[];
+  public create<T>(modelBuilder: ModelBuilder, count: number, constants?: Lookup<any>): T[];
+  public create<T>(Type: Constructor<T> | ModelDefinition | ModelBuilder, count: number, constants: Lookup<any> = {}): T[] {
+    count = Math.floor(count);
+    if (count < 1) {
+      throw new Error(`Count must be greater than zero when generating entites!`);
     }
-    
-    
+
+    let modelDef: ModelDefinition;
+    if (isConstructor(Type)) {
+      modelDef = getModelDef(Type);
+    } else {
+      if (Type instanceof ModelBuilder) {
+        modelDef = ModelBuilder.build(Type);
+      } else {
+        modelDef = Type;
+      }
+      Type = (new Function(`"use strict";return (function ${modelDef.id}(){})`)());
+    }
+
+    if (!modelDef) {
+      throw new Error(`No model definition found for ${Type.name}`);
+    }
+
+    if (modelDef.toStringFn) {
+      (Type as Constructor<T>).prototype.toString = function () {
+        return modelDef.toStringFn(this);
+      };
+    }
+
+    return Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants));
   }
 
-  private _createInstance<T>(Type: Constructor<T>): T {
-    const modelDef = getModelDef(Type);
-    
-    return this._createModel<T>(Type, modelDef);
-  }
-
-  private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition): T {
+  private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any> = {}): T {
     let target: any = new Type();
     for (let prop in modelDef.props) {
       let propDef = modelDef.props[prop];
@@ -47,6 +61,7 @@ export class Activator {
 
       target[prop] = this._createProp(propDef);
     }
+    Object.assign(target, constants);
     return target;
   }
 
@@ -55,6 +70,15 @@ export class Activator {
       let choices = def.choices;
       if (typeof choices === 'function') choices = choices();
       return this._rand.choice(choices);
+    }
+
+    if (def.custom) {
+      return this._rand.chance(def.custom);
+    }
+
+    if (def.ref) {
+      // TODO: Find an instance and get the foreignKey...
+      return '<TODO>';
     }
 
     switch (def.type) {
@@ -71,12 +95,12 @@ export class Activator {
       case Guid:
         return this._rand.nextGuid();
       case Enum:
-        return this._createEnum(def);        
+        return this._createEnum(def);
       case Array:
         return this._createArray(def);
       default:
         // Complex object...
-        return this._createInstance(def.type);
+        return this.create(def.type, 1)[0];
     }
   }
 
@@ -103,27 +127,26 @@ export class Activator {
 
   private _createString(def: PropertyDefinition): string {
     if (def.pattern) {
-      if(!def.patternFn) def.patternFn = this._rand.getPatternGenerator(def.pattern);
-      return def.patternFn();
-    } else {
-      let min, max;
-      if (typeof def.min === 'number') min = def.min;
-      if (typeof def.max === 'number') max = def.max;
-      if (typeof min === 'undefined' || typeof max === 'undefined')
-        throw new Error('Must use both min and max with strings!');
-
-      let length = this._rand.nextInt(min, max);
-      return this._rand.nextString(length);
+      return this._rand.nextPattern(def.pattern);
     }
+
+    let min, max;
+    if (typeof def.min === 'number') min = def.min;
+    if (typeof def.max === 'number') max = def.max;
+    if (typeof min === 'undefined' || typeof max === 'undefined')
+      throw new Error('Must use both min and max with strings!');
+
+    let length = this._rand.nextInt(min, max);
+    return this._rand.nextString(length);
   }
 
   private _createEnum(def: PropertyDefinition): any {
     let EnumType = def.secondaryType as StoredEnum;;
-    switch(def.designType) {
+    switch (def.designType) {
       case String:
         return this._rand.choice(EnumType.names);
       case Number:
-      return this._rand.choice(EnumType.values);
+        return this._rand.choice(EnumType.values);
       default:
         throw new Error('Enum can only be used with number or string properties!');
     }

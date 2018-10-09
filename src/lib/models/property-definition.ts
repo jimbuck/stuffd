@@ -46,7 +46,6 @@ export interface PropertyDefinition {
   max?: number | Date;
   length?: number;
   pattern?: RegExp;
-  patternFn?: () => string;
   optional?: number;
   type?: any;
   secondaryType?: any;
@@ -54,4 +53,5 @@ export interface PropertyDefinition {
   decimals?: number,
   choices?: any[] | (() => any[]);
   truthRate?: number;
+  custom?: (c: Chance.Chance) => any; 
 }

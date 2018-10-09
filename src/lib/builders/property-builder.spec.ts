@@ -5,6 +5,11 @@ import { PropertyBuilder } from './property-builder';
 import { PropertyDefinition } from '../models/property-definition';
 import { Guid } from '../models/types';
 
+class TestClass {
+  name: string;
+  count: number;
+}
+
 test(`Property#constructor allows an optional initial definition`, t => {
   t.notThrows(newProp);
 
@@ -46,8 +51,8 @@ test(`Property#type accepts a type as well as secondary type`, t => {
   t.is(nullTypeDef.type, null);
   t.is(typeof nullTypeDef.secondaryType, 'undefined');
 
-  const singleTypeDef = newProp().type(RegExp).build();
-  t.is(singleTypeDef.type, RegExp);
+  const singleTypeDef = newProp().type(TestClass).build();
+  t.is(singleTypeDef.type, TestClass);
   t.is(typeof singleTypeDef.secondaryType, 'undefined');
 
   const multiTypeDef = newProp().type(Array, String).build();

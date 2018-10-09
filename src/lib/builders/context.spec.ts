@@ -1,8 +1,9 @@
 import { test } from 'ava';
 
-import { Context } from './context';
-import { ModelDefinition } from '../models/model-definition';
 import { Lookup } from '../models/dictionary';
+import { Context } from './context';
+import { ExecutionContext } from './execution-context';
+import { ModelDefinition } from '../models/model-definition';
 
 test(`Context#model creates one 'model' definition per model`, t => {
   const modelId = 'test';
@@ -16,14 +17,13 @@ test(`Context#model creates one 'model' definition per model`, t => {
 });
 
 test(`Context#model throws on identical 'model' definitions`, t => {
-  const modelId = 'test';
-  const modelName = 'TestModel';
+  const modelId = 'TestModel';
   const ctx = new Context();
 
-  const modelA = ctx.model(modelId);
+  ctx.model(modelId);
 
   t.throws(() => {
-    const modelB = ctx.model(modelId);
+    ctx.model(modelId);
   });
 });
 
@@ -57,17 +57,6 @@ test(`different contexts do not share models`, t => {
   t.is(modelBDef[modelBId].id, modelBId);
   t.is(typeof modelADef[modelBId], 'undefined');
   t.is(typeof modelBDef[modelAId], 'undefined');
-});
-
-test(`Context#task updates the task cache`, t => {
-  const taskId = 'testTask';
-  const ctx = new Context();
-
-  const testTask = () => {
-    // Nothing to do here...
-  };
-
-  ctx.task(taskId, testTask);
 });
 
 function build(ctx: Context): Lookup<ModelDefinition> {

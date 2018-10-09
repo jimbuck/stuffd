@@ -1,5 +1,8 @@
 import { ModelDefinition } from '../models/model-definition';
 import { Lookup } from '../models/dictionary';
+import { Activator } from '../services/activator';
+
+export type GeneratedArray<T=any> = Array<T> & { _baseCollection: CollectionReference };
 
 export class CollectionReference {
 
@@ -12,15 +15,19 @@ export class CollectionReference {
   private _explicitRefs: Lookup<CollectionReference>;
   private _generalRefs: Lookup<CollectionReference>;
 
-  private _result: any[];
+  private _result: GeneratedArray;
 
-  constructor(modelDef: ModelDefinition, count?: number, constants?: Lookup<any>) {
+  private _activator: Activator;
+
+  constructor(activator: Activator, modelDef: ModelDefinition, count?: number, constants?: Lookup<any>) {
+    this._activator = activator;
     this._modelDef = modelDef;
     this._count = count;
     this._consts = constants;
   }
 
-  public using(collectionRef: CollectionReference, propName?: string): this {
+  public using(collectionRef: GeneratedArray | CollectionReference, propName?: string): this {
+    collectionRef = _getCollectionRef(collectionRef);
     if (propName) {
       this._explicitRefs[propName] = collectionRef;
     } else {
@@ -30,24 +37,47 @@ export class CollectionReference {
     return this;
   }
 
-  public cross(leftRef: CollectionReference, rightRef: CollectionReference): this {
-    this._crossLeft = leftRef;
-    this._crossRight = rightRef;
+  public cross(leftRef: GeneratedArray | CollectionReference, rightRef: GeneratedArray | CollectionReference): this {
+    this._crossLeft = _getCollectionRef(leftRef);
+    this._crossRight = _getCollectionRef(rightRef);
 
+    if (!this._crossLeft || !this._crossRight) throw new Error(`Both 'leftRef' and 'rightRef' must be provided when crossing values!`);
+    
     return this;
   }
 
-  public toStream(): ReadableStream {
-    return null;
-  }
+  public toArray<T=any>(): GeneratedArray<T> {
+    if (this._result && this._result.length > 0) return this._result;
 
-  public toArray<T>(): T[] {
     if (this._crossLeft || this._crossRight) {
-      this._result = [];
+      let leftData = this._crossLeft.toArray();
+      let rightData = this._crossRight.toArray();
+      let result = [];
+      
+      for (let left of leftData) {
+        for (let right of rightData) {
+          let consts = Object.assign({}, this._consts, {
+            
+          });
+          let item = this._activator.create<T>(this._modelDef, 1, this._consts);
+          result.push(item);
+        }
+      }
+      this._result = this._createGeneratedArray(result);
+    } else if(this._count > 0) {
+      this._result = this._createGeneratedArray(this._activator.create<T>(this._modelDef, this._count, this._consts));
     } else {
-      this._result = Array(this._count).fill(0).map(() => this._modelDef);
+      throw new Error(`No count or left/right cross values were found!`);
     }
 
     return this._result;
   }
+
+  private _createGeneratedArray<T>(data: T[]): GeneratedArray<T> {
+    return Object.assign(data, { _baseCollection: this });
+  }
+}
+
+function _getCollectionRef(val: GeneratedArray | CollectionReference): CollectionReference {
+  return Array.isArray(val) ? val._baseCollection : val;
 }

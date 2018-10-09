@@ -24,6 +24,7 @@ export function Prop(propDef?: PropertyDefinition): PropertyDecorator {
         let prevPropDef = modelDef.props[prop] || {};
 
         modelDef.props[prop] = Object.assign({ type, designType: type }, prevPropDef, propDef);
+        if (modelDef.props[prop].key) modelDef.primaryKey = prop;
 
         setModelDef(target.constructor, modelDef);
     }

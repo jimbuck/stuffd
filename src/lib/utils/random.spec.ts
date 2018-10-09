@@ -1,9 +1,9 @@
 import { test, TestContext } from 'ava';
 
-import { Rand } from './rand';
+import { Random } from './random';
 
 test(`nextInt returns random integers between two values`, t => {
-  const rand = new Rand(123);
+  const rand = new Random(123);
   const min = 7;
   const max = 11;
   repeat(t, 10000, () => {
@@ -14,7 +14,7 @@ test(`nextInt returns random integers between two values`, t => {
 });
 
 test(`nextFloat returns random floats between two values`, t => {
-  const rand = new Rand(123);
+  const rand = new Random(123);
   const min = 2.5;
   const max = 3;
   repeat(t, 10000, () => {
@@ -25,7 +25,7 @@ test(`nextFloat returns random floats between two values`, t => {
 });
 
 test(`nextDate returns random dates between two values`, t => {
-  const rand = new Rand(123);
+  const rand = new Random(123);
   const min = new Date(2000, 0, 1);
   const max = new Date();
   repeat(t, 10000, () => {
@@ -35,7 +35,7 @@ test(`nextDate returns random dates between two values`, t => {
 });
 
 test(`guid creates a string`, t => {
-  const rand = new Rand(123);
+  const rand = new Random(123);
   let val = rand.nextGuid();
 
   t.is(val.length, 32 + 4); // 8 quads plus 4 dashes.
@@ -43,7 +43,7 @@ test(`guid creates a string`, t => {
 
 test(`identical guids are uncommon`, t => {
   const guids = new Set();
-  const rand = new Rand(123);
+  const rand = new Random(123);
   repeat(t, 10000, () => {
     let val = rand.nextGuid();
     t.false(guids.has(val), 'Guid is a duplicate!');

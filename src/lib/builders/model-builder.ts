@@ -36,7 +36,7 @@ export class ModelBuilder {
   }
 
   public ref(id: string, type: ModelBuilder, foreignKey?: string): this {
-    foreignKey = foreignKey || this._modelDefinition.primaryKey;
+    foreignKey = foreignKey || type._modelDefinition.primaryKey;
     return this.prop(id, x => x.ref(type, foreignKey));
   }
 
@@ -45,8 +45,15 @@ export class ModelBuilder {
     return this;
   }
 
-  public toString(): string {
-    return this.id;
+  public toString(): string;
+  public toString(toStringFn: (x:any) => string): this;
+  public toString(toStringFn?: (x:any) => string): this|string {
+    if (toStringFn) {
+      this._modelDefinition.toStringFn = toStringFn;
+      return this;
+    } else {
+      return `ModelBuilder<${this.id}>`;
+    }
   }
 
   private _build(): ModelDefinition {
