@@ -1,10 +1,10 @@
-# stuff
+# stuffd
 
 Like a turkey. :turkey:
 
-[![Build Status](https://travis-ci.org/JimmyBoh/stuff.svg?branch=master)](https://travis-ci.org/JimmyBoh/stuff)
-[![Coverage Status](https://coveralls.io/repos/github/JimmyBoh/stuff/badge.svg?branch=master)](https://coveralls.io/github/JimmyBoh/stuff?branch=master)
-[![NPM Dependencies](https://david-dm.org/JimmyBoh/stuff.svg)](https://david-dm.org/JimmyBoh/stuff)
+[![Build Status](https://travis-ci.org/JimmyBoh/stuffd.svg?branch=master)](https://travis-ci.org/JimmyBoh/stuffd)
+[![Coverage Status](https://coveralls.io/repos/github/JimmyBoh/stuffd/badge.svg?branch=master)](https://coveralls.io/github/JimmyBoh/stuffd?branch=master)
+[![NPM Dependencies](https://david-dm.org/JimmyBoh/stuffd.svg)](https://david-dm.org/JimmyBoh/stuffd)
 
 Create lots of random data, then cram it into your database, REST Endpoint, CSV, JSON, XML, black hole, etc.
 
@@ -13,7 +13,7 @@ Create lots of random data, then cram it into your database, REST Endpoint, CSV,
 
 ```ts
 
-// Example coming soon...
+// Check out ./src/debug-fluent.ts and ./src/debug-decorator.ts for examples!
 
 ```
 

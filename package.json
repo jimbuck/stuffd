@@ -1,5 +1,5 @@
 {
-  "name": "@jimmyboh/stuff",
+  "name": "stuffd",
   "version": "0.0.2",
   "description": "Like a turkey.",
   "main": "index.js",
@@ -13,18 +13,18 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "preversion": "npm test",
     "version": "git add -A",
-    "postversion": "git push && git push --tags && npm publish --access=public"
+    "postversion": "git push && git push --tags && npm publish"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JimmyBoh/stuff.git"
+    "url": "git+https://github.com/JimmyBoh/stuffd.git"
   },
   "author": "Jim Buck <jim@jimmyboh.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JimmyBoh/stuff/issues"
+    "url": "https://github.com/JimmyBoh/stuffd/issues"
   },
-  "homepage": "https://github.com/JimmyBoh/stuff#readme",
+  "homepage": "https://github.com/JimmyBoh/stuffd#readme",
   "devDependencies": {
     "@types/chance": "^1.0.1",
     "@types/node": "^10.11.4",
