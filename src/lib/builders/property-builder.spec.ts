@@ -55,10 +55,11 @@ test(`Property#string accepts min/max length or Regexp or neither`, t => {
   t.is(stringPropDef.type, String);
   t.true(stringPropDef.pattern instanceof RegExp);
 
-  const regex = new RegExp(/wo{1,5}w/);
-  const regexPropDef = PropertyBuilder.build(newProp().string(regex));
+  const min = 7, max = 10;
+  const regexPropDef = PropertyBuilder.build(newProp().string(min, max));
   t.is(regexPropDef.type, String);
-  t.deepEqual(regexPropDef.pattern, regex);
+  t.is(regexPropDef.min, min);
+  t.is(regexPropDef.max, max);
 
   const defaultPropDef = PropertyBuilder.build(newProp().string());
   t.is(defaultPropDef.type, String);
@@ -95,6 +96,17 @@ test(`Property#float accepts min and max values`, t => {
   t.is(typeof customPropDef.decimals, 'undefined');
   t.is(customPropDef.min, expectedMin);
   t.is(customPropDef.max, expectedMax);
+});
+
+test(`Property#date accepts an optional min/max range`, t => {
+  const stdDatePropDef = PropertyBuilder.build(newProp().date());
+  t.is(stdDatePropDef.type, Date);
+
+  const minDate = new Date('01/02/2003'), maxDate = new Date('04/05/2006');
+  const customDatePropDef = PropertyBuilder.build(newProp().date(minDate, maxDate));
+  t.is(customDatePropDef.type, Date);
+  t.is(customDatePropDef.min, minDate);
+  t.is(customDatePropDef.max, maxDate);
 });
 
 function newProp(initialDef?: PropertyDefinition): PropertyBuilder {

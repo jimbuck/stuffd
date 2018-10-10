@@ -1,6 +1,6 @@
 
 import { TypeReference, GuidType, CustomGenerator, Constructor } from '../models/types';
-import { getForeignKey } from '../services/meta-reader';
+import { getPrimaryKey } from '../services/meta-reader';
 import { PropertyDefinition } from '../models/property-definition';
 
 export class PropertyBuilder {
@@ -12,12 +12,7 @@ export class PropertyBuilder {
   }
 
   public static build(propBuilder: PropertyBuilder): PropertyDefinition {
-    return propBuilder._build();
-  }
-
-  public name(name: string): this {
-    this._definition.name = name;
-    return this;
+    return Object.assign({}, propBuilder._definition);
   }
 
   public key(): this {
@@ -27,7 +22,7 @@ export class PropertyBuilder {
 
   public ref<T, K extends keyof T>(type: Constructor<T>, refKey?: K): this {
     this._definition.ref = type;
-    this._definition.foreignKey = typeof refKey === 'string' ? refKey : getForeignKey(type);
+    this._definition.foreignKey = typeof refKey === 'string' ? refKey : getPrimaryKey(type);
     return this;
   }
 
@@ -117,9 +112,4 @@ export class PropertyBuilder {
     this._definition.custom = fn;
     return this;
   }
-  
-  private _build(): PropertyDefinition {
-    return Object.assign({}, this._definition);
-  }
-
 }

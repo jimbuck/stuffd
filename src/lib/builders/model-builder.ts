@@ -1,6 +1,6 @@
 import { ModelDefinition } from '../models/model-definition';
 import { PropertyBuilder } from './property-builder';
-import { setModelDef, getForeignKey, getModelDef } from '../services/meta-reader';
+import { setModelDef, getPrimaryKey, getModelDef } from '../services/meta-reader';
 import { Constructor, GeneratedConstructor } from '../models/types';
 
 export class ModelBuilder {
@@ -34,7 +34,7 @@ export class ModelBuilder {
   }
 
   public ref(id: string, ref: Constructor, refKey?: string): this {
-    let foreignKey = refKey || getForeignKey(ref);
+    let foreignKey = refKey || getPrimaryKey(ref);
     return this.prop(id, x => x.ref<any, string>(ref, foreignKey));
   }
 

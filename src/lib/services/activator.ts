@@ -3,13 +3,15 @@ import { PropertyDefinition } from '../models/property-definition';
 import { ModelDefinition } from '../models/model-definition';
 import { getModelDef } from '../services/meta-reader';
 import { Random } from '../utils/random';
-import { Lookup } from '../models/dictionary';
+import { Lookup, ListBucket } from '../models/dictionary';
 
 export class Activator {
 
   private _rand: Random;
+  private _data: ListBucket;
 
   constructor(seed?: number) {
+    this._data = new ListBucket();
     this._rand = new Random(seed);
   }
 
@@ -17,19 +19,37 @@ export class Activator {
     return this._rand.seed;
   }
 
-  public create<T>(Type: Constructor<T>, count: number, constants: Lookup<any> = {}): T[] {
-    count = Math.floor(count);
-    if (count < 1) {
-      throw new Error(`Count must be greater than zero when generating entites!`);
-    }
-
+  public create<T>(Type: Constructor<T>, count: number | Lookup<any>, constants?: Lookup<any>): T[];
+  public create<T>(Type: Constructor<T>, crossed: Array<Lookup<any>>, constants?: Lookup<any>): T[];
+  public create<T>(Type: Constructor<T>, countOrCrossed: number|Array<Lookup<any>>, constants: Lookup<any> = {}): T[] {
+    
     let modelDef = getModelDef(Type);
 
     if (!modelDef) {
       throw new Error(`No model definition found for ${Type.name}`);
     }
 
-    return Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants));
+    if (typeof countOrCrossed === 'number') {
+      let count = Math.floor(countOrCrossed);
+      if (count < 1) {
+        throw new Error(`Count must be greater than zero when generating entites!`);
+      }
+
+      let results = Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants));
+      return this._data.add(modelDef.id, results);
+    } else {
+      let crossed = countOrCrossed;
+      let results = crossed.map(cross => this._createModel(Type as Constructor<T>, modelDef, Object.assign({}, cross, constants)));
+      return this._data.add(modelDef.id, results);
+    }
+  }
+
+  public data() {
+    return this._data;
+  }
+
+  public clear() {
+    this._data.clear();
   }
 
   private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any> = {}): T {

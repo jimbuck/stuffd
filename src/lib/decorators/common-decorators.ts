@@ -1,7 +1,7 @@
 
 import { EnumType as EnumType, GuidType as GuidType, TypeReference, StoredEnum, CustomGenerator, Constructor } from '../models/types';
 import { Prop } from './base-decorator';
-import { getForeignKey } from '../services/meta-reader';
+import { getPrimaryKey } from '../services/meta-reader';
 
 interface RangeDef {
   (min: number, max: number): PropertyDecorator;
@@ -80,7 +80,7 @@ export const Pattern: PatternDef = function Pattern(pattern: string | RegExp, fl
 }
 
 export function Ref<T, K extends keyof T>(ref: Constructor<T>, refKey?: K) {
-  let foreignKey = typeof refKey === 'string' ? refKey : getForeignKey(ref);
+  let foreignKey = typeof refKey === 'string' ? refKey : getPrimaryKey(ref);
   return Prop({ ref, foreignKey });
 }
 

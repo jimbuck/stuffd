@@ -169,6 +169,4 @@ console.log('Context JSON:', ctx1Json === ctx2Json);
 // console.log(thing1.map(t => t.toString()).join(EOL + EOL));
 // console.log(thing2.map(t => t.toString()).join(EOL + EOL));
 
-ctx1.clear();
-
-console.log('Done.');
+console.log(`Done decorator.`);

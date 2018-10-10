@@ -37,7 +37,7 @@ export function setModelDef<T>(Target: Constructor<T>, modelDef: ModelDefinition
   Reflect.defineMetadata(StuffMetadataKey, modelDef, Target);
 }
 
-export function getForeignKey(type: Constructor<any>): string {
+export function getPrimaryKey(type: Constructor<any>): string {
   let modelDef = getModelDef(type);
 
   return modelDef.primaryKey;

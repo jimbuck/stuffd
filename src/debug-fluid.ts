@@ -51,7 +51,7 @@ const scienceClasses = ctx.using({ 'teacherIdentifier': scienceTeachers }).creat
 const historyGrades = ctx.cross({ studentIdentifier: students, classIdentifier: historyClasses }).create(Grade);
 const scienceGrades = ctx.cross({ studentIdentifier: students, classIdentifier: scienceClasses }).create(Grade);
 
-ctx.data();
+let data1 = ctx.data();
 // returns:
 // {
 //     teachers: [...],
@@ -62,6 +62,8 @@ ctx.data();
 
 ctx.clear();
 
-ctx.data();
+let data2 = ctx.data();
 // returns:
 // { }
+
+console.log(`Done fluent.`);

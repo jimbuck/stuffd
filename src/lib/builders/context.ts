@@ -1,6 +1,5 @@
 
 import { Lookup, ListBucket } from '../models/dictionary';
-import { ModelBuilder } from './model-builder';
 import { Activator } from '../services/activator';
 import { Constructor } from '../models/types';
 import { CollectionReference, GeneratedArray } from './collection-reference';
@@ -10,11 +9,9 @@ import { getModelId } from '../services/meta-reader';
 export class Context {
 
     private _activator: Activator;
-    private _data: ListBucket;
 
     constructor(seed?: number) {
         this._activator = new Activator(seed);
-        this._data = new ListBucket();
     }
 
     public get seed() {
@@ -23,8 +20,7 @@ export class Context {
 
     public create<T>(Type: Constructor<T>, count: number, constants: Lookup<any> = {}): GeneratedArray<T> {
         let typeId = getModelId(Type);
-        let data = new CollectionReference(this._activator).create<T>(Type, count, constants);
-        return this._data.add(typeId, data);
+        return new CollectionReference(this._activator).create<T>(Type, count, constants);
     }
 
     public using(data: Lookup<GeneratedArray>) {
@@ -36,7 +32,7 @@ export class Context {
     }
 
     public clear(): void {
-        this._data.clear();
+        this._activator.clear();
     }
 
     public data(): Lookup<any> {
@@ -54,7 +50,7 @@ export class Context {
             space = spaceOrFlag;
         }
 
-        return JSON.stringify(this._data, null, space);
+        return JSON.stringify(this._activator.data(), null, space);
     }
 
     public toString(): string {
