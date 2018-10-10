@@ -2,7 +2,6 @@ import { test } from 'ava';
 
 import { Lookup } from '../models/dictionary';
 import { Context } from './context';
-import { ExecutionContext } from './execution-context';
 import { ModelDefinition } from '../models/model-definition';
 
 test(`Context#model creates one 'model' definition per model`, t => {

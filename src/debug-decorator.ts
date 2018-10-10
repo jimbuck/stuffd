@@ -1,5 +1,6 @@
 import { EOL } from 'os';
 import { Context, Model, Key, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child, Bool, Guid, Ref, Custom } from '.';
+import { Lookup } from './lib/models/dictionary';
 
 const EMPTY_STRING = '';
 
@@ -26,7 +27,7 @@ enum ModuleSize {
 
 // Create custom, re-usable attributes!
 function PersonName() {
-  return Custom(c => `${c.first()} ${c.letter({case: 'upper'})}. ${c.last()}`);
+  return Custom(c => `${c.first()} ${c.letter({casing: 'upper'})}. ${c.last()}`);
 }
 
 @Model()
@@ -162,7 +163,7 @@ let thing2a = ctx2.create(Spaceship, 1);
 let thing2b = ctx2.create(Spaceship, 1);
 let thing2 = [...thing2a, ...thing2b];
 
-ctx1.reset();
+ctx1.clear();
 
 console.log('Object:',thing1[0] === thing2[0]);
 console.log('toString:', thing1[0].toString() === thing2[0].toString());

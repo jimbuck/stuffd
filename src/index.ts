@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 
 export * from './lib/builders/context';
-export * from './lib/builders/execution-context';
 export * from './lib/builders/model-builder';
 export * from './lib/builders/property-builder';
 export { Model } from './lib/decorators/base-decorator';

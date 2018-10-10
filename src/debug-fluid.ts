@@ -27,23 +27,23 @@ const Class = ctx.model('Class')
 
 const Grade = ctx.model('Grade')
     .prop('identifier', id => id.key().guid())
-    .prop('grade', g => g.float(0, 100).decimals(2))
+    .prop('grade', g => g.float(65, 100).decimals(2))
     .ref('studentIdentifier', Student)
     .ref('classIdentifier', Class)
     .toString((c) => `${c.studentIdentifier} recieved ${c.grade}% in ${c.classIdentifier}`);
 
-// const historyTeachers = ctx.create(Teacher, 3, { degree: 'History' });
-// const scienceTeachers = ctx.create(Teacher, 3, { degree: 'Science' });
+const historyTeachers = ctx.create(Teacher, 3, { degree: 'History' });
+const scienceTeachers = ctx.create(Teacher, 3, { degree: 'Science' });
 
-// const historyClasses = ctx.using(historyTeachersRef).create(Class, 4);
-// const scienceClasses = ctx.using(scienceTeachersArray).create(Class, 6);
+const historyClasses = ctx.using({ 'teacherIdentifier': historyTeachers }).create(Class, 4);
+const scienceClasses = ctx.using({ 'teacherIdentifier': scienceTeachers }).create(Class, 6);
 
-// const students = ctx.create(Student, 50);
+const students = ctx.create(Student, 50);
 
-// const historyGrades = ctx.cross(studentsRef, historyClassesRef).create(Grade);
-// const scienceGrades = ctx.cross(studentsRef, scienceClassesRef).create(Grade);
+const historyGrades = ctx.cross({ studentIdentifier: students, classIdentifier: historyClasses }).create(Grade);
+const scienceGrades = ctx.cross({ studentIdentifier: students, classIdentifier: scienceClasses }).create(Grade);
 
-// let data = ctx.data();
+let data = ctx.data();
 // returns:
 // {
 //     teachers: [...],
@@ -52,4 +52,8 @@ const Grade = ctx.model('Grade')
 //     grades: [...]
 // }
 
-// TODO: Determine API for external storage...
+ctx.clear();
+
+ctx.data();
+// returns:
+// { }

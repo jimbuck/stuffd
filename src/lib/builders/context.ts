@@ -2,17 +2,15 @@
 import { Dictionary, Lookup } from '../models/dictionary';
 import { ModelDefinition } from '../models/model-definition';
 import { ModelBuilder } from './model-builder';
-import { ExecutionContext } from './execution-context';
 import { Activator } from '../services/activator';
 import { Constructor } from '../models/types';
-
-export type TaskAction = (x: ExecutionContext) => void | Promise<void>;
+import { CollectionReference, GeneratedArray } from './collection-reference';
 
 export class Context {
 
     private _modelCache: Dictionary<ModelBuilder>;
-
     private _activator: Activator;
+    private _data: Lookup<any[]> = {};
 
     constructor(seed?: number) {
         this._activator = new Activator(seed);
@@ -32,21 +30,26 @@ export class Context {
         return this._modelCache.set(id, new ModelBuilder({ id }));
     }
 
-    public async run(actions: TaskAction): Promise<void> {
-        let modelDefinitions = this._build();
-        let tBuilder = new ExecutionContext(modelDefinitions, this._activator);
-
-        await actions(tBuilder);        
+    public create<T>(Type: Constructor<T>, count: number, constants?: Lookup<any>): GeneratedArray<T>;
+    public create<T>(Type: ModelBuilder, count: number, constants?: Lookup<any>): GeneratedArray<T>;
+    public create<T>(Type: Constructor<T> | ModelBuilder, count: number, constants: Lookup<any> = {}): GeneratedArray<T> {
+        return new CollectionReference(this._activator).create<T>(Type, count, constants);
     }
 
-    public create<T>(Type: Constructor<T>, count: number, constants?: Lookup<any>): T[];
-    public create<T>(Type: ModelBuilder, count: number, constants?: Lookup<any>): T[];
-    public create<T>(Type: Constructor<T> | ModelBuilder, count: number, constants: Lookup<any> = {}): T[] {
-        return this._activator.create<T>(Type as any, count, constants);
+    public using(data: Lookup<GeneratedArray>) {
+        return new CollectionReference(this._activator).using(data);
     }
 
-    public reset(): void {
-        
+    public cross(data: Lookup<GeneratedArray>) {
+        return new CollectionReference(this._activator).cross(data);
+    }
+
+    public clear(): void {
+        this._data = {};
+    }
+
+    public data(): Lookup<any> {
+        return Object.assign({}, this._data);
     }
 
     public toString(): string {
