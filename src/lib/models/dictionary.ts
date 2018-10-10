@@ -1,5 +1,34 @@
 export type Lookup<T> = { [key: string]: T };
 
+export class ListBucket {
+  
+  private _data: Lookup<any[]> = {};
+
+  public get<T>(key: string): T[] {
+    return this._data[key] || [];
+  }
+
+  public add<T>(key: string, items: T[]): T[] {
+    let savedData = this.get<T>(key);
+    savedData.push(...items);
+    this._data[key] = savedData;
+    return items;
+  }
+
+  public set<T>(key: string, items: T[]): T[] {
+    this._data[key] = items;
+    return items;
+  }
+
+  public clear() {
+    this._data = {};
+  }
+
+  private toJSON() {
+    return this._data;
+  }
+}
+
 export class Dictionary<T> {
   
   private _store: Lookup<T>  = {};

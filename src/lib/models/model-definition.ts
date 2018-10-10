@@ -1,12 +1,12 @@
 
 import { Lookup } from '../models/dictionary';
-import { ModelBuilder } from '../builders/model-builder';
 import { PropertyDefinition } from './property-definition';
+import { Constructor } from './types';
 
 export interface ModelDefinition {
   id: string;
   name?: string;
-  inherits?: ModelBuilder;
+  inherits?: Constructor;
   primaryKey?: string;
   toStringFn?: (x: any) => string;
   props?: Lookup<PropertyDefinition>

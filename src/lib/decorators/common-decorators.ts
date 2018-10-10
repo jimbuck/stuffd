@@ -1,10 +1,7 @@
 
-import { Enum as EnumType, Guid as GuidType, TypeReference, StoredEnum } from '../models/types';
+import { EnumType as EnumType, GuidType as GuidType, TypeReference, StoredEnum, CustomGenerator, Constructor } from '../models/types';
 import { Prop } from './base-decorator';
-import { isConstructor } from '../utils/type-guards';
-import { ModelBuilder } from '../builders/model-builder';
-import { getModelDef } from '../services/meta-reader';
-import { ModelDefinition } from '../models/model-definition';
+import { getForeignKey } from '../services/meta-reader';
 
 interface RangeDef {
   (min: number, max: number): PropertyDecorator;
@@ -82,8 +79,8 @@ export const Pattern: PatternDef = function Pattern(pattern: string | RegExp, fl
   return Prop({ pattern });
 }
 
-export function Ref(ref: TypeReference<any>, foreignKey?: string) {
-  foreignKey = foreignKey || _getForeignKey(ref);
+export function Ref<T, K extends keyof T>(ref: Constructor<T>, refKey?: K) {
+  let foreignKey = typeof refKey === 'string' ? refKey : getForeignKey(ref);
   return Prop({ ref, foreignKey });
 }
 
@@ -91,19 +88,6 @@ export function Child() {
   return Prop({});
 }
 
-export function Custom(custom: (c: Chance.Chance) => any) {
+export function Custom(custom: CustomGenerator) {
   return Prop({ custom });
-}
-
-function _getForeignKey(type: TypeReference<any>): string {
-  if (type === EnumType || type === GuidType) throw new Error(`Cannot use Ref with Enums or Guids!`);
-  
-  let modelDef: ModelDefinition;
-  if (isConstructor(type)) {
-    modelDef = getModelDef(type);
-  } else {
-    modelDef = ModelBuilder.build(type);
-  }
-
-  return modelDef.primaryKey;
 }

@@ -1,11 +1,9 @@
-import { Constructor, Guid, Enum, StoredEnum } from '../models/types';
+import { Constructor, GuidType, EnumType, StoredEnum } from '../models/types';
 import { PropertyDefinition } from '../models/property-definition';
 import { ModelDefinition } from '../models/model-definition';
 import { getModelDef } from '../services/meta-reader';
 import { Random } from '../utils/random';
 import { Lookup } from '../models/dictionary';
-import { ModelBuilder } from '../builders/model-builder';
-import { isConstructor } from '../utils/type-guards';
 
 export class Activator {
 
@@ -19,35 +17,16 @@ export class Activator {
     return this._rand.seed;
   }
 
-  public create<T>(Type: Constructor<T>, count: number, constants?: Lookup<any>): T[];
-  public create<T>(modelDef: ModelDefinition, count: number, constants?: Lookup<any>): T[];
-  public create<T>(modelBuilder: ModelBuilder, count: number, constants?: Lookup<any>): T[];
-  public create<T>(Type: Constructor<T> | ModelDefinition | ModelBuilder, count: number, constants: Lookup<any> = {}): T[] {
+  public create<T>(Type: Constructor<T>, count: number, constants: Lookup<any> = {}): T[] {
     count = Math.floor(count);
     if (count < 1) {
       throw new Error(`Count must be greater than zero when generating entites!`);
     }
 
-    let modelDef: ModelDefinition;
-    if (isConstructor(Type)) {
-      modelDef = getModelDef(Type);
-    } else {
-      if (Type instanceof ModelBuilder) {
-        modelDef = ModelBuilder.build(Type);
-      } else {
-        modelDef = Type;
-      }
-      Type = (new Function(`"use strict";return (function ${modelDef.id}(){})`)());
-    }
+    let modelDef = getModelDef(Type);
 
     if (!modelDef) {
       throw new Error(`No model definition found for ${Type.name}`);
-    }
-
-    if (modelDef.toStringFn) {
-      (Type as Constructor<T>).prototype.toString = function () {
-        return modelDef.toStringFn(this);
-      };
     }
 
     return Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants));
@@ -92,9 +71,9 @@ export class Activator {
         return this._createDate(def);
       case String:
         return this._createString(def);
-      case Guid:
+      case GuidType:
         return this._rand.nextGuid();
-      case Enum:
+      case EnumType:
         return this._createEnum(def);
       case Array:
         return this._createArray(def);
@@ -121,6 +100,8 @@ export class Activator {
     if (def.min instanceof Date) min = def.min;
     if (def.max instanceof Date) max = def.max;
     if (!!min !== !!max) throw new Error('Must use both min/max or neither with Dates!');
+    min = min || new Date(0);
+    max = max || new Date();
 
     return this._rand.nextDate(min, max);
   }
@@ -133,8 +114,11 @@ export class Activator {
     let min, max;
     if (typeof def.min === 'number') min = def.min;
     if (typeof def.max === 'number') max = def.max;
-    if (typeof min === 'undefined' || typeof max === 'undefined')
-      throw new Error('Must use both min and max with strings!');
+    if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with string lengths!');
+    if (typeof min !== 'number') {
+      min = 0;
+      max = 16;
+    }
 
     let length = this._rand.nextInt(min, max);
     return this._rand.nextString(length);

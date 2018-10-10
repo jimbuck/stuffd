@@ -1,6 +1,5 @@
 import { EOL } from 'os';
 import { Context, Model, Key, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child, Bool, Guid, Ref, Custom } from '.';
-import { Lookup } from './lib/models/dictionary';
 
 const EMPTY_STRING = '';
 
@@ -52,7 +51,7 @@ class Manufacturer {
 @Model()
 class Engine {
 
-  @Ref(Manufacturer)
+  @Ref(Manufacturer, 'id')
   manufacturer: string;
 
   @Pattern(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/)
@@ -163,11 +162,13 @@ let thing2a = ctx2.create(Spaceship, 1);
 let thing2b = ctx2.create(Spaceship, 1);
 let thing2 = [...thing2a, ...thing2b];
 
-ctx1.clear();
-
-console.log('Object:',thing1[0] === thing2[0]);
-console.log('toString:', thing1[0].toString() === thing2[0].toString());
-console.log('JSON:',JSON.stringify(thing1[0]) === JSON.stringify(thing2[0]));
+console.log('object JSON:', JSON.stringify(thing1[0]) === JSON.stringify(thing2[0]));
+let ctx1Json = ctx1.json();
+let ctx2Json = ctx2.json();
+console.log('Context JSON:', ctx1Json === ctx2Json);
 // console.log(thing1.map(t => t.toString()).join(EOL + EOL));
 // console.log(thing2.map(t => t.toString()).join(EOL + EOL));
+
+ctx1.clear();
+
 console.log('Done.');

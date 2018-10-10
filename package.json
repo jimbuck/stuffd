@@ -59,7 +59,7 @@
       "dist/**/*.spec.js",
       "dist/debug-*.js",
       "dist/index.js",
-      "dist/bin/stuff.js"
+      "dist/bin/*"
     ]
   }
 }

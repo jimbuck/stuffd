@@ -1,3 +1,4 @@
+import { Lookup } from '../models/dictionary';
 
 
 /**
@@ -43,4 +44,23 @@ export function mergeDeep<T>(target: T, ...sources: T[]): T {
  */
 function isObject<T>(item: T): boolean {
   return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+
+export function crossProps(data: Lookup<any[]>): any[] {
+  let keys = Object.keys(data);
+  if (keys.length === 0) return [];
+  if (keys.length === 1) return data[keys[0]].map(val => ({ [keys[0]]: val }));
+  
+  let values = [...keys.map(key => data[key].map(value => ({ key, value })))];
+  let products = _cartesian(...values);
+
+  return products.map(product => product.reduce((obj: Lookup<any>, next: { key: string, value: any }) => Object.assign(obj, { [next.key]: next.value }), {}));
+}
+function _crossTwo(a: any[], b: any[]): any[][] {
+  return [].concat(...a.map(aItem => b.map(bItem => [].concat(aItem, bItem))));
+}
+function _cartesian(...data: any[][]): any[][] {
+  const [a, b, ...c] = data;
+  return b ? _cartesian(_crossTwo(a, b), ...c) : a;
 }

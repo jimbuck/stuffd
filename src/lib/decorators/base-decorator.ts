@@ -1,18 +1,31 @@
 import { getDesignType, getModelDef, setModelDef } from '../services/meta-reader';
 import { PropertyDefinition } from '../models/property-definition';
+import { ModelBuilder } from '../builders/model-builder';
+
+interface ModelStatic {
+    (id?: string): ClassDecorator;
+    create(id: string): ModelBuilder;
+}
 
 // Class Decorator
-export function Model(id?: string): ClassDecorator {
-    return function (Target: any) {
-        id = id || Target.name;
-        let modelDef = getModelDef(Target);
-        modelDef.id = id;
+export const Model: ModelStatic = Object.assign(
+    function Model(id?: string): ClassDecorator {
+        return function (Target: any) {
+            id = id || Target.name;
+            let modelDef = getModelDef(Target);
+            modelDef.id = id;
 
-        setModelDef(Target, modelDef);
+            setModelDef(Target, modelDef);
 
-        return Target;
+            return Target;
+        }
+    },
+    {
+        create(id?: string) {
+            return new ModelBuilder({ id });
+        }
     }
-}
+);
 
 // Property Decorator
 export function Prop(propDef?: PropertyDefinition): PropertyDecorator {

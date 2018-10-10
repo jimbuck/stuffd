@@ -1,5 +1,5 @@
 
-import { TypeReference } from './types';
+import { TypeReference, CustomGenerator } from './types';
 
 /**
  * Set of properties which are used to define model properties.
@@ -53,5 +53,5 @@ export interface PropertyDefinition {
   decimals?: number,
   choices?: any[] | (() => any[]);
   truthRate?: number;
-  custom?: (c: Chance.Chance) => any; 
+  custom?: CustomGenerator; 
 }

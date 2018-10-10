@@ -1,6 +1,6 @@
 
-import { TypeReference, Guid } from '../models/types';
-
+import { TypeReference, GuidType, CustomGenerator, Constructor } from '../models/types';
+import { getForeignKey } from '../services/meta-reader';
 import { PropertyDefinition } from '../models/property-definition';
 
 export class PropertyBuilder {
@@ -9,6 +9,10 @@ export class PropertyBuilder {
 
   constructor(propDef?: PropertyDefinition) {
     this._definition = propDef || {};
+  }
+
+  public static build(propBuilder: PropertyBuilder): PropertyDefinition {
+    return propBuilder._build();
   }
 
   public name(name: string): this {
@@ -21,18 +25,16 @@ export class PropertyBuilder {
     return this;
   }
 
-  public ref(type: TypeReference, foreignKey: string): this {
+  public ref<T, K extends keyof T>(type: Constructor<T>, refKey?: K): this {
     this._definition.ref = type;
-    this._definition.foreignKey = foreignKey;
+    this._definition.foreignKey = typeof refKey === 'string' ? refKey : getForeignKey(type);
     return this;
   }
 
-  public min(min: number): this {
+  public range(min: number, max: number): this;
+  public range(min: Date, max: Date): this;
+  public range(min: number | Date, max: number | Date): this {
     this._definition.min = min;
-    return this;
-  }
-
-  public max(max: number): this {
     this._definition.max = max;
     return this;
   }
@@ -66,20 +68,24 @@ export class PropertyBuilder {
   }
 
   public guid(): this {
-    return this.type(Guid);
+    return this.type(GuidType);
   }
 
-  public string(pattern?: string | RegExp): this {
+  public string(): this;
+  public string(minLength: number, maxLength: number): this;
+  public string(pattern: RegExp): this;
+  public string(pattern?: number | RegExp, maxLength?: number): this {
     this.type(String);
     
-    if (pattern) {
+    if (pattern instanceof RegExp) {
       // TODO: Convert wildcard string into regexp...
-      this._definition.pattern = new RegExp(pattern);
+      this._definition.pattern = pattern;
+    } else if(typeof pattern === 'number') {
+      this.range(pattern, maxLength);
     }
     
     return this;
   }
-
 
   public integer(): this;
   public integer(min: number, max: number): this;
@@ -88,8 +94,7 @@ export class PropertyBuilder {
     return this
       .type(Number)
       .decimals(0)
-      .min(min)
-      .max(max);
+      .range(min, max);
   }
 
   public float(): this;
@@ -97,11 +102,23 @@ export class PropertyBuilder {
   public float(min: number = Number.MIN_VALUE, max: number = Number.MAX_VALUE): this {    
     return this
       .type(Number)
-      .min(min)
-      .max(max);
+      .range(min, max);
+  }
+
+  public date(): this;
+  public date(min: Date, max: Date): this;
+  public date(min?: Date, max?: Date): this {
+    return this
+      .type(Date)
+      .range(min, max)
+  }
+
+  public custom(fn: CustomGenerator): this {
+    this._definition.custom = fn;
+    return this;
   }
   
-  public build(): PropertyDefinition {
+  private _build(): PropertyDefinition {
     return Object.assign({}, this._definition);
   }
 
