@@ -4,7 +4,7 @@ const lastName: CustomGenerator = (c) => c.last();
 
 const Person = Model.create('Person')
     .prop('firstName', fn => fn.custom(c => c.first()))
-    .prop('middleInitial', ln => ln.string(1, 1))
+    .prop('middleInitial', ln => ln.str(1))
     .prop('lastName', ln => ln.custom(lastName))
     .prop('dateOfBirth', dob => dob.date())
     .build();
@@ -25,7 +25,7 @@ const Teacher = Model.create('Teacher')
 const Class = Model.create('Class')
     .key('identifier', id => id.guid())
     .prop('period', st => st.type(Number).integer(1, 9))
-    .prop('name', s => s.string())
+    .prop('name', s => s.str())
     .ref('teacherIdentifier', Teacher)
     .toString((c) => `#${c.period} Period ${c.name} (${c.teacherIdentifier})`)
     .build();

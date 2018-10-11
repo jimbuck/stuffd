@@ -2,17 +2,18 @@ import { Lookup, Constructor, GuidType, EnumType } from '../models/types';
 import { StoredEnum } from '../models/stored-enum';
 import { PropertyDefinition } from '../models/property-definition';
 import { ModelDefinition } from '../models/model-definition';
-import { getModelDef } from '../services/meta-reader';
+import { getModelDef } from '../utils/meta-reader';
 import { Random } from '../utils/random';
 import { ListBucket } from '../models/list-bucket';
+import { Model } from '../..';
 
 export class Activator {
 
   private _rand: Random;
-  private _data: ListBucket;
+  private _cache: ListBucket;
 
   constructor(seed?: number) {
-    this._data = new ListBucket();
+    this._cache = new ListBucket();
     this._rand = new Random(seed);
   }
 
@@ -37,20 +38,20 @@ export class Activator {
       }
 
       let results = Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants));
-      return this._data.add(modelDef.id, results);
+      return this._cache.add(modelDef.id, results);
     } else {
       let crossed = countOrCrossed;
       let results = crossed.map(cross => this._createModel(Type as Constructor<T>, modelDef, Object.assign({}, cross, constants)));
-      return this._data.add(modelDef.id, results);
+      return this._cache.add(modelDef.id, results);
     }
   }
 
   public data() {
-    return this._data;
+    return this._cache;
   }
 
   public clear() {
-    this._data.clear();
+    this._cache.clear();
   }
 
   private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any> = {}): T {
@@ -132,18 +133,13 @@ export class Activator {
       return this._rand.nextPattern(def.pattern);
     }
 
-    if (def.length) {
-      let length = Math.max(Math.floor(def.length), 0);
-      return this._rand.nextString(length);
-    }
-
     let min, max;
     if (typeof def.min === 'number') min = def.min;
     if (typeof def.max === 'number') max = def.max;
     if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with string lengths!');
     if (typeof min !== 'number') {
-      min = 0;
-      max = 16;
+      min = Model.defaults.minString;
+      max = Model.defaults.maxString;
     }
 
     let length = this._rand.nextInt(min, max);
@@ -166,19 +162,14 @@ export class Activator {
     let childPropDef = Object.assign({}, def);
     let length: number;
 
-    if (def.length) {
-      length = Math.max(Math.floor(def.length), 0);
-      childPropDef.length = null;
-    } else {
-      let min, max;
-      if (typeof def.min === 'number') min = def.min;
-      if (typeof def.max === 'number') max = def.max;
-      if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with Collections!');
-  
-      length = this._rand.nextInt(min, max);
-      childPropDef.min = null;
-      childPropDef.max = null;
-    }
+    let min, max;
+    if (typeof def.min === 'number') min = def.min;
+    if (typeof def.max === 'number') max = def.max;
+    if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with Collections!');
+
+    length = this._rand.nextInt(min, max);
+    childPropDef.min = null;
+    childPropDef.max = null;
     
     if (childPropDef.secondaryType instanceof StoredEnum) {
       childPropDef.type = EnumType;

@@ -19,6 +19,20 @@ test(`get, set, and add properly manipulate the bucket`, t => {
   t.is(actualRound3.length, 0);
 });
 
+test(`set with an empty array resets the list`, t => {
+  const key = 'nums';
+  let bucket = new ListBucket();
+  let expectedRound1 = [1, 3, 5];
+  let expectedRound2: number[];
+  bucket.set(key, expectedRound1);
+  let actualRound1 = bucket.get(key);
+  t.deepEqual(actualRound1, expectedRound1);
+  let setResult = bucket.set(key, expectedRound2);
+  t.is(setResult, expectedRound2);
+  let actualRound2 = bucket.get(key);
+  t.deepEqual(actualRound2, []);
+});
+
 test(`ListBucket#clear`, t => {
   const key = 'nums';
   let bucket = new ListBucket();

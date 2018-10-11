@@ -1,8 +1,6 @@
-import { Activator } from '../services/activator';
+import { Activator } from './activator';
 import { Lookup, Constructor, GeneratedArray } from '../models/types';
-import { CollectionBuilder } from './collection-builder';
-
-import { getModelId } from '../services/meta-reader';
+import { CollectionBuilder } from '../builders/collection-builder';
 
 export class Context {
 
@@ -12,20 +10,19 @@ export class Context {
         this._activator = new Activator(seed);
     }
 
-    public get seed() {
+    public get seed(): number {
         return this._activator.seed;
     }
 
     public create<T>(Type: Constructor<T>, count: number, constants: Lookup<any> = {}): GeneratedArray<T> {
-        let typeId = getModelId(Type);
         return new CollectionBuilder(this._activator).create<T>(Type, count, constants);
     }
 
-    public using(data: Lookup<GeneratedArray>) {
+    public using(data: Lookup<GeneratedArray>): CollectionBuilder {
         return new CollectionBuilder(this._activator).using(data);
     }
 
-    public cross(data: Lookup<GeneratedArray>) {
+    public cross(data: Lookup<GeneratedArray>): CollectionBuilder {
         return new CollectionBuilder(this._activator).cross(data);
     }
 
@@ -49,9 +46,5 @@ export class Context {
         }
 
         return JSON.stringify(this._activator.data(), null, space);
-    }
-
-    public toString(): string {
-        return `Context (seed: ${this.seed})`;
     }
 }

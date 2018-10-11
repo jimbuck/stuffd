@@ -1,7 +1,8 @@
 
 import { TypeReference, GuidType, CustomGenerator, Constructor } from '../models/types';
-import { getPrimaryKey } from '../services/meta-reader';
+import { getPrimaryKey } from '../utils/meta-reader';
 import { PropertyDefinition } from '../models/property-definition';
+import { Model } from '../..';
 
 export class PropertyBuilder {
 
@@ -35,8 +36,7 @@ export class PropertyBuilder {
   }
 
   public length(len: number): this {
-    this._definition.length = len;
-    return this;
+    return this.range(len, len);
   }
 
   public decimals(decimals: number): this {
@@ -66,16 +66,17 @@ export class PropertyBuilder {
     return this.type(GuidType);
   }
 
-  public string(): this;
-  public string(minLength: number, maxLength: number): this;
-  public string(pattern: RegExp): this;
-  public string(pattern?: number | RegExp, maxLength?: number): this {
+  public str(): this;
+  public str(length: number): this;
+  public str(minLength: number, maxLength: number): this;
+  public str(pattern: RegExp): this;
+  public str(pattern?: number | RegExp, maxLength?: number): this {
     this.type(String);
     
     if (pattern instanceof RegExp) {
-      // TODO: Convert wildcard string into regexp...
       this._definition.pattern = pattern;
-    } else if(typeof pattern === 'number') {
+    } else if (typeof pattern === 'number') {
+      maxLength = maxLength || pattern;
       this.range(pattern, maxLength);
     }
     
@@ -84,7 +85,7 @@ export class PropertyBuilder {
 
   public integer(): this;
   public integer(min: number, max: number): this;
-  public integer(min: number = 0, max: number = Number.MAX_SAFE_INTEGER): this {
+  public integer(min: number = Model.defaults.minInteger, max: number = Model.defaults.maxInteger): this {
 
     return this
       .type(Number)
@@ -93,8 +94,26 @@ export class PropertyBuilder {
   }
 
   public float(): this;
-  public float(min: number, max: number): this;  
-  public float(min: number = Number.MIN_VALUE, max: number = Number.MAX_VALUE): this {    
+  public float(decimals: number): this;
+  public float(min: number, max: number): this;
+  public float(decimals: number, min: number, max: number): this;
+  public float(decimals?: number, min?: number, max?: number): this {
+    
+    if (arguments.length === 2) {
+      max = min;
+      min = decimals;
+      decimals = null;
+    }
+
+    if (typeof min === 'undefined') {
+      min = Model.defaults.minFloat;
+      max = Model.defaults.maxFloat;
+    }
+
+    if (typeof decimals === 'number') {
+      this._definition.decimals = decimals;
+    }
+
     return this
       .type(Number)
       .range(min, max);

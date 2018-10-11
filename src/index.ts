@@ -1,8 +1,29 @@
 import 'reflect-metadata';
+import { ModelDecorator } from './lib/services/internal-decorators';
+import { ModelBuilder, StaticCreate } from './lib/builders/model-builder';
+import { RangeDefaults } from './lib/models/types';
 
-export * from './lib/builders/context';
-export * from './lib/builders/model-builder';
-export * from './lib/builders/property-builder';
-export { Model } from './lib/decorators/base-decorator';
-export * from './lib/decorators/common-decorators';
-export { GuidType, EnumType, CustomGenerator } from './lib/models/types';
+export { Context } from './lib/services/context';
+export * from './lib/services/decorators';
+export { CustomGenerator, RangeDefaults } from './lib/models/types';
+
+interface Model {
+  defaults: RangeDefaults;
+  (id?: string): ClassDecorator;
+  create(id: string): ModelBuilder;
+}
+
+export const Model: Model = Object.assign(
+  ModelDecorator,
+  {
+    defaults: {
+      minInteger: 0,
+      maxInteger: 100000000000,
+      minFloat: -100000000000,
+      maxFloat: 100000000000,
+      minString: 1,
+      maxString: 16
+    },
+    create: StaticCreate
+  }
+);

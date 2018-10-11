@@ -3,44 +3,42 @@ import { test } from 'ava';
 import { PropertyBuilder } from './property-builder';
 
 import { PropertyDefinition } from '../models/property-definition';
-import { GuidType, CustomGenerator } from '../models/types';
+import { CustomGenerator } from '../models/types';
+import { Model } from '../..';
 
 class TestClass {
   name: string;
   count: number;
 }
 
-test(`Property#constructor allows an optional initial definition`, t => {
+test(`PropertyBuilder#constructor allows an optional initial definition`, t => {
   t.notThrows(() => newProp());
 
   const expectedDef: PropertyDefinition = {
     id: 'EmployeeId',
-    length: 13,
+    min: 13,
+    max: 13,
+    type: String
+  };
+
+  const actualDef = newProp(expectedDef)['_definition'];
+  t.deepEqual(actualDef, expectedDef);
+});
+
+test(`PropertyBuilder.build retuns a copy of the internal property definition`, t => {
+  const expectedDef: PropertyDefinition = {
+    id: 'EmployeeId',
+    min: 13,
+    max: 13,
     type: String
   };
 
   const actualDef = PropertyBuilder.build(newProp(expectedDef));
-  t.is(actualDef.id, expectedDef.id);
-  t.is(actualDef.length, expectedDef.length);
-  t.is(actualDef.type, actualDef.type);
+  t.deepEqual(actualDef, expectedDef);
+  t.not(actualDef, expectedDef);
 });
 
-test(`Property#prop can set fluently define properties`, t => {
-  const expectedId = 'EmployeeId';
-  const expectedType = String;
-  const expectedLength = 13;
-
-  const actualDef = PropertyBuilder.build(
-    newProp({ id: expectedId })
-      .type(expectedType)
-      .length(expectedLength));
-  
-  t.is(actualDef.id, expectedId);
-  t.is(actualDef.type, expectedType);
-  t.is(actualDef.length, expectedLength);
-});
-
-test(`Property#type accepts a type as well as secondary type`, t => {
+test(`PropertyBuilder#type accepts a type as well as secondary type`, t => {
   const nullTypeDef = PropertyBuilder.build(newProp().type(null));
   t.is(nullTypeDef.type, null);
   t.is(typeof nullTypeDef.secondaryType, 'undefined');
@@ -54,37 +52,34 @@ test(`Property#type accepts a type as well as secondary type`, t => {
   t.is(multiTypeDef.secondaryType, String);
 });
 
-test(`Property can set complex fields properly`, t => {
-  const arrayPropDef = PropertyBuilder.build(newProp().array(Number));
-  t.is(arrayPropDef.type, Array);
-  t.is(arrayPropDef.secondaryType, Number);
-
-  const guidPropDef = PropertyBuilder.build(newProp().guid());
-  t.is(guidPropDef.type, GuidType);
-});
-
-test(`Property#string accepts min/max length or Regexp or neither`, t => {
-  const stringPropDef = PropertyBuilder.build(newProp().string(/(hell)o{1,5}/));
+test(`PropertyBuilder#str accepts optional length, min/max or Regexp`, t => {
+  const stringPropDef = PropertyBuilder.build(newProp().str(/(hell)o{1,5}/));
   t.is(stringPropDef.type, String);
   t.true(stringPropDef.pattern instanceof RegExp);
 
+  const length = 4;
+  const lengthPropDef = PropertyBuilder.build(newProp().str(length));
+  t.is(lengthPropDef.type, String);
+  t.is(lengthPropDef.min, length);
+  t.is(lengthPropDef.min, length);
+
   const min = 7, max = 10;
-  const regexPropDef = PropertyBuilder.build(newProp().string(min, max));
+  const regexPropDef = PropertyBuilder.build(newProp().str(min, max));
   t.is(regexPropDef.type, String);
   t.is(regexPropDef.min, min);
   t.is(regexPropDef.max, max);
 
-  const defaultPropDef = PropertyBuilder.build(newProp().string());
+  const defaultPropDef = PropertyBuilder.build(newProp().str());
   t.is(defaultPropDef.type, String);
   t.is(typeof defaultPropDef.pattern, 'undefined');
 });
 
-test(`Property#integer accepts min and max values`, t => {
+test(`PropertyBuilder#integer accepts min and max values`, t => {
   const defaultPropDef = PropertyBuilder.build(newProp().integer());
   t.is(defaultPropDef.type, Number);
   t.is(defaultPropDef.decimals, 0);
-  t.is(defaultPropDef.min, 0);
-  t.is(defaultPropDef.max, Number.MAX_SAFE_INTEGER);
+  t.is(defaultPropDef.min, Model.defaults.minInteger);
+  t.is(defaultPropDef.max, Model.defaults.maxInteger);
 
   const expectedMin = 9;
   const expectedMax = 81;
@@ -95,12 +90,12 @@ test(`Property#integer accepts min and max values`, t => {
   t.is(customPropDef.max, expectedMax);
 });
 
-test(`Property#float accepts min and max values`, t => {
+test(`PropertyBuilder#float accepts min and max values`, t => {
   const defaultPropDef = PropertyBuilder.build(newProp().float());
   t.is(defaultPropDef.type, Number);
   t.is(typeof defaultPropDef.decimals, 'undefined');
-  t.is(defaultPropDef.min, Number.MIN_VALUE);
-  t.is(defaultPropDef.max, Number.MAX_VALUE);
+  t.is(defaultPropDef.min, Model.defaults.minFloat);
+  t.is(defaultPropDef.max, Model.defaults.maxFloat);
 
   const expectedMin = 0.9;
   const expectedMax = 0.81;
@@ -111,7 +106,7 @@ test(`Property#float accepts min and max values`, t => {
   t.is(customPropDef.max, expectedMax);
 });
 
-test(`Property#date accepts an optional min/max range`, t => {
+test(`PropertyBuilder#date accepts an optional min/max range`, t => {
   const stdDatePropDef = PropertyBuilder.build(newProp().date());
   t.is(stdDatePropDef.type, Date);
 
@@ -122,7 +117,7 @@ test(`Property#date accepts an optional min/max range`, t => {
   t.is(customDatePropDef.max, maxDate);
 });
 
-test(`Property#custom accepts custom random generators`, t => {
+test(`PropertyBuilder#custom accepts custom random generators`, t => {
   const expectedCustomRand: CustomGenerator = (c => c.animal());
   const stdDatePropDef = PropertyBuilder.build(newProp().type(String).custom(expectedCustomRand));
   t.is(stdDatePropDef.type, String);
@@ -133,6 +128,24 @@ test(`Property#custom accepts custom random generators`, t => {
   t.is(customDatePropDef.type, Date);
   t.is(customDatePropDef.min, minDate);
   t.is(customDatePropDef.max, maxDate);
+});
+
+test(`PropertyBuilder can fluently define properties`, t => {
+  const expectedId = 'EmployeeId';
+  const expectedType = String;
+  const expectedLength = 13;
+
+  const actualDef = PropertyBuilder.build(
+    newProp({ id: expectedId })
+      .key()
+      .type(expectedType)
+      .length(expectedLength));
+  
+  t.is(actualDef.id, expectedId);
+  t.is(actualDef.type, expectedType);
+  t.is(actualDef.min, expectedLength);
+  t.is(actualDef.max, expectedLength);
+  t.true(actualDef.key);
 });
 
 function newProp(initialDef?: PropertyDefinition): PropertyBuilder {

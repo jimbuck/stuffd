@@ -1,7 +1,7 @@
 import { test } from 'ava';
 
 import { ModelBuilder } from './model-builder';
-import { getModelDef } from '../services/meta-reader';
+import { getModelDef } from '../utils/meta-reader';
 
 test(`Model#id references the ModelDefinition id`, t => {
   const expectedId = 'TestModelIdentifier';
@@ -41,7 +41,8 @@ test(`Model#prop mergers existing Properties`, t => {
   const modelDef = getModelDef(m);
 
   t.is(modelDef.props[expectedPropName].type, expectedPropType);
-  t.is(modelDef.props[expectedPropName].length, expectedLength);
+  t.is(modelDef.props[expectedPropName].min, expectedLength);
+  t.is(modelDef.props[expectedPropName].max, expectedLength);
 });
 
 test(`Model#key creates a Property marked as a key`, t => {

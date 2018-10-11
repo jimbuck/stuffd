@@ -1,6 +1,6 @@
 import { ModelDefinition } from '../models/model-definition';
 import { PropertyBuilder } from './property-builder';
-import { setModelDef, getPrimaryKey, getModelDef } from '../services/meta-reader';
+import { setModelDef, getPrimaryKey, getModelDef } from '../utils/meta-reader';
 import { Constructor, GeneratedConstructor } from '../models/types';
 
 export class ModelBuilder {
@@ -84,4 +84,8 @@ export class ModelBuilder {
       return `ModelBuilder<${this.id}>`;
     }
   }
+}
+
+export function StaticCreate(id: string) {
+  return new ModelBuilder({ id });
 }

@@ -13,8 +13,8 @@ export class Random {
     this._chance = new Chance(seed);
   }
 
-  public get seed() {
-    return this._chance.seed;
+  public get seed(): number {
+    return this._chance.seed as number;
   }
 
   public nextFloat(min: number, max: number, fixed: number = 10): number {

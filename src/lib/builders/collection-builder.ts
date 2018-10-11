@@ -2,7 +2,7 @@ import { ListBucket } from '../models/list-bucket';
 import { Activator } from '../services/activator';
 import { Lookup, Constructor, GeneratedArray } from '../models/types';
 import { crossProps } from '../utils/extensions';
-import { getPrimaryKey } from '../services/meta-reader';
+import { getPrimaryKey } from '../utils/meta-reader';
 
 export class CollectionBuilder {
 
@@ -33,7 +33,14 @@ export class CollectionBuilder {
     return this;
   }
 
-  public create<T=any>(Type: Constructor<T>, count?: number, constants?: Lookup<any>): GeneratedArray<T> {
+  public create<T=any>(Type: Constructor<T>, constants?: Lookup<any>): GeneratedArray<T>
+  public create<T=any>(Type: Constructor<T>, count: number, constants?: Lookup<any>): GeneratedArray<T>
+  public create<T=any>(Type: Constructor<T>, count?: number | Lookup<any>, constants?: Lookup<any>): GeneratedArray<T> {
+    if (typeof count !== 'number') {
+      constants = count;
+      count = 0;
+    }
+
     if (this._crossRefs && Object.keys(this._crossRefs).length > 0) {
       let crossedProps = this._crossProps();
       let result = this._activator.create<T>(Type, crossedProps, constants);

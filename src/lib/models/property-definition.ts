@@ -45,7 +45,6 @@ export interface PropertyDefinition {
    */
   min?: number | Date;
   max?: number | Date;
-  length?: number;
   pattern?: RegExp;
   optional?: number;
   type?: TypeReference;

@@ -1,5 +1,5 @@
 import { EOL } from 'os';
-import { Context, Model, Key, Integer, Range, Float, Pattern, Choice, Enum, Collection, Child, Bool, Guid, Ref, Custom } from '.';
+import { Context, Model, Key, Integer, Range, Float, Str, Choice, Enum, Collection, Child, Bool, Guid, Ref, Custom } from '.';
 
 const EMPTY_STRING = '';
 
@@ -16,10 +16,6 @@ enum ModuleType {
   WeaponsBay,
   ShieldRoom,
   CargoBay,
-}
-
-enum Awards {
-  
 }
 
 enum ModuleSize {
@@ -58,13 +54,13 @@ class Engine {
   @Ref(Manufacturer, 'id')
   manufacturer: string;
 
-  @Pattern(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/)
+  @Str(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/)
   model: string;
   
   @Float(1) @Range(5, 12)
   thrust: number;
   
-  @Integer() @Range(1967, 2020)
+  @Integer(1967, 2020)
   year: number;
 
   @Float(3) @Range(200, 2000)
@@ -98,7 +94,7 @@ class Module {
 @Model()
 class Spaceship {
 
-  @Pattern(/((Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus|Falcon|[A-Z] Wing) [XXIIVVCD]{2,3})/)
+  @Str(/((Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus|Falcon|[A-Z] Wing) [XXIIVVCD]{2,3})/)
   name: string;
 
   @PersonName()
@@ -107,7 +103,7 @@ class Spaceship {
   @Child()
   primaryEngines: Engine;
 
-  @Integer() @Range(1, 5)
+  @Integer(1, 5)
   primaryEngineCount: number;
 
   @Child()

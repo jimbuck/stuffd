@@ -59,7 +59,10 @@
       "dist/**/*.spec.js",
       "dist/debug-*.js",
       "dist/index.js",
-      "dist/bin/*"
+      "dist/bin",
+      "dist/lib/models/model-definition.js",
+      "dist/lib/models/property-definition.js",
+      "dist/lib/services/file-loader.js"
     ]
   }
 }
