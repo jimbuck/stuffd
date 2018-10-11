@@ -3,8 +3,10 @@ import { test } from 'ava';
 import { PropertyBuilder } from './property-builder';
 
 import { PropertyDefinition } from '../models/property-definition';
-import { CustomGenerator } from '../models/types';
+import { CustomGenerator, GuidType } from '../models/types';
 import { Model } from '../..';
+import { ModelBuilder } from './model-builder';
+import { strict } from 'assert';
 
 class TestClass {
   name: string;
@@ -71,17 +73,46 @@ test(`PropertyBuilder#array accepts a type`, t => {
 test(`PropertyBuilder#ref accepts a type and optional foreignKey`, t => {
   t.throws(() => PropertyBuilder.build(newProp().ref(TestClass)));
 
-  const expectedKey = 'name';
-  const complexArrayDef = PropertyBuilder.build(newProp().ref(TestClass, expectedKey));
-  t.is(complexArrayDef.ref, TestClass);
-  t.is(complexArrayDef.foreignKey, expectedKey);
+  const expectedExplicitKey = 'name';
+  const explicitKeyDef = PropertyBuilder.build(newProp().ref(TestClass, expectedExplicitKey));
+  t.is(explicitKeyDef.ref, TestClass);
+  t.is(explicitKeyDef.foreignKey, expectedExplicitKey);
+
+  const expectedId = 'InferedTestClass';
+  const expectedInferredKey = 'instanceId';
+  const InferedTestClass = new ModelBuilder({ id: expectedId }).key(expectedInferredKey, id => id.guid()).build();
+
+  const inferredKeyDef = PropertyBuilder.build(newProp().ref(InferedTestClass));
+  t.is(inferredKeyDef.ref, InferedTestClass);
+  t.is(inferredKeyDef.foreignKey, expectedInferredKey);
 });
 
-test.todo(`PropertyBuilder#range marks the min/max for numbers`);
+test(`PropertyBuilder#range marks the min/max for numbers`, t => {
+  const expectedMin = 3;
+  const expectedMax = 12;
+  const propDef = PropertyBuilder.build(newProp().range(expectedMin, expectedMax));
+  t.is(propDef.min, expectedMin);
+  t.is(propDef.max, expectedMax);
 
-test.todo(`PropertyBuilder#range marks the min/max for dates`);
+  t.throws(() => newProp().range(expectedMax, expectedMin));
+});
 
-test.todo(`PropertyBuilder#length sets an equal min/max`);
+test(`PropertyBuilder#range marks the min/max for dates`, t => {
+  const expectedMin = new Date('03/11/1994');
+  const expectedMax = new Date('4/16/1999');
+  const propDef = PropertyBuilder.build(newProp().range(expectedMin, expectedMax));
+  t.is(propDef.min, expectedMin);
+  t.is(propDef.max, expectedMax);
+
+  t.throws(() => newProp().range(expectedMax, expectedMin));
+});
+
+test(`PropertyBuilder#length sets an equal min/max`, t => {
+  const expectedLength = 7;
+  const propDef = PropertyBuilder.build(newProp().length(expectedLength));
+  t.is(propDef.min, expectedLength);
+  t.is(propDef.max, expectedLength);
+});
 
 test(`PropertyBuilder#str accepts optional length, min/max or Regexp`, t => {
   const stringPropDef = PropertyBuilder.build(newProp().str(/(hell)o{1,5}/));
@@ -135,8 +166,8 @@ test(`PropertyBuilder#float accepts min and max values`, t => {
   t.is(decimalsPropDef.min, Model.defaults.minFloat);
   t.is(decimalsPropDef.max, Model.defaults.maxFloat);
 
-  let expectedMin = 0.9;
-  let expectedMax = 0.81;
+  let expectedMin = 0.6;
+  let expectedMax = 0.9;
   const customPropDef = PropertyBuilder.build(newProp().float(expectedMin, expectedMax));
   t.is(customPropDef.type, Number);
   t.is(typeof customPropDef.decimals, 'undefined');
@@ -164,11 +195,22 @@ test(`PropertyBuilder#date accepts an optional min/max range`, t => {
   t.is(customDatePropDef.max, maxDate);
 });
 
-test.todo(`PropertyBuilder#guid marks the type as GuidType`);
+test(`PropertyBuilder#guid marks the type as GuidType`, t => {
+  const propDef = PropertyBuilder.build(newProp().guid());
+  t.is(propDef.type, GuidType);
+});
 
-test.todo(`PropertyBuilder#choices accepts an array of options`);
+test(`PropertyBuilder#choices accepts an array of options`, t => {
+  const expectedChoices = ['red', 'green', 'blue'];
+  const propDef = PropertyBuilder.build(newProp().choices(expectedChoices));
+  t.deepEqual(propDef.choices, expectedChoices);
+});
 
-test.todo(`PropertyBuilder#choices accepts a a function that returns an array of options`);
+test(`PropertyBuilder#choices accepts a function that returns an array of options`, t => {
+  const expectedChoices = () => ['red', 'green', 'blue'];
+  const propDef = PropertyBuilder.build(newProp().choices(expectedChoices));
+  t.deepEqual(propDef.choices, expectedChoices);
+});
 
 test(`PropertyBuilder#custom accepts custom random generators`, t => {
   const expectedCustomRand: CustomGenerator = (c => c.animal());

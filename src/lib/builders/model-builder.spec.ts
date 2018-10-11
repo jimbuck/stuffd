@@ -2,6 +2,7 @@ import { test } from 'ava';
 
 import { ModelBuilder, StaticCreate } from './model-builder';
 import { getModelDef } from '../utils/meta-reader';
+import { Model } from '../..';
 
 test(`Model#id references the ModelDefinition id`, t => {
   const expectedId = 'TestModelIdentifier';
@@ -110,11 +111,31 @@ test(`Model#build properly inherits properties from parent`, t => {
 
   const eagleDef = getModelDef(Eagle);
   t.is(eagleDef.inherits, Animal);
-  t.is(eagleDef.props[dietKey].choices, dietChoices);
+  t.deepEqual(eagleDef.props[dietKey].choices, dietChoices);
   t.is(eagleDef.props[lifespanKey].type, Number);
   t.is(eagleDef.props[lifespanKey].min, lifespanMin);
   t.is(eagleDef.props[lifespanKey].max, lifespanMax);
   t.falsy(eagleDef.props[lifespanKey].key);
+});
+
+test(`Model#build returns a working class with inheritence`, t => {
+  const Animal = newModel('Animal')
+    .prop('id', id => id.guid())
+    .build();
+
+  const Eagle = newModel('Eagle').inherits(Animal).build();
+  const BaldEagle = newModel('BaldEagle').inherits(Eagle).build();
+  
+  let eagle = new Eagle();
+  let baldEagle = new BaldEagle();
+
+  t.true(eagle instanceof Eagle);
+  t.true(eagle instanceof Animal);
+  t.false(eagle instanceof BaldEagle);
+
+  t.true(baldEagle instanceof Eagle);
+  t.true(baldEagle instanceof Animal);
+  t.true(baldEagle instanceof BaldEagle);
 });
 
 test(`StaticCreate creates a new instance with id`, t => {

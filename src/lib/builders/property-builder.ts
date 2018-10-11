@@ -35,6 +35,8 @@ export class PropertyBuilder {
   public range(min: number, max: number): this;
   public range(min: Date, max: Date): this;
   public range(min: number | Date, max: number | Date): this {
+    if (max < min) throw new Error(`max must be equal to or greater than min!`);
+
     this._definition.min = min;
     this._definition.max = max;
     return this;
@@ -45,7 +47,7 @@ export class PropertyBuilder {
   }
 
   public choices<T>(choices: T[] | (() => T[])): this {
-    this._definition.choices = choices;
+    this._definition.choices = Array.isArray(choices) ? choices.slice() : choices;
 
     return this;
   }
