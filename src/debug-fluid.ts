@@ -19,7 +19,7 @@ const Teacher = Model.create('Teacher')
     .inherits(Person)
     .key('identifier', id => id.guid())
     .prop('degree', d => d.choices(['Science', 'History', 'Math']))
-    .prop('salary', s => s.float(30000, 80000).decimals(2))
+    .prop('salary', s => s.float(2, 30000, 80000))
     .build();
 
 const Class = Model.create('Class')
@@ -32,7 +32,7 @@ const Class = Model.create('Class')
 
 const Grade = Model.create('Grade')
     .prop('identifier', id => id.key().guid())
-    .prop('grade', g => g.float(65, 100).decimals(2))
+    .prop('grade', g => g.float(2, 65, 100))
     .ref('studentIdentifier', Student)
     .ref('classIdentifier', Class)
     .toString((c) => `${c.studentIdentifier} recieved ${c.grade}% in ${c.classIdentifier}`)

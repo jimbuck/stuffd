@@ -22,8 +22,13 @@ export class PropertyBuilder {
   }
 
   public ref<T, K extends keyof T>(type: Constructor<T>, refKey?: K): this {
+    let foreignKey = typeof refKey === 'string' ? refKey : getPrimaryKey(type);
+    if (!foreignKey) {
+      throw new Error('Failed to infer primary key of reference type!');
+    }
+    
     this._definition.ref = type;
-    this._definition.foreignKey = typeof refKey === 'string' ? refKey : getPrimaryKey(type);
+    this._definition.foreignKey = foreignKey;
     return this;
   }
 
@@ -37,11 +42,6 @@ export class PropertyBuilder {
 
   public length(len: number): this {
     return this.range(len, len);
-  }
-
-  public decimals(decimals: number): this {
-    this._definition.decimals = decimals;
-    return this;
   }
 
   public choices<T>(choices: T[] | (() => T[])): this {
@@ -86,10 +86,10 @@ export class PropertyBuilder {
   public integer(): this;
   public integer(min: number, max: number): this;
   public integer(min: number = Model.defaults.minInteger, max: number = Model.defaults.maxInteger): this {
-
+    this._definition.decimals = 0;
+    
     return this
       .type(Number)
-      .decimals(0)
       .range(min, max);
   }
 

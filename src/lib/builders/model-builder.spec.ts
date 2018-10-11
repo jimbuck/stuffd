@@ -1,6 +1,6 @@
 import { test } from 'ava';
 
-import { ModelBuilder } from './model-builder';
+import { ModelBuilder, StaticCreate } from './model-builder';
 import { getModelDef } from '../utils/meta-reader';
 
 test(`Model#id references the ModelDefinition id`, t => {
@@ -75,9 +75,15 @@ test(`Model#inherit links models`, t => {
 });
 
 test(`Model#toString adds custom toString method`, t => {
+  const expectedId = 'TestModel';
   const expectedToStringResult = 'test 1 2 3';
   const expectedToStringFn = (x: any) => expectedToStringResult;
-  const TestModel = newModel('TestModel').toString(expectedToStringFn).build();
+  const testModelBuilder = newModel(expectedId).toString(expectedToStringFn);
+
+  const expectedModelBuilderToString = `ModelBuilder<${expectedId}>`;
+  t.is(testModelBuilder.toString(), expectedModelBuilderToString);
+
+  const TestModel = testModelBuilder.build();
   const testModelDef = getModelDef(TestModel);
   const testModelInstance = new TestModel();
 
@@ -110,6 +116,13 @@ test(`Model#build properly inherits properties from parent`, t => {
   t.is(eagleDef.props[lifespanKey].max, lifespanMax);
   t.falsy(eagleDef.props[lifespanKey].key);
 });
+
+test(`StaticCreate creates a new instance with id`, t => {
+  const expectedId = 'StaticTest';
+  const StaticTest = StaticCreate(expectedId).build();
+  const staticTestDef = getModelDef(StaticTest);
+  t.is(staticTestDef.id, expectedId);
+})
 
 function newModel(id: string) {
   return new ModelBuilder({ id });
