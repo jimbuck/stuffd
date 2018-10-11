@@ -11,9 +11,30 @@ export class ModelBuilder {
     return this._modelDefinition.id;
   }
 
+  public set id(value: string) {
+    this._modelDefinition.id = value;
+  }
+
   constructor(modelDefinition: ModelDefinition) {
     this._modelDefinition = modelDefinition;
     this._modelDefinition.props = this._modelDefinition.props || {};
+  }
+
+  public static build(modelBuilder: ModelBuilder): ModelDefinition {
+    let modelDef: ModelDefinition = modelBuilder._modelDefinition;
+    let BaseType: Constructor;
+    if (modelBuilder._modelDefinition.inherits) {
+      BaseType = modelBuilder._modelDefinition.inherits;
+      const parentModelDef = getModelDef(BaseType);
+      modelDef = Object.assign({}, parentModelDef, modelBuilder._modelDefinition);
+      
+      modelDef.props = Object.assign({}, parentModelDef.props, modelBuilder._modelDefinition.props);
+    } else {
+      modelDef = Object.assign({}, modelBuilder._modelDefinition);
+      modelDef.props = Object.assign({}, modelBuilder._modelDefinition.props);
+    }
+
+    return modelDef;
   }
 
   public name(name: string): this {
@@ -44,24 +65,13 @@ export class ModelBuilder {
   }
 
   public build<T=any>(): GeneratedConstructor<T> {
-    let modelDef: ModelDefinition = this._modelDefinition;
-    let BaseType: Constructor;
-    if (this._modelDefinition.inherits) {
-      BaseType = this._modelDefinition.inherits;
-      const parentModelDef = getModelDef(BaseType);
-      modelDef = Object.assign({}, parentModelDef, this._modelDefinition);
-      
-      modelDef.props = Object.assign({}, parentModelDef.props, this._modelDefinition.props);
-    } else {
-      modelDef = Object.assign({}, this._modelDefinition);
-      modelDef.props = Object.assign({}, this._modelDefinition.props);
-    }
+    let modelDef = ModelBuilder.build(this);
 
     const Type = (new Function(`"use strict";return (function ${this.id}(props){Object.assign(this, props);})`)()) as GeneratedConstructor<T>;
     setModelDef(Type, modelDef);
 
-    if (BaseType) {
-      Type.prototype = Object.create(BaseType.prototype);
+    if (this._modelDefinition.inherits) {
+      Type.prototype = Object.create(this._modelDefinition.inherits.prototype);
       Type.prototype.constructor = Type;
     }
 

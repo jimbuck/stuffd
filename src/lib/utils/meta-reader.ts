@@ -1,18 +1,41 @@
 import 'reflect-metadata';
 import { Constructor } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
+import { ModelBuilder } from '../builders/model-builder';
 
-export const ModelDefinitionKey = Symbol('jimmyboh:stuffd:modeldef');
 
 export function getDesignType(target: Object, prop: string) {
   return Reflect.getMetadata('design:type', target, prop);
 }
 
-export function getModelDef<T>(Target: Constructor<T>): ModelDefinition {
-  return Reflect.getMetadata(ModelDefinitionKey, Target) || {
-    props: {}
-  };
+//#region Model Builder Methods
+
+export const ModelBuilderKey = Symbol('jimmyboh:stuffd:modelbuilder');
+export function getModelBuilder<T>(Target: Constructor<T>): ModelBuilder {
+  return Reflect.getMetadata(ModelBuilderKey, Target) || new ModelBuilder({ id: null });
 }
+export function setModelBuilder<T>(Target: Constructor<T>, modelBuilder: ModelBuilder): void {
+  Reflect.defineMetadata(ModelBuilderKey, modelBuilder, Target);
+}
+export function removeModelBuilder<T>(Target: Constructor<T>): void {
+  Reflect.deleteMetadata(ModelBuilderKey, Target);
+}
+
+//#endregion
+
+//#region Model Definition Methods
+
+export const ModelDefinitionKey = Symbol('jimmyboh:stuffd:modeldef');
+export function getModelDef<T>(Target: Constructor<T>): ModelDefinition {
+  return Reflect.getMetadata(ModelDefinitionKey, Target) || { props: {} };
+}
+export function setModelDef<T>(Target: Constructor<T>, modelDef: ModelDefinition): void {
+  Reflect.defineMetadata(ModelDefinitionKey, modelDef, Target);
+}
+export function removeModelDef<T>(Target: Constructor<T>): void {
+  Reflect.deleteMetadata(ModelDefinitionKey, Target);
+}
+//#endregion
 
 export function getModelId<T>(Target: Constructor<T>): string {
   
@@ -21,10 +44,6 @@ export function getModelId<T>(Target: Constructor<T>): string {
   if (modelDef && modelDef.id) return modelDef.id;
 
   throw new Error(`Cannot get model ID for '${Target}'`);
-}
-
-export function setModelDef<T>(Target: Constructor<T>, modelDef: ModelDefinition): void {
-  Reflect.defineMetadata(ModelDefinitionKey, modelDef, Target);
 }
 
 export function getPrimaryKey(type: Constructor<any>): string {

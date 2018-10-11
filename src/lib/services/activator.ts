@@ -1,4 +1,4 @@
-import { Lookup, Constructor, GuidType, EnumType, GeneratedConstructor } from '../models/types';
+import { Lookup, Constructor, GuidType, GeneratedConstructor } from '../models/types';
 import { StoredEnum } from '../models/stored-enum';
 import { PropertyDefinition } from '../models/property-definition';
 import { ModelDefinition } from '../models/model-definition';
@@ -104,13 +104,13 @@ export class Activator {
         return this._createString(def);
       case GuidType:
         return this._rand.nextGuid();
-      case EnumType:
+      case StoredEnum:
         return this._createEnum(def);
       case Array:
         return this._createArray(def);
       default:
         // Complex object...
-        return this.create(def.type, 1)[0];
+        return this.create(def.type as Constructor, 1)[0];
     }
   }
 
@@ -156,7 +156,7 @@ export class Activator {
   }
 
   private _createEnum(def: PropertyDefinition): any {
-    let EnumType = def.secondaryType as StoredEnum;
+    let EnumType = def.type as StoredEnum;
     switch (def.designType) {
       case String:
         return this._rand.choice(EnumType.names);
@@ -180,12 +180,8 @@ export class Activator {
     childPropDef.min = null;
     childPropDef.max = null;
     
-    if (childPropDef.secondaryType instanceof StoredEnum) {
-      childPropDef.type = EnumType;
-    } else {
-      childPropDef.type = childPropDef.secondaryType;
-      childPropDef.secondaryType = null;
-    }
+    childPropDef.type = childPropDef.secondaryType;
+    childPropDef.secondaryType = null;
     return Array(length).fill(0).map(() => this._createProp(childPropDef));
   }
 }

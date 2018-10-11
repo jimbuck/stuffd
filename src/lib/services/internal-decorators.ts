@@ -1,13 +1,15 @@
-import { PropertyDefinition } from '../models/property-definition';
-import { getDesignType, getModelDef, setModelDef } from '../utils/meta-reader';
+import { getDesignType, setModelDef, getModelBuilder, setModelBuilder } from '../utils/meta-reader';
+import { ModelBuilder } from '../builders/model-builder';
+import { PropertyBuilder } from '../builders/property-builder';
 
 // Class Decorator
 export function ModelDecorator(id?: string): ClassDecorator {
   return function (Target: any) {
     id = id || Target.name;
-    let modelDef = getModelDef(Target);
-    modelDef.id = id;
+    let modelBuilder = getModelBuilder(Target);
+    modelBuilder.id = id;
 
+    const modelDef = ModelBuilder.build(modelBuilder);
     setModelDef(Target, modelDef);
 
     return Target;
@@ -15,17 +17,19 @@ export function ModelDecorator(id?: string): ClassDecorator {
 }
 
 // Property Decorator
-export function PropDecorator(propDef?: PropertyDefinition): PropertyDecorator {
-  propDef = propDef || {};
+export function PropDecorator(act: (mb: PropertyBuilder) => PropertyBuilder): PropertyDecorator {
 
   return function (target: any, prop: string) {
-    const type = getDesignType(target, prop);
-    let modelDef = getModelDef(target.constructor);
-    let prevPropDef = modelDef.props[prop] || {};
+    const designType = getDesignType(target, prop);
+    let modelBuilder = getModelBuilder(target.constructor);
 
-    modelDef.props[prop] = Object.assign({ type, designType: type }, prevPropDef, propDef);
-    if (modelDef.props[prop].key) modelDef.primaryKey = prop;
+    modelBuilder['_modelDefinition'].props[prop] = modelBuilder['_modelDefinition'].props[prop] || {};
 
-    setModelDef(target.constructor, modelDef);
+    modelBuilder['_modelDefinition'].props[prop].designType = designType;
+    if (!modelBuilder['_modelDefinition'].props[prop].type) modelBuilder['_modelDefinition'].props[prop].type = designType;
+
+    modelBuilder.prop(prop, act);
+
+    setModelBuilder(target.constructor, modelBuilder);
   }
 }

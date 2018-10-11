@@ -1,7 +1,8 @@
 import { test } from 'ava';
 
-import { getDesignType, setModelDef, getModelDef, getModelId, getPrimaryKey } from './meta-reader';
+import { getDesignType, setModelDef, getModelDef, getModelId, getPrimaryKey, setModelBuilder, getModelBuilder, removeModelBuilder, removeModelDef } from './meta-reader';
 import { ModelDefinition } from '../models/model-definition';
+import { ModelBuilder } from '../builders/model-builder';
 
 test(`getDesignType gets the TypeScript design type`, t => {
   t.plan(3);
@@ -19,13 +20,28 @@ test(`getDesignType gets the TypeScript design type`, t => {
   };
 });
 
-test(`getModelDef/setModelDef updates the model defintion on the target`, t => {
+test(`getModelBuilder/setModelBuilder/removeModelBuilder updates the model defintion on the target`, t => {
+  class TargetClass{}
+
+  let expectedModelBuilder = new ModelBuilder({ id: 'TargetClass' });
+  setModelBuilder(TargetClass, expectedModelBuilder);
+  let actualModelBuilder = getModelBuilder(TargetClass);
+  t.is(actualModelBuilder, expectedModelBuilder);
+  removeModelBuilder(TargetClass);
+  actualModelBuilder = getModelBuilder(TargetClass);
+  t.is(actualModelBuilder.id, null);
+});
+
+test(`getModelDef/setModelDef/removeModelDef updates the model defintion on the target`, t => {
   class TargetClass{}
 
   let expectedModelDef: ModelDefinition = { id: 'TargetClass' };
   setModelDef(TargetClass, expectedModelDef);
   let actualModelDef = getModelDef(TargetClass);
   t.is(actualModelDef, expectedModelDef);
+  removeModelDef(TargetClass);
+  actualModelDef = getModelDef(TargetClass);
+  t.deepEqual(actualModelDef, { props: {} } as any);
 });
 
 test(`getModelId returns the id if it exists`, t => {

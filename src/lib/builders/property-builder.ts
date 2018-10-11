@@ -3,6 +3,7 @@ import { TypeReference, GuidType, CustomGenerator, Constructor } from '../models
 import { getPrimaryKey } from '../utils/meta-reader';
 import { PropertyDefinition } from '../models/property-definition';
 import { Model } from '../..';
+import { StoredEnum } from '../models/stored-enum';
 
 export class PropertyBuilder {
 
@@ -68,6 +69,14 @@ export class PropertyBuilder {
     return this.type(GuidType);
   }
 
+  public enum(enumType: any): this {
+    const storedEnum = new StoredEnum(enumType);
+
+    this._definition.type = storedEnum;
+
+    return this;
+  }
+
   public str(): this;
   public str(length: number): this;
   public str(minLength: number, maxLength: number): this;
@@ -82,6 +91,17 @@ export class PropertyBuilder {
       this.range(pattern, maxLength);
     }
     
+    return this;
+  }
+
+  public bool(truthRate: number = 0.5): this {
+    this._definition.truthRate = truthRate;
+    this._definition.type = Boolean;
+    return this;
+  }
+
+  public optional(occuranceRate: number = 0.5): this {
+    this._definition.optional = occuranceRate;
     return this;
   }
 
