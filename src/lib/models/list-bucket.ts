@@ -24,6 +24,10 @@ export class ListBucket {
     this._data = {};
   }
 
+  public forEachKey(cb: (key: string) => void): void {
+    Object.keys(this._data).forEach(cb);
+  }
+
   private toJSON() {
     return this._data;
   }

@@ -136,12 +136,12 @@ test(`CollectionBuilder#create accepts an override of constants`, t => {
 });
 
 function createMockActivator(cb?: (Type: Constructor, count?: number | Lookup, constants?: Lookup) => void) {
-  class MockActivator extends Activator {
-    public create<T>(Type: Constructor<T>, count?: number | Lookup, constants?: Lookup): GeneratedArray<T> {
-      cb && cb(Type, count, constants);
-      return [];
-    }
-  }
+  const activator = new Activator();
 
-  return new MockActivator();
+  activator['create'] = (Type: Constructor, count?: number | Lookup, constants?: Lookup) => {
+    cb && cb(Type, count, constants);
+    return [] as GeneratedArray;
+  };
+
+  return activator;
 }

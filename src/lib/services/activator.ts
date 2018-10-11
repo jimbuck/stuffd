@@ -1,4 +1,4 @@
-import { Lookup, Constructor, GuidType, EnumType } from '../models/types';
+import { Lookup, Constructor, GuidType, EnumType, GeneratedConstructor } from '../models/types';
 import { StoredEnum } from '../models/stored-enum';
 import { PropertyDefinition } from '../models/property-definition';
 import { ModelDefinition } from '../models/model-definition';
@@ -10,10 +10,12 @@ import { Model } from '../..';
 export class Activator {
 
   private _rand: Random;
-  private _cache: ListBucket;
+  private _data: ListBucket;
+  private _types: Lookup<GeneratedConstructor>;
 
   constructor(seed?: number) {
-    this._cache = new ListBucket();
+    this._data = new ListBucket();
+    this._types = {};
     this._rand = new Random(seed);
   }
 
@@ -38,20 +40,27 @@ export class Activator {
       }
 
       let results = Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants));
-      return this._cache.add(modelDef.id, results);
+      this._types[modelDef.id] = Type;
+      return this._data.add(modelDef.id, results);
     } else {
       let crossed = countOrCrossed;
       let results = crossed.map(cross => this._createModel(Type as Constructor<T>, modelDef, Object.assign({}, cross, constants)));
-      return this._cache.add(modelDef.id, results);
+      this._types[modelDef.id] = Type;
+      return this._data.add(modelDef.id, results);
     }
   }
 
-  public data() {
-    return this._cache;
+  public get data() {
+    return this._data;
+  }
+
+  public get types() {
+    return this._types;
   }
 
   public clear() {
-    this._cache.clear();
+    this._data.clear();
+    this._types = {};
   }
 
   private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any> = {}): T {

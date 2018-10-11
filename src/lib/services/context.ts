@@ -30,8 +30,15 @@ export class Context {
         this._activator.clear();
     }
 
-    public data(): Lookup<any> {
-        return JSON.parse(this.json());
+    public data(): Lookup {
+        let copy: Lookup = {};
+
+        this._activator.data.forEachKey(id => {
+            const Type = this._activator.types[id];
+            copy[id] = this._activator.data.get(id).map(item => new Type(item));
+        });
+
+        return copy;
     }
 
     public json(): string;
@@ -45,6 +52,6 @@ export class Context {
             space = spaceOrFlag;
         }
 
-        return JSON.stringify(this._activator.data(), null, space);
+        return JSON.stringify(this._activator.data, null, space);
     }
 }

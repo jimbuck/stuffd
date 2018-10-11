@@ -60,3 +60,14 @@ test(`ListBucket#toJSON`, t => {
   let actualJson = JSON.stringify(bucket);
   t.is(actualJson, expectedJson);
 });
+
+test(`ListBucket#forEachKey`, t => {
+  const key = 'nums';
+  let bucket = new ListBucket();
+  let expectedRound1 = [1, 3, 5];
+  let expectedRound2 = [2, 4, 6];
+  bucket.add(key, expectedRound1);
+  bucket.add(key, expectedRound2);
+  let data = bucket.get(key);
+  t.is(data.length, 6);
+});
