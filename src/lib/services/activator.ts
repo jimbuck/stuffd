@@ -1,9 +1,10 @@
-import { Constructor, GuidType, EnumType, StoredEnum } from '../models/types';
+import { Lookup, Constructor, GuidType, EnumType } from '../models/types';
+import { StoredEnum } from '../models/stored-enum';
 import { PropertyDefinition } from '../models/property-definition';
 import { ModelDefinition } from '../models/model-definition';
 import { getModelDef } from '../services/meta-reader';
 import { Random } from '../utils/random';
-import { Lookup, ListBucket } from '../models/dictionary';
+import { ListBucket } from '../models/list-bucket';
 
 export class Activator {
 
@@ -81,7 +82,7 @@ export class Activator {
     }
 
     switch (def.type) {
-      case RegExp:
+      case (RegExp as any):
         throw new Error('RegExp cannot be generated randomly!');
       case Boolean:
         return this._rand.nextBoolean(def.truthRate);
@@ -131,6 +132,11 @@ export class Activator {
       return this._rand.nextPattern(def.pattern);
     }
 
+    if (def.length) {
+      let length = Math.max(Math.floor(def.length), 0);
+      return this._rand.nextString(length);
+    }
+
     let min, max;
     if (typeof def.min === 'number') min = def.min;
     if (typeof def.max === 'number') max = def.max;
@@ -145,7 +151,7 @@ export class Activator {
   }
 
   private _createEnum(def: PropertyDefinition): any {
-    let EnumType = def.secondaryType as StoredEnum;;
+    let EnumType = def.secondaryType as StoredEnum;
     switch (def.designType) {
       case String:
         return this._rand.choice(EnumType.names);
@@ -157,14 +163,29 @@ export class Activator {
   }
 
   private _createArray(def: PropertyDefinition): any[] {
-    let min, max;
-    if (typeof def.min === 'number') min = def.min;
-    if (typeof def.max === 'number') max = def.max;
-    if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with Collections!');
-
-    let length = this._rand.nextInt(min, max);
     let childPropDef = Object.assign({}, def);
-    childPropDef.type = childPropDef.secondaryType;
+    let length: number;
+
+    if (def.length) {
+      length = Math.max(Math.floor(def.length), 0);
+      childPropDef.length = null;
+    } else {
+      let min, max;
+      if (typeof def.min === 'number') min = def.min;
+      if (typeof def.max === 'number') max = def.max;
+      if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with Collections!');
+  
+      length = this._rand.nextInt(min, max);
+      childPropDef.min = null;
+      childPropDef.max = null;
+    }
+    
+    if (childPropDef.secondaryType instanceof StoredEnum) {
+      childPropDef.type = EnumType;
+    } else {
+      childPropDef.type = childPropDef.secondaryType;
+      childPropDef.secondaryType = null;
+    }
     return Array(length).fill(0).map(() => this._createProp(childPropDef));
   }
 }

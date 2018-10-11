@@ -1,7 +1,6 @@
 
-import { Lookup } from '../models/dictionary';
 import { PropertyDefinition } from './property-definition';
-import { Constructor } from './types';
+import { Lookup, Constructor  } from './types';
 
 export interface ModelDefinition {
   id: string;

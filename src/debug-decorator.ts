@@ -18,6 +18,10 @@ enum ModuleType {
   CargoBay,
 }
 
+enum Awards {
+  
+}
+
 enum ModuleSize {
   Small,
   Medium,

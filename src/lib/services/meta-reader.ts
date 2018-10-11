@@ -1,32 +1,22 @@
 import 'reflect-metadata';
 import { Constructor } from '../models/types';
 import { ModelDefinition } from '../models/model-definition';
-import { ModelBuilder } from '../builders/model-builder';
-import { isConstructor } from '../utils/type-guards';
 
-export const StuffMetadataKey = Symbol('jimmyboh.stuff.metadata');
+export const ModelDefinitionKey = Symbol('jimmyboh:stuffd:modeldef');
 
 export function getDesignType(target: Object, prop: string) {
   return Reflect.getMetadata('design:type', target, prop);
 }
 
 export function getModelDef<T>(Target: Constructor<T>): ModelDefinition {
-  return Reflect.getMetadata(StuffMetadataKey, Target) || {
+  return Reflect.getMetadata(ModelDefinitionKey, Target) || {
     props: {}
   };
 }
 
-export function getModelId<T>(Target: Constructor<T>|ModelBuilder|ModelDefinition): string {
-  if (Target instanceof ModelBuilder) {
-    return Target.id;
-  }
-
-  let modelDef;
-  if (isConstructor(Target)) {
-    modelDef = getModelDef(Target);
-  } else {
-    modelDef = Target;
-  }
+export function getModelId<T>(Target: Constructor<T>): string {
+  
+  let modelDef = getModelDef(Target);
 
   if (modelDef && modelDef.id) return modelDef.id;
 
@@ -34,7 +24,7 @@ export function getModelId<T>(Target: Constructor<T>|ModelBuilder|ModelDefinitio
 }
 
 export function setModelDef<T>(Target: Constructor<T>, modelDef: ModelDefinition): void {
-  Reflect.defineMetadata(StuffMetadataKey, modelDef, Target);
+  Reflect.defineMetadata(ModelDefinitionKey, modelDef, Target);
 }
 
 export function getPrimaryKey(type: Constructor<any>): string {

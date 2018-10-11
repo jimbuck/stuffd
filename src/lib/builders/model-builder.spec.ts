@@ -1,8 +1,6 @@
 import { test } from 'ava';
 
 import { ModelBuilder } from './model-builder';
-import { Dictionary } from '../models/dictionary';
-import { ModelDefinition } from '../models/model-definition';
 import { getModelDef } from '../services/meta-reader';
 
 test(`Model#id references the ModelDefinition id`, t => {
@@ -73,6 +71,17 @@ test(`Model#inherit links models`, t => {
   
   const eagleDef = getModelDef(Eagle);
   t.is(eagleDef.inherits, Animal);
+});
+
+test(`Model#toString adds custom toString method`, t => {
+  const expectedToStringResult = 'test 1 2 3';
+  const expectedToStringFn = (x: any) => expectedToStringResult;
+  const TestModel = newModel('TestModel').toString(expectedToStringFn).build();
+  const testModelDef = getModelDef(TestModel);
+  const testModelInstance = new TestModel();
+
+  t.is(testModelDef.toStringFn, expectedToStringFn);
+  t.is(testModelInstance.toString(), expectedToStringResult);
 });
 
 test(`Model#build properly inherits properties from parent`, t => {

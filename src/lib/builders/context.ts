@@ -1,8 +1,6 @@
-
-import { Lookup, ListBucket } from '../models/dictionary';
 import { Activator } from '../services/activator';
-import { Constructor } from '../models/types';
-import { CollectionReference, GeneratedArray } from './collection-reference';
+import { Lookup, Constructor, GeneratedArray } from '../models/types';
+import { CollectionBuilder } from './collection-builder';
 
 import { getModelId } from '../services/meta-reader';
 
@@ -20,15 +18,15 @@ export class Context {
 
     public create<T>(Type: Constructor<T>, count: number, constants: Lookup<any> = {}): GeneratedArray<T> {
         let typeId = getModelId(Type);
-        return new CollectionReference(this._activator).create<T>(Type, count, constants);
+        return new CollectionBuilder(this._activator).create<T>(Type, count, constants);
     }
 
     public using(data: Lookup<GeneratedArray>) {
-        return new CollectionReference(this._activator).using(data);
+        return new CollectionBuilder(this._activator).using(data);
     }
 
     public cross(data: Lookup<GeneratedArray>) {
-        return new CollectionReference(this._activator).cross(data);
+        return new CollectionBuilder(this._activator).cross(data);
     }
 
     public clear(): void {

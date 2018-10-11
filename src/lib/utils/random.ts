@@ -1,6 +1,6 @@
 import { Chance } from 'chance';
 import * as RandExp from 'randexp';
-import { Lookup } from '../models/dictionary';
+import { Lookup } from '../models/types';
 
 export class Random {
 

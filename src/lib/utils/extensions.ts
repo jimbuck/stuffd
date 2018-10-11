@@ -1,4 +1,4 @@
-import { Lookup } from '../models/dictionary';
+import { Lookup } from '../models/types';
 
 
 /**

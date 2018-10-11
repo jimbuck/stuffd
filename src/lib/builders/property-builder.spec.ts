@@ -3,7 +3,7 @@ import { test } from 'ava';
 import { PropertyBuilder } from './property-builder';
 
 import { PropertyDefinition } from '../models/property-definition';
-import { GuidType } from '../models/types';
+import { GuidType, CustomGenerator } from '../models/types';
 
 class TestClass {
   name: string;
@@ -11,21 +11,34 @@ class TestClass {
 }
 
 test(`Property#constructor allows an optional initial definition`, t => {
-  t.notThrows(newProp);
+  t.notThrows(() => newProp());
 
   const expectedDef: PropertyDefinition = {
-    name: 'test-property',
-    length: 42,
-    type: Date
+    id: 'EmployeeId',
+    length: 13,
+    type: String
   };
 
   const actualDef = PropertyBuilder.build(newProp(expectedDef));
-  t.is(actualDef.name, expectedDef.name);
+  t.is(actualDef.id, expectedDef.id);
   t.is(actualDef.length, expectedDef.length);
   t.is(actualDef.type, actualDef.type);
 });
 
-test.todo(`Property#prop can set fluently define properties`);
+test(`Property#prop can set fluently define properties`, t => {
+  const expectedId = 'EmployeeId';
+  const expectedType = String;
+  const expectedLength = 13;
+
+  const actualDef = PropertyBuilder.build(
+    newProp({ id: expectedId })
+      .type(expectedType)
+      .length(expectedLength));
+  
+  t.is(actualDef.id, expectedId);
+  t.is(actualDef.type, expectedType);
+  t.is(actualDef.length, expectedLength);
+});
 
 test(`Property#type accepts a type as well as secondary type`, t => {
   const nullTypeDef = PropertyBuilder.build(newProp().type(null));
@@ -101,6 +114,19 @@ test(`Property#float accepts min and max values`, t => {
 test(`Property#date accepts an optional min/max range`, t => {
   const stdDatePropDef = PropertyBuilder.build(newProp().date());
   t.is(stdDatePropDef.type, Date);
+
+  const minDate = new Date('01/02/2003'), maxDate = new Date('04/05/2006');
+  const customDatePropDef = PropertyBuilder.build(newProp().date(minDate, maxDate));
+  t.is(customDatePropDef.type, Date);
+  t.is(customDatePropDef.min, minDate);
+  t.is(customDatePropDef.max, maxDate);
+});
+
+test(`Property#custom accepts custom random generators`, t => {
+  const expectedCustomRand: CustomGenerator = (c => c.animal());
+  const stdDatePropDef = PropertyBuilder.build(newProp().type(String).custom(expectedCustomRand));
+  t.is(stdDatePropDef.type, String);
+  t.is(stdDatePropDef.custom, expectedCustomRand);
 
   const minDate = new Date('01/02/2003'), maxDate = new Date('04/05/2006');
   const customDatePropDef = PropertyBuilder.build(newProp().date(minDate, maxDate));

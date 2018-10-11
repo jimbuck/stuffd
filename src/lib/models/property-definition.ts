@@ -1,5 +1,6 @@
 
 import { TypeReference, CustomGenerator } from './types';
+import { StoredEnum } from './stored-enum';
 
 /**
  * Set of properties which are used to define model properties.
@@ -47,8 +48,8 @@ export interface PropertyDefinition {
   length?: number;
   pattern?: RegExp;
   optional?: number;
-  type?: any;
-  secondaryType?: any;
+  type?: TypeReference;
+  secondaryType?: TypeReference | StoredEnum;
   designType?: any;
   decimals?: number,
   choices?: any[] | (() => any[]);

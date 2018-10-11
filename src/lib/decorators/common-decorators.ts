@@ -1,5 +1,6 @@
 
-import { EnumType as EnumType, GuidType as GuidType, TypeReference, StoredEnum, CustomGenerator, Constructor } from '../models/types';
+import { EnumType as EnumType, GuidType as GuidType, TypeReference, CustomGenerator, Constructor } from '../models/types';
+import { StoredEnum } from '../models/stored-enum';
 import { Prop } from './base-decorator';
 import { getPrimaryKey } from '../services/meta-reader';
 
@@ -48,26 +49,18 @@ export function Guid() {
   return Type(GuidType);
 }
 
-export function Type<TPrimary, TSecondary>(type: TypeReference<TPrimary>, secondaryType: StoredEnum|TypeReference<TSecondary> = null) {
+export function Type<TPrimary, TSecondary>(type: TypeReference<TPrimary>, secondaryType: TypeReference<TSecondary> = null) {
   return Prop({ type, secondaryType });
 }
 
-export function Enum(specificType: any) {
-  const storedEnum: StoredEnum = {
-    names: [],
-    values: []
-  };
-  for (let item in specificType) {
-    if (isNaN(Number(item))) {
-      storedEnum.names.push(item);
-      storedEnum.values.push(Number(specificType[item]));
-    }
-  }
-  return Type(EnumType, storedEnum);
+export function Enum(enumType: any) {
+  const storedEnum = new StoredEnum(enumType);
+  
+  return Prop({ type: EnumType, secondaryType: storedEnum });
 }
 
-export function Collection(type: StoredEnum|TypeReference<any>) {
-  return Type(Array, type);
+export function Collection(itemType: StoredEnum|TypeReference<any>) {
+  return Prop({ type: Array, secondaryType: itemType });
 }
 
 export function Choice<T>(choices: T[] | (() => T[])) {
