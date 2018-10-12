@@ -19,11 +19,14 @@ export const Model: Model = Object.assign(
   {
     defaults: {
       minInteger: 0,
-      maxInteger: 100000000000,
-      minFloat: -100000000000,
-      maxFloat: 100000000000,
-      minString: 1,
-      maxString: 16
+      maxInteger: 999999999,
+      minFloat: -999999999,
+      maxFloat: 999999999,
+      maxFloatDecimals: 8,
+      minStringLength: 1,
+      maxStringLength: 16,
+      minArrayLength: 1,
+      maxArrayLength: 10
     },
     create: StaticCreate
   }

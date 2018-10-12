@@ -1,6 +1,7 @@
 import { getDesignType, setModelDef, getModelBuilder, setModelBuilder } from '../utils/meta-reader';
 import { ModelBuilder } from '../builders/model-builder';
 import { PropertyBuilder } from '../builders/property-builder';
+import { Constructor } from '../models/types';
 
 // Class Decorator
 export function ModelDecorator(): ClassDecorator {
@@ -16,8 +17,8 @@ export function ModelDecorator(): ClassDecorator {
 }
 
 // Property Decorator
-export function PropDecorator(act?: (mb: PropertyBuilder) => PropertyBuilder): PropertyDecorator {
-
+export function PropDecorator(act?: (mb: PropertyBuilder, designType: Constructor) => PropertyBuilder): PropertyDecorator {
+  act = act || (p => p);
   return function (target: any, prop: string) {
     const designType = getDesignType(target, prop);
     let modelBuilder = getModelBuilder(target.constructor);
@@ -30,8 +31,7 @@ export function PropDecorator(act?: (mb: PropertyBuilder) => PropertyBuilder): P
     }
 
     modelBuilder['_modelDefinition'].props[prop] = propDef;
-
-    modelBuilder.prop(prop, act || (p => p));
+    modelBuilder.prop(prop, p => act(p, designType));
 
     setModelBuilder(target.constructor, modelBuilder);
   }

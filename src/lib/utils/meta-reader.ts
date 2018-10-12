@@ -10,7 +10,7 @@ export function getDesignType(target: Object, prop: string) {
 
 //#region Model Builder Methods
 
-export const ModelBuilderKey = Symbol('jimmyboh:stuffd:modelbuilder');
+const ModelBuilderKey = Symbol('jimmyboh:stuffd:modelbuilder');
 export function getModelBuilder<T>(Target: Constructor<T>): ModelBuilder<T> {
   return Reflect.getMetadata(ModelBuilderKey, Target) || new ModelBuilder({ name: null });
 }
@@ -25,7 +25,7 @@ export function removeModelBuilder<T>(Target: Constructor<T>): void {
 
 //#region Model Definition Methods
 
-export const ModelDefinitionKey = Symbol('jimmyboh:stuffd:modeldef');
+const ModelDefinitionKey = Symbol('jimmyboh:stuffd:modeldef');
 export function getModelDef<T>(Target: Constructor<T>): ModelDefinition<T> {
   return Reflect.getMetadata(ModelDefinitionKey, Target) || { props: {} };
 }

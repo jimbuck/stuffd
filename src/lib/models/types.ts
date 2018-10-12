@@ -17,6 +17,9 @@ export interface RangeDefaults {
   maxInteger: number;
   minFloat: number;
   maxFloat: number;
-  minString: number;
-  maxString: number;
+  maxFloatDecimals: number;
+  minStringLength: number;
+  maxStringLength: number;
+  minArrayLength: number;
+  maxArrayLength: number;
 }

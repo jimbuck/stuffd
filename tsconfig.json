@@ -14,7 +14,8 @@
     "declaration": true,
     "noImplicitAny": true,
     "pretty": true,
-    "diagnostics": false
+    "diagnostics": false,
+    "lib": [ "es2016" ]
   },
   "exclude": [
     "node_modules",

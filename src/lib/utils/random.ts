@@ -17,7 +17,8 @@ export class Random {
     return this._chance.seed as number;
   }
 
-  public nextFloat(min: number, max: number, fixed: number = 10): number {
+  public nextFloat(min: number, max: number, fixed: number = 8): number {
+
     return this._chance.floating({ min, max, fixed });
   }
 

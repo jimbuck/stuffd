@@ -6,6 +6,7 @@ import { getModelDef } from '../utils/meta-reader';
 import { Random } from '../utils/random';
 import { ListBucket } from '../models/list-bucket';
 import { Model } from '../..';
+import { isStoredEnum } from '../utils/type-guards';
 
 export class Activator {
 
@@ -95,7 +96,7 @@ export class Activator {
     }
 
     if (def.type instanceof StoredEnum) {
-      return this._createEnum(def);
+      return this._createEnum(def.type, def.designType);
     }
 
     switch (def.type) {
@@ -110,7 +111,7 @@ export class Activator {
       case String:
         return this._createString(def);
       case GuidType:
-        return this._rand.nextGuid();
+        return this._createGuid();
       case Array:
         return this._createArray(def);
       default:
@@ -125,10 +126,24 @@ export class Activator {
     if (typeof def.max === 'number') max = def.max;
     if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with numbers!');
 
-    if (def.decimals === 0) {
-      return this._rand.nextInt(def.min as number, def.max as number);
+    if (typeof def.decimals === 'number' && def.decimals === 0) {
+      if (typeof min !== 'number') {
+        min = Model.defaults.minInteger;
+        max = Model.defaults.maxInteger;
+      }
+      return this._rand.nextInt(min, max);
     }
-    return this._rand.nextFloat(def.min as number, def.max as number, def.decimals);
+
+    if (typeof min !== 'number') {
+      min = Model.defaults.minFloat;
+      max = Model.defaults.maxFloat;
+    }
+    let decimals = def.decimals || Model.defaults.maxFloatDecimals;
+    return this._rand.nextFloat(min, max, decimals);
+  }
+
+  private _createGuid() {
+    return this._rand.nextGuid();
   }
 
   private _createDate(def: PropertyDefinition): Date {
@@ -152,17 +167,16 @@ export class Activator {
     if (typeof def.max === 'number') max = def.max;
     if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with string lengths!');
     if (typeof min !== 'number') {
-      min = Model.defaults.minString;
-      max = Model.defaults.maxString;
+      min = Model.defaults.minStringLength;
+      max = Model.defaults.maxStringLength;
     }
 
     let length = this._rand.nextInt(min, max);
     return this._rand.nextString(length);
   }
 
-  private _createEnum(def: PropertyDefinition): any {
-    let EnumType = def.type as StoredEnum;
-    switch (def.designType) {
+  private _createEnum(EnumType: StoredEnum, designType: typeof String | typeof Number): any {
+    switch (designType) {
       case String:
         return this._rand.choice(EnumType.names);
       case Number:
@@ -173,20 +187,29 @@ export class Activator {
   }
 
   private _createArray(def: PropertyDefinition): any[] {
-    let childPropDef = Object.assign({}, def);
     let length: number;
 
     let min, max;
     if (typeof def.min === 'number') min = def.min;
     if (typeof def.max === 'number') max = def.max;
-    if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with Collections!');
+    if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with Lists!');
+    if (typeof min !== 'number') {
+      min = Model.defaults.minArrayLength;
+      max = Model.defaults.maxArrayLength;
+    }
 
     length = this._rand.nextInt(min, max);
-    childPropDef.min = null;
-    childPropDef.max = null;
-    
-    childPropDef.type = childPropDef.secondaryType;
-    childPropDef.secondaryType = null;
-    return Array(length).fill(0).map(() => this._createProp(childPropDef, new ListBucket()));
+
+    let createItem: () => any;
+    if (def.secondaryType === GuidType) {
+      createItem = (() => this._createGuid());
+    } else if (isStoredEnum(def.secondaryType)) {
+      createItem = (() => this._createEnum(def.secondaryType as StoredEnum, Number));
+    } else {
+      let childPropDef = getModelDef(def.secondaryType);
+      createItem = (() => this._createModel(def.secondaryType as Constructor, childPropDef, {}, new ListBucket()));
+    }
+
+    return Array(length).fill(0).map(createItem);
   }
 }

@@ -37,7 +37,7 @@ export interface PropertyDefinition {
   pattern?: RegExp;
   optional?: number;
   type?: TypeReference;
-  secondaryType?: TypeReference | StoredEnum;
+  secondaryType?: TypeReference;
   designType?: any;
   decimals?: number,
   pick?: any[] | (() => any[]);
