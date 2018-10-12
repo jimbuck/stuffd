@@ -91,6 +91,10 @@ export class Activator {
       return '<TODO>';
     }
 
+    if (def.type instanceof StoredEnum) {
+      return this._createEnum(def);
+    }
+
     switch (def.type) {
       case (RegExp as any):
         throw new Error('RegExp cannot be generated randomly!');
@@ -104,8 +108,6 @@ export class Activator {
         return this._createString(def);
       case GuidType:
         return this._rand.nextGuid();
-      case StoredEnum:
-        return this._createEnum(def);
       case Array:
         return this._createArray(def);
       default:
