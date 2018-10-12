@@ -71,9 +71,7 @@ export class PropertyBuilder {
 
   public enum(enumType: any): this {
     const storedEnum = new StoredEnum(enumType);
-
     this._definition.type = storedEnum;
-
     return this;
   }
 

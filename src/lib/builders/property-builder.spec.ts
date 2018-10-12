@@ -6,6 +6,7 @@ import { PropertyDefinition } from '../models/property-definition';
 import { CustomGenerator, GuidType } from '../models/types';
 import { Model } from '../..';
 import { ModelBuilder } from './model-builder';
+import { StoredEnum } from '../models/stored-enum';
 
 class TestClass {
   name: string;
@@ -135,7 +136,29 @@ test(`PropertyBuilder#str accepts optional length, min/max or Regexp`, t => {
   t.is(typeof defaultPropDef.pattern, 'undefined');
 });
 
-test.todo(`PropertyBuilder#bool defaults the truth rate to 50/50`);
+test(`PropertyBuilder#bool defaults the truth rate to 50/50`, t => {
+  const expectedRate = 0.5;
+  const propDef = PropertyBuilder.build(newProp().bool());
+  t.is(propDef.truthRate, expectedRate);
+});
+
+test(`PropertyBuilder#bool accepts a custom truth rate`, t => {
+  const expectedRate = 0.8;
+  const propDef = PropertyBuilder.build(newProp().bool(expectedRate));
+  t.is(propDef.truthRate, expectedRate);
+});
+
+test(`PropertyBuilder#optional defaults the occurrance rate to 50/50`, t => {
+  const expectedRate = 0.5;
+  const propDef = PropertyBuilder.build(newProp().optional());
+  t.is(propDef.optional, expectedRate);
+});
+
+test(`PropertyBuilder#optional accepts a custom occurrance rate`, t => {
+  const expectedRate = 0.8;
+  const propDef = PropertyBuilder.build(newProp().optional(expectedRate));
+  t.is(propDef.optional, expectedRate);
+});
 
 test(`PropertyBuilder#integer accepts min and max values`, t => {
   const defaultPropDef = PropertyBuilder.build(newProp().integer());
@@ -199,6 +222,17 @@ test(`PropertyBuilder#date accepts an optional min/max range`, t => {
 test(`PropertyBuilder#guid marks the type as GuidType`, t => {
   const propDef = PropertyBuilder.build(newProp().guid());
   t.is(propDef.type, GuidType);
+});
+
+test(`PropertyBuilder#enum tracks a StoredEnum`, t => {
+  enum LightSwitch {
+    Off, On
+  }
+  const expectedStoredEnum = new StoredEnum(LightSwitch);
+  const propDef = PropertyBuilder.build(newProp().enum(LightSwitch));
+  let lightSwitchStored = propDef.type as StoredEnum;
+  t.true(lightSwitchStored instanceof StoredEnum);
+  t.deepEqual(lightSwitchStored, expectedStoredEnum);
 });
 
 test(`PropertyBuilder#choices accepts an array of options`, t => {
