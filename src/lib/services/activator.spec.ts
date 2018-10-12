@@ -88,7 +88,7 @@ test(`Activator optionally accepts a seed`, t => {
       t.context.trueCount = trueCount;
 
       if (totalCount >= 5000) {
-        t.is(Math.floor(10 * trueCount / totalCount) / 10, 0.7);
+        t.is(Math.round(10 * trueCount / totalCount) / 10, 0.7);
       }
     }
   },
