@@ -135,6 +135,8 @@ test(`PropertyBuilder#str accepts optional length, min/max or Regexp`, t => {
   t.is(typeof defaultPropDef.pattern, 'undefined');
 });
 
+test.todo(`PropertyBuilder#bool defaults the truth rate to 50/50`);
+
 test(`PropertyBuilder#integer accepts min and max values`, t => {
   const defaultPropDef = PropertyBuilder.build(newProp().integer());
   t.is(defaultPropDef.type, Number);

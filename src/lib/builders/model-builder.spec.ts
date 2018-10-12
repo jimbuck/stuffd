@@ -2,13 +2,23 @@ import { test } from 'ava';
 
 import { ModelBuilder, StaticCreate } from './model-builder';
 import { getModelDef } from '../utils/meta-reader';
-import { Model } from '../..';
+import { Constructor } from '../models/types';
 
-test(`Model#id references the ModelDefinition id`, t => {
-  const expectedId = 'TestModelIdentifier';
-  const m = newModel(expectedId);
+test(`Model#name returns the ModelDefinition name`, t => {
+  const expectedName = 'TestModelIdentifier';
+  let m = newModel(expectedName);
 
-  t.is(m.name, expectedId);
+  t.is(m.name, expectedName);
+});
+
+test(`Model#name updates the ModelDefinition name`, t => {
+  const expectedName = 'TestModelIdentifier';
+  const wrongName = 'WrongPropertyName';
+  
+  let m = newModel(wrongName);
+  t.is(m.name, wrongName);
+  m.name = expectedName;
+  t.is(m.name, expectedName);
 });
 
 test(`Model#prop creates a new Property`, t => {
@@ -64,6 +74,27 @@ test(`Model#inherit links models`, t => {
   
   const eagleDef = getModelDef(Eagle);
   t.is(eagleDef.inherits, Animal);
+});
+
+test(`Model#child creates a nested type`, t => {
+  const expectedPropName = 'ship';
+  const expectedChildTypeName = 'StarFighter';
+  const expectedSquadChoices = ['red', 'blue', 'yellow', 'green'];
+  let Pilot = newModel('Pilot')
+    .child(expectedPropName, expectedChildTypeName, s => s
+      .prop('name', n => n.str(/[A-Z] Wing [IIVVXCD]{1,2}/))
+      .prop('squadron', s => s.choices(expectedSquadChoices))
+    )
+    .build();
+  
+  const pilotDef = getModelDef(Pilot);
+  const ChildType = pilotDef.props[expectedPropName].type as Constructor;
+  t.is(ChildType.name, expectedChildTypeName);
+  const childDef = getModelDef(ChildType);
+  t.true(childDef.props['name'].pattern instanceof RegExp);
+  t.deepEqual(childDef.props['squadron'].choices, expectedSquadChoices);
+  let child = new ChildType();
+  t.true(child instanceof ChildType);
 });
 
 test(`Model#toString adds custom toString method`, t => {

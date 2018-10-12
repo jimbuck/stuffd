@@ -9,6 +9,16 @@ const Person = Model.create('Person')
     .prop('dateOfBirth', dob => dob.date())
     .build();
 
+const Athlete = Model.create('Athlete')
+    .inherits(Person)
+    .child('stats', 'Stats', s => s
+        .prop('games', g => g.integer(3, 30))
+        .prop('starts', s => s.integer(0, 30))
+        .prop('errs', g => g.integer(0, 15))
+        .prop('yearsPlayed', f => f.integer(1, 7))
+    )
+    .build();
+
 const Student = Model.create('Student')
     .inherits(Person)
     .key('identifier', id => id.guid())
@@ -39,6 +49,8 @@ const Grade = Model.create('Grade')
     .build();
 
 const ctx = new Context(246);
+
+const athletes = ctx.create(Athlete, 3);
 
 const students = ctx.create(Student, 50);
 

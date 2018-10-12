@@ -9,7 +9,7 @@
     "watch": "concurrently npm:watch:*",
     "watch:build": "tsc --watch",
     "watch:test": "ava --watch",
-    "test": "tsc && nyc --cache --color -a ava -v",
+    "test": "rimraf ./dist/** ./coverage && tsc && nyc --cache --color -a ava -v",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "preversion": "npm test",
     "version": "git add -A",

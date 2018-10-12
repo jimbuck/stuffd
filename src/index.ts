@@ -10,8 +10,8 @@ export { CustomGenerator, RangeDefaults } from './lib/models/types';
 
 interface Model {
   defaults: RangeDefaults;
-  (id?: string): ClassDecorator;
-  create(id: string): ModelBuilder;
+  (name?: string): ClassDecorator;
+  create(name: string): ModelBuilder;
 }
 
 export const Model: Model = Object.assign(
