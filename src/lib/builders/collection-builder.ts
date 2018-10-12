@@ -41,12 +41,14 @@ export class CollectionBuilder {
       count = 0;
     }
 
+    constants = constants || {};
+
     if (this._crossRefs && Object.keys(this._crossRefs).length > 0) {
       let crossedProps = this._crossProps();
-      let result = this._activator.create<T>(Type, crossedProps, constants);
+      let result = this._activator.create<T>(Type, crossedProps, constants, this._explicitRefs);
       return result;
     } else if(count > 0) {
-      let result = this._activator.create<T>(Type, count, constants);
+      let result = this._activator.create<T>(Type, count, constants, this._explicitRefs);
       return result;
     } else {
       throw new Error(`Must provide a count or cross against existing data!`);

@@ -17,11 +17,6 @@ export class PropertyBuilder {
     return Object.assign({}, propBuilder._definition);
   }
 
-  public key(): this {
-    this._definition.key = true;
-    return this;
-  }
-
   public ref<T, K extends keyof T>(type: Constructor<T>, refKey?: K): this {
     let foreignKey = typeof refKey === 'string' ? refKey : getPrimaryKey(type);
     if (!foreignKey) {
@@ -47,9 +42,8 @@ export class PropertyBuilder {
     return this.range(len, len);
   }
 
-  public choices<T>(choices: T[] | (() => T[])): this {
-    this._definition.choices = Array.isArray(choices) ? choices.slice() : choices;
-
+  public pick<T>(choices: T[] | (() => T[])): this {
+    this._definition.pick = Array.isArray(choices) ? choices.slice() : choices;
     return this;
   }
 

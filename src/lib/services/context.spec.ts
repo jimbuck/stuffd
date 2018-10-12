@@ -40,7 +40,7 @@ test(`Context#cross returns a populated CollectionBuilder`, t => {
 
 // Maches CollectionBuilder#create
 test(`Context#create requires count or cross`, t => {
-  const Num = StaticCreate('Num').key('id', id => id.choices([1, 2])).build();
+  const Num = StaticCreate('Num').key('id', id => id.pick([1, 2])).build();
 
   const ctx = createContext();
 
@@ -65,8 +65,8 @@ test(`Context#create returns result for each cross`, t => {
   const color = ['red', 'white', 'blue'];
   const num = [1, 2];
 
-  const Col = StaticCreate('Col').key('id', c => c.choices(color)).build();
-  const Num = StaticCreate('Num').key('id', id => id.choices(num)).build();
+  const Col = StaticCreate('Col').key('id', c => c.pick(color)).build();
+  const Num = StaticCreate('Num').key('id', id => id.pick(num)).build();
   const TestThing = StaticCreate('TestThing')
     .key('id', id => id.guid())
     .ref('color', Col)
@@ -92,8 +92,8 @@ test(`Context#create returns result for each cross`, t => {
 
 // Maches CollectionBuilder#create
 test(`Context#create requires each list to have one or more generated items`, t => {
-  const Col = StaticCreate('Col').key('id', c => c.choices(['red', 'white', 'blue'])).build();
-  const Num = StaticCreate('Num').key('id', id => id.choices([1, 2])).build();
+  const Col = StaticCreate('Col').key('id', c => c.pick(['red', 'white', 'blue'])).build();
+  const Num = StaticCreate('Num').key('id', id => id.pick([1, 2])).build();
   const TestThing = StaticCreate('TestThing')
     .key('id', id => id.guid())
     .ref('color', Col)

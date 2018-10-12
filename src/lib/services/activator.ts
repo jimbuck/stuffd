@@ -23,9 +23,9 @@ export class Activator {
     return this._rand.seed;
   }
 
-  public create<T>(Type: Constructor<T>, count: number | Lookup<any>, constants?: Lookup<any>): T[];
-  public create<T>(Type: Constructor<T>, crossed: Array<Lookup<any>>, constants?: Lookup<any>): T[];
-  public create<T>(Type: Constructor<T>, countOrCrossed: number|Array<Lookup<any>>, constants: Lookup<any> = {}): T[] {
+  public create<T>(Type: Constructor<T>, count: number | Lookup<any>, constants: Lookup<any>, refs: ListBucket): T[];
+  public create<T>(Type: Constructor<T>, crossed: Array<Lookup<any>>, constants: Lookup<any>, refs: ListBucket): T[];
+  public create<T>(Type: Constructor<T>, countOrCrossed: number|Array<Lookup<any>>, constants: Lookup<any>, refs: ListBucket): T[] {
     
     let modelDef = getModelDef(Type);
 
@@ -39,12 +39,12 @@ export class Activator {
         throw new Error(`Count must be greater than zero when generating entites!`);
       }
 
-      let results = Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants));
+      let results = Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants, refs));
       this._types[modelDef.name] = Type;
       return this._data.add(modelDef.name, results);
     } else {
       let crossed = countOrCrossed;
-      let results = crossed.map(cross => this._createModel(Type as Constructor<T>, modelDef, Object.assign({}, cross, constants)));
+      let results = crossed.map(cross => this._createModel(Type as Constructor<T>, modelDef, Object.assign({}, cross, constants), refs));
       this._types[modelDef.name] = Type;
       return this._data.add(modelDef.name, results);
     }
@@ -63,21 +63,21 @@ export class Activator {
     this._types = {};
   }
 
-  private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any> = {}): T {
+  private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any>, refs: ListBucket): T {
     let target: any = new Type();
     for (let prop in modelDef.props) {
       let propDef = modelDef.props[prop];
       if (typeof propDef.optional === 'number' && !this._rand.nextBoolean(propDef.optional)) continue;
 
-      target[prop] = this._createProp(propDef);
+      target[prop] = this._createProp(propDef, refs);
     }
     Object.assign(target, constants);
     return target;
   }
 
-  private _createProp(def: PropertyDefinition): any {
-    if (typeof def.choices !== 'undefined') {
-      let choices = def.choices;
+  private _createProp(def: PropertyDefinition, refs: ListBucket): any {
+    if (typeof def.pick !== 'undefined') {
+      let choices = def.pick;
       if (typeof choices === 'function') choices = choices();
       return this._rand.choice(choices);
     }
@@ -87,7 +87,10 @@ export class Activator {
     }
 
     if (def.ref) {
-      // TODO: Find an instance and get the foreignKey...
+      // let availableRefs = refs.get(def.name);
+      // if(!availableRefs || availableRefs.length === 0) availableRefs = this._types[def.ref.name]
+      // let item = this._rand.choice()
+      // return return item[def.foreignKey];
       return '<TODO>';
     }
 
@@ -112,7 +115,7 @@ export class Activator {
         return this._createArray(def);
       default:
         // Complex object...
-        return this.create(def.type as Constructor, 1)[0];
+        return this.create(def.type as Constructor, 1, {}, new ListBucket())[0];
     }
   }
 
@@ -184,6 +187,6 @@ export class Activator {
     
     childPropDef.type = childPropDef.secondaryType;
     childPropDef.secondaryType = null;
-    return Array(length).fill(0).map(() => this._createProp(childPropDef));
+    return Array(length).fill(0).map(() => this._createProp(childPropDef, new ListBucket()));
   }
 }

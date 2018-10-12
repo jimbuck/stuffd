@@ -3,9 +3,9 @@ import { PropertyBuilder } from './property-builder';
 import { setModelDef, getPrimaryKey, getModelDef } from '../utils/meta-reader';
 import { Constructor, GeneratedConstructor } from '../models/types';
 
-export class ModelBuilder {
+export class ModelBuilder<T=any> {
 
-  private _modelDefinition: ModelDefinition;
+  private _modelDefinition: ModelDefinition<T>;
 
   public get name(): string {
     return this._modelDefinition.name;
@@ -15,12 +15,12 @@ export class ModelBuilder {
     this._modelDefinition.name = value;
   }
 
-  constructor(modelDefinition: ModelDefinition) {
+  constructor(modelDefinition: ModelDefinition<T>) {
     this._modelDefinition = modelDefinition;
     this._modelDefinition.props = this._modelDefinition.props || {};
   }
 
-  public static build(modelBuilder: ModelBuilder): ModelDefinition {
+  public static build<T=any>(modelBuilder: ModelBuilder<T>): ModelDefinition<T> {
     let modelDef: ModelDefinition = modelBuilder._modelDefinition;
     let BaseType: Constructor;
     if (modelBuilder._modelDefinition.inherits) {
@@ -46,12 +46,15 @@ export class ModelBuilder {
 
   public key(name: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
     this._modelDefinition.primaryKey = name;
-    return this.prop(name, i => cb(i.key()));
+    return this.prop(name, i => {
+      i['_definition'].key = true;
+      return cb(i);
+    });
   }
 
-  public ref(name: string, ref: Constructor, refKey?: string): this {
+  public ref<T, K extends keyof T>(name: string, ref: Constructor<T>, refKey?: K): this {
     let foreignKey = refKey || getPrimaryKey(ref);
-    return this.prop(name, x => x.ref<any, string>(ref, foreignKey));
+    return this.prop(name, x => x.ref<T, K>(ref, foreignKey as any));
   }
 
   public inherits<T=any>(model: Constructor<T>): this {    
@@ -59,15 +62,24 @@ export class ModelBuilder {
     return this;
   }
 
-  public child(id: string, typeName: string, buildChild: (mb: ModelBuilder) => ModelBuilder): this {
+  public child<T=any>(id: string, typeName: string, buildChild: (mb: ModelBuilder<T>) => ModelBuilder<T>): this {
     let childModel = new ModelBuilder({ name: typeName });
     let ChildType = buildChild(childModel).build();
     this.prop(id, c => c.type(ChildType));
     return this;
   }
 
-  public build<T=any>(): GeneratedConstructor<T> {
-    let modelDef = ModelBuilder.build(this);
+  public build(): GeneratedConstructor<T> {
+    this._modelDefinition.props
+    let modelDef = ModelBuilder.build<T>(this);
+
+    let keys = Object.keys(modelDef.props).map(p => modelDef.props[p]).filter(propDef => propDef.key);
+    if (keys.length > 1) {
+      throw new Error(`Only one property can be marked as a key!`);
+    }
+    if (keys.length === 1) {
+      modelDef.primaryKey = keys[0].name;
+    }
 
     const Type = (new Function(`"use strict";return (function ${this.name}(props){Object.assign(this, props);})`)()) as GeneratedConstructor<T>;
     setModelDef(Type, modelDef);

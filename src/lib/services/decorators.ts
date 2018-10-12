@@ -9,31 +9,35 @@ interface RangeDef {
 
 interface IntegerDef {
   (): PropertyDecorator;
-  (minLength: number, maxLength: number): PropertyDecorator;
+  (min: number, max: number): PropertyDecorator;
 }
 
 interface FloatDef {
   (): PropertyDecorator;
   (decimals: number): PropertyDecorator;
-  (minLength: number, maxLength: number): PropertyDecorator;
-  (decimals: number, minLength: number, maxLength: number): PropertyDecorator;
+  (min: number, max: number): PropertyDecorator;
+  (decimals: number, min: number, max: number): PropertyDecorator;
 }
 
 interface StringDef {
   (): PropertyDecorator;
+  (length: number): PropertyDecorator;
   (minLength: number, maxLength: number): PropertyDecorator;
   (pattern: RegExp): PropertyDecorator;
 }
 
 export function Key() {
-  return PropDecorator(p => p.key());
+  return PropDecorator(p => {
+    p['_definition'].key = true;
+    return p;
+  });
 }
 
 export function Length(length: number) {
-  return Range(length, length);
+  return PropDecorator(p => p.length(length));
 }
 
-export function Optional(occuranceRate: number) {
+export function Optional(occuranceRate?: number) {
   return PropDecorator(p => p.optional(occuranceRate));
 }
 
@@ -41,8 +45,13 @@ export const Range: RangeDef = function Range(min: number | Date, max: number | 
   return PropDecorator(p => p.range(min as any, max as any));
 };
 
-export const Float: FloatDef = function Float(decimals?: number, minLength?: number, maxLength?: number) {
-  return PropDecorator(p => p.float(decimals, minLength, maxLength));
+export const Float: FloatDef = function Float(decimals?: number, min?: number, max?: number) {
+  if (arguments.length === 2) {
+    max = min;
+    min = decimals;
+    decimals = null;
+  }
+  return PropDecorator(p => p.float(decimals, min, max));
 }
 
 export const Integer: IntegerDef = function Integer(min?: number, max?: number) {
@@ -69,8 +78,8 @@ export function Collection(itemType: StoredEnum | TypeReference<any>) {
   return PropDecorator(p => p.array(itemType));
 }
 
-export function Choice<T>(choices: T[] | (() => T[])) {
-  return PropDecorator(p => p.choices(choices));
+export function Pick<T>(choices: T[] | (() => T[])) {
+  return PropDecorator(p => p.pick(choices));
 }
 
 export const Str: StringDef = function Pattern(pattern?: number | RegExp, maxLength?: number) {

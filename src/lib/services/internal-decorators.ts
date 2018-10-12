@@ -3,11 +3,10 @@ import { ModelBuilder } from '../builders/model-builder';
 import { PropertyBuilder } from '../builders/property-builder';
 
 // Class Decorator
-export function ModelDecorator(name?: string): ClassDecorator {
+export function ModelDecorator(): ClassDecorator {
   return function (Target: any) {
-    name = name || Target.name;
     let modelBuilder = getModelBuilder(Target);
-    modelBuilder.name = name;
+    modelBuilder.name = Target.name;
 
     const modelDef = ModelBuilder.build(modelBuilder);
     setModelDef(Target, modelDef);
@@ -32,7 +31,7 @@ export function PropDecorator(act?: (mb: PropertyBuilder) => PropertyBuilder): P
 
     modelBuilder['_modelDefinition'].props[prop] = propDef;
 
-    act && modelBuilder.prop(prop, act);
+    modelBuilder.prop(prop, act || (p => p));
 
     setModelBuilder(target.constructor, modelBuilder);
   }

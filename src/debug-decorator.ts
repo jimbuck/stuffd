@@ -1,5 +1,5 @@
 import { EOL } from 'os';
-import { Context, Model, Prop, Key, Integer, Range, Float, Str, Choice, Enum, Collection, Bool, Guid, Ref, Custom } from '.';
+import { Context, Model, Prop, Key, Integer, Range, Float, Str, Pick, Enum, Collection, Bool, Guid, Ref, Custom } from '.';
 
 const EMPTY_STRING = '';
 
@@ -35,7 +35,7 @@ class Manufacturer {
   @Key() @Guid()
   id: string;
 
-  @Choice(['Rocketdyne', 'Areojet', 'Boeing', 'Lockheed', 'SpaceX', 'Kerbal'])
+  @Pick(['Rocketdyne', 'Areojet', 'Boeing', 'Lockheed', 'SpaceX', 'Kerbal'])
   name: string;
 
   @Range(new Date('01/01/1950'), new Date())

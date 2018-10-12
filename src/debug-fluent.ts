@@ -28,7 +28,7 @@ const Student = Model.create('Student')
 const Teacher = Model.create('Teacher')
     .inherits(Person)
     .key('identifier', id => id.guid())
-    .prop('degree', d => d.choices(['Science', 'History', 'Math']))
+    .prop('degree', d => d.pick(['Science', 'History', 'Math']))
     .prop('salary', s => s.float(2, 30000, 80000))
     .build();
 
@@ -41,7 +41,7 @@ const Class = Model.create('Class')
     .build();
 
 const Grade = Model.create('Grade')
-    .prop('identifier', id => id.key().guid())
+    .key('identifier', id => id.guid())
     .prop('grade', g => g.float(2, 65, 100))
     .ref('studentIdentifier', Student)
     .ref('classIdentifier', Class)

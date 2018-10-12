@@ -11,10 +11,10 @@ export function getDesignType(target: Object, prop: string) {
 //#region Model Builder Methods
 
 export const ModelBuilderKey = Symbol('jimmyboh:stuffd:modelbuilder');
-export function getModelBuilder<T>(Target: Constructor<T>): ModelBuilder {
+export function getModelBuilder<T>(Target: Constructor<T>): ModelBuilder<T> {
   return Reflect.getMetadata(ModelBuilderKey, Target) || new ModelBuilder({ name: null });
 }
-export function setModelBuilder<T>(Target: Constructor<T>, modelBuilder: ModelBuilder): void {
+export function setModelBuilder<T>(Target: Constructor<T>, modelBuilder: ModelBuilder<T>): void {
   Reflect.defineMetadata(ModelBuilderKey, modelBuilder, Target);
 }
 export function removeModelBuilder<T>(Target: Constructor<T>): void {
@@ -26,10 +26,10 @@ export function removeModelBuilder<T>(Target: Constructor<T>): void {
 //#region Model Definition Methods
 
 export const ModelDefinitionKey = Symbol('jimmyboh:stuffd:modeldef');
-export function getModelDef<T>(Target: Constructor<T>): ModelDefinition {
+export function getModelDef<T>(Target: Constructor<T>): ModelDefinition<T> {
   return Reflect.getMetadata(ModelDefinitionKey, Target) || { props: {} };
 }
-export function setModelDef<T>(Target: Constructor<T>, modelDef: ModelDefinition): void {
+export function setModelDef<T>(Target: Constructor<T>, modelDef: ModelDefinition<T>): void {
   Reflect.defineMetadata(ModelDefinitionKey, modelDef, Target);
 }
 export function removeModelDef<T>(Target: Constructor<T>): void {
@@ -39,15 +39,15 @@ export function removeModelDef<T>(Target: Constructor<T>): void {
 
 export function getModelId<T>(Target: Constructor<T>): string {
   
-  let modelDef = getModelDef(Target);
+  let modelDef = getModelDef<T>(Target);
 
   if (modelDef && modelDef.name) return modelDef.name;
 
   throw new Error(`Cannot get model ID for '${Target}'`);
 }
 
-export function getPrimaryKey(type: Constructor<any>): string {
-  let modelDef = getModelDef(type);
+export function getPrimaryKey<T>(type: Constructor<any>): string {
+  let modelDef = getModelDef<T>(type);
 
   return modelDef.primaryKey;
 }

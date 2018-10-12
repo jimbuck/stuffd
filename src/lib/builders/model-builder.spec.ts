@@ -56,6 +56,12 @@ test(`Model#key creates a Property marked as a key`, t => {
   t.true(modelDef.props[expectedPropName].key);
 });
 
+test(`Model#key can only be called once`, t => {
+  const modelBuilder = newModel('TestModel').key('propName', x => x).key('otherPropName', x => x);
+
+  t.throws(() => modelBuilder.build());
+});
+
 test(`Model#ref creates a Property marked as a reference`, t => {
   const expectedPropName = 'propName';
   const expectedForeignKey = 'specialId';
@@ -83,7 +89,7 @@ test(`Model#child creates a nested type`, t => {
   let Pilot = newModel('Pilot')
     .child(expectedPropName, expectedChildTypeName, s => s
       .prop('name', n => n.str(/[A-Z] Wing [IIVVXCD]{1,2}/))
-      .prop('squadron', s => s.choices(expectedSquadChoices))
+      .prop('squadron', s => s.pick(expectedSquadChoices))
     )
     .build();
   
@@ -92,7 +98,7 @@ test(`Model#child creates a nested type`, t => {
   t.is(ChildType.name, expectedChildTypeName);
   const childDef = getModelDef(ChildType);
   t.true(childDef.props['name'].pattern instanceof RegExp);
-  t.deepEqual(childDef.props['squadron'].choices, expectedSquadChoices);
+  t.deepEqual(childDef.props['squadron'].pick, expectedSquadChoices);
   let child = new ChildType();
   t.true(child instanceof ChildType);
 });
@@ -123,8 +129,8 @@ test(`Model#build properly inherits properties from parent`, t => {
   const lifespanMax = 30;
 
   const Animal = newModel('Animal')
-    .prop(dietKey, x => x.choices(dietChoices))
-    .prop(lifespanKey, x => x.integer(0, 200).key())
+    .prop(dietKey, x => x.pick(dietChoices))
+    .prop(lifespanKey, x => x.integer(0, 200).optional())
     .build();
 
   const Eagle = newModel('Eagle').inherits(Animal)
@@ -133,11 +139,11 @@ test(`Model#build properly inherits properties from parent`, t => {
 
   const eagleDef = getModelDef(Eagle);
   t.is(eagleDef.inherits, Animal);
-  t.deepEqual(eagleDef.props[dietKey].choices, dietChoices);
+  t.deepEqual(eagleDef.props[dietKey].pick, dietChoices);
   t.is(eagleDef.props[lifespanKey].type, Number);
   t.is(eagleDef.props[lifespanKey].min, lifespanMin);
   t.is(eagleDef.props[lifespanKey].max, lifespanMax);
-  t.falsy(eagleDef.props[lifespanKey].key);
+  t.is(typeof eagleDef.props[lifespanKey].optional, 'undefined');
 });
 
 test(`Model#build returns a working class with inheritence`, t => {
@@ -158,6 +164,19 @@ test(`Model#build returns a working class with inheritence`, t => {
   t.true(baldEagle instanceof Eagle);
   t.true(baldEagle instanceof Animal);
   t.true(baldEagle instanceof BaldEagle);
+});
+
+test(`Model#build updates the primaryKey if a property is marked as key`, t => {
+  const expectedPrimaryKey = 'latinName';
+  const Animal = newModel('Animal')
+    .prop(expectedPrimaryKey, id => {
+      id['_definition'].key = true;
+      return id;
+    })
+    .build();
+  const modelDef = getModelDef(Animal);
+
+  t.is(modelDef.primaryKey, expectedPrimaryKey);
 });
 
 test(`StaticCreate creates a new instance with id`, t => {

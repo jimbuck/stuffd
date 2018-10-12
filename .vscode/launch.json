@@ -16,11 +16,11 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Current Test File",
+      "name": "PropBuilder Test",
       "program": "${workspaceFolder}/node_modules/ava/profile.js",
       "args": [
         "--serial",
-        "${workspaceFolder}/dist/lib/utils/extensions.spec.js"
+        "${workspaceFolder}/dist/lib/builders/property-builder.spec.js"
       ],
       "skipFiles": [
         "<node_internals>/**/*.js"

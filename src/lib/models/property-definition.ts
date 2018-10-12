@@ -40,7 +40,7 @@ export interface PropertyDefinition {
   secondaryType?: TypeReference | StoredEnum;
   designType?: any;
   decimals?: number,
-  choices?: any[] | (() => any[]);
+  pick?: any[] | (() => any[]);
   truthRate?: number;
   custom?: CustomGenerator; 
 }
