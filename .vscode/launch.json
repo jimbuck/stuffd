@@ -4,8 +4,8 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Fluid",
-      "program": "${workspaceFolder}/dist/debug-fluid.js"
+      "name": "Launch Fluent",
+      "program": "${workspaceFolder}/dist/debug-fluent.js"
     },
     {
       "type": "node",
