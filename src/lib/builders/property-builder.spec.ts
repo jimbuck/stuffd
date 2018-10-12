@@ -1,11 +1,11 @@
-import { test } from 'ava';
+import { test, Context, GenericTestContext } from 'ava';
 
 import { PropertyBuilder } from './property-builder';
 
 import { PropertyDefinition } from '../models/property-definition';
 import { CustomGenerator, GuidType, Constructor } from '../models/types';
 import { Model, Prop } from '../..';
-import { Type, Collection, Key, Ref, Range, Length, Str, Bool, Optional, Integer, Float, Guid, Enum, Pick, Custom } from '../services/decorators';
+import { Type, List, Key, Ref, Range, Length, Str, Bool, Optional, Integer, Float, Guid, Enum, Pick, Custom } from '../services/decorators';
 import { ModelBuilder } from './model-builder';
 import { StoredEnum } from '../models/stored-enum';
 import { getModelBuilder } from '../utils/meta-reader';
@@ -47,262 +47,293 @@ test(`@Key() marks a property as a key`, t => {
   const { propDef } = testDecorator(Key());
 
   t.true(propDef.key);
-})
-
-test(`PropertyBuilder#type accepts a type as well as secondary type`, t => {
-  testBoth(
-    p => p.type(null), Type(null),
-    propDef => {
-      t.is(propDef.type, null);
-      t.is(typeof propDef.secondaryType, 'undefined');
-    }
-  );
-  
-  testBoth(
-    p => p.type(TestClass), Type(TestClass),
-    propDef => {
-      t.is(propDef.type, TestClass);
-      t.is(typeof propDef.secondaryType, 'undefined');
-    }
-  );
-  
-  testBoth(
-    p => p.type(Array, String), Type(Array, String),
-    propDef => {
-      t.is(propDef.type, Array);
-      t.is(propDef.secondaryType, String);
-    }
-  );
 });
 
-test(`PropertyBuilder#array accepts a type`, t => {
+testBoth('Type', 'accepts a primary type',
+  p => p.type(TestClass), Type(TestClass),
+  (t, propDef) => {
+    t.is(propDef.type, TestClass);
+    t.is(typeof propDef.secondaryType, 'undefined');
+  }
+);
 
-  testBoth(
-    p => p.array(String), Collection(String),
-    propDef => {
-      t.is(propDef.type, Array);
-      t.is(propDef.secondaryType, String);
-    }
-  );
-  
-  testBoth(
-    p => p.array(TestClass), Collection(TestClass),
-    propDef => {
-      t.is(propDef.type, Array);
-      t.is(propDef.secondaryType, TestClass);
-    }
-  );
-});
+testBoth('Type', 'accepts a primary type as well as secondary type',
+  p => p.type(Array, String), Type(Array, String),
+  (t, propDef) => {
+    t.is(propDef.type, Array);
+    t.is(propDef.secondaryType, String);
+  }
+);
 
-test(`PropertyBuilder#ref accepts a type and optional foreignKey`, t => {
+testBoth('List', 'accepts simple types',
+  p => p.list(String), List(String),
+  (t, propDef) => {
+    t.is(propDef.type, Array);
+    t.is(propDef.secondaryType, String);
+  }
+);
+
+testBoth('List', 'accepts complex types',
+  p => p.list(TestClass), List(TestClass),
+  (t, propDef) => {
+    t.is(propDef.type, Array);
+    t.is(propDef.secondaryType, TestClass);
+  }
+);
+
+test(`PropertyBuilder#ref requires a known type or explicit foreignKey`, t => {
   t.throws(() => newPropBuilder().ref(TestClass));
-  t.throws(() => testDecorator(Ref(TestClass)));
+  t.notThrows(() => newPropBuilder().ref(TestClass, 'name'));
+});
 
+test(`@Ref() requires a known type or explicit foreignKey`, t => {
+  t.throws(() => testDecorator(Ref(TestClass)));
+  t.notThrows(() => testDecorator(Ref(TestClass, 'name')));
+});
+
+{
   const expectedExplicitKey = 'name';
-  testBoth(
+  testBoth('Ref', 'updates ref and explicit foreign key',
     p => p.ref(TestClass, expectedExplicitKey), Ref(TestClass, expectedExplicitKey),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.ref, TestClass);
       t.is(propDef.foreignKey, expectedExplicitKey);
     }
   );
-  
+}
+
+{
   const expectedInferredKey = 'instanceId';
   const InferedTestClass = new ModelBuilder({ name: 'InferedTestClass' }).key(expectedInferredKey, id => id.guid()).build();
 
-  testBoth(
+  testBoth('Ref', 'updates ref and implicit foreign key',
     p => p.ref(InferedTestClass), Ref(InferedTestClass),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.ref, InferedTestClass);
       t.is(propDef.foreignKey, expectedInferredKey);
     }
   );
-});
+}
 
-test(`PropertyBuilder#range marks the min/max for numbers`, t => {
+{ 
   const expectedMin = 3;
   const expectedMax = 12;
-  testBoth(
+
+  test(`PropertyBuilder#range requires min to be less than or equal to max`, t => {
+    t.throws(() => newPropBuilder().range(expectedMax, expectedMin));
+    t.notThrows(() => newPropBuilder().range(expectedMax, expectedMax));
+    t.notThrows(() => newPropBuilder().range(expectedMin, expectedMax));
+  });
+
+  test(`@Range() requires min to be less than or equal to max`, t => {
+    t.throws(() => testDecorator(Range(expectedMax, expectedMin)));
+    t.notThrows(() => testDecorator(Range(expectedMax, expectedMax)));
+    t.notThrows(() => testDecorator(Range(expectedMin, expectedMax)));
+  });
+
+  testBoth('Range', 'marks the min/max for numbers',
     p => p.range(expectedMin, expectedMax), Range(expectedMin, expectedMax),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.min, expectedMin);
       t.is(propDef.max, expectedMax);
     }
   );
-  
-  t.throws(() => newPropBuilder().range(expectedMax, expectedMin));
-  t.throws(() => testDecorator(Range(expectedMax, expectedMin)));
-});
+}
 
-test(`PropertyBuilder#range marks the min/max for dates`, t => {
+{ 
   const expectedMin = new Date('03/11/1994');
   const expectedMax = new Date('4/16/1999');
 
-  testBoth(
+  test(`PropertyBuilder#range requires min to be less than or equal to max`, t => {
+    t.throws(() => newPropBuilder().range(expectedMax, expectedMin));
+    t.notThrows(() => newPropBuilder().range(expectedMax, expectedMax));
+    t.notThrows(() => newPropBuilder().range(expectedMin, expectedMax));
+  });
+
+  test(`@Range() requires min to be less than or equal to max`, t => {
+    t.throws(() => testDecorator(Range(expectedMax, expectedMin)));
+    t.notThrows(() => testDecorator(Range(expectedMax, expectedMax)));
+    t.notThrows(() => testDecorator(Range(expectedMin, expectedMax)));
+  });
+
+  testBoth('Range', 'marks the min/max for dates',
     p => p.range(expectedMin, expectedMax), Range(expectedMin, expectedMax),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.min, expectedMin);
       t.is(propDef.max, expectedMax);
     }
   );
-  
-  t.throws(() => newPropBuilder().range(expectedMax, expectedMin));
-  t.throws(() => testDecorator(Range(expectedMax, expectedMin)));
-});
+}
 
-test(`PropertyBuilder#length sets an equal min/max`, t => {
+{
   const expectedLength = 7;
-  testBoth(
+  testBoth('Length', 'sets an equal min/max',
     p => p.length(expectedLength), Length(expectedLength),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.min, expectedLength);
       t.is(propDef.max, expectedLength);
     }
   );
-});
+}
 
-test(`PropertyBuilder#str accepts optional length, min/max or Regexp`, t => {
+{
   const expectedPattern = /(hell)o{1,5}/;
-  testBoth(
+  testBoth('Str', 'accepts regex pattern',
     p => p.str(expectedPattern), Str(expectedPattern),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, String);
       t.true(propDef.pattern instanceof RegExp);
     }
   );
+}
 
+{
   const length = 4;
-  testBoth(
+  testBoth('Str', 'accepts exact length',
     p => p.str(length), Str(length),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, String);
       t.is(propDef.min, length);
       t.is(propDef.max, length);
     }
   );
+}
 
+{
   const min = 7, max = 10;
-  testBoth(
+  testBoth('Str', 'accepts min/max length range',
     p => p.str(min, max), Str(min, max),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, String);
       t.is(propDef.min, min);
       t.is(propDef.max, max);
     }
   );
+}
 
-  testBoth(
+{
+  testBoth('Str', 'accepts zero parameters',
     p => p.str(), Str(),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, String);
       t.is(typeof propDef.pattern, 'undefined');
+      t.is(typeof propDef.min, 'undefined');
+      t.is(typeof propDef.max, 'undefined');
     }
   );
-});
+}
 
-test(`PropertyBuilder#bool defaults the truth rate to 50/50`, t => {
+{
   const expectedRate = 0.5;
-  testBoth(
+  testBoth('Bool', 'defaults the truth rate to 50/50',
     p => p.bool(), Bool(),
-    propDef => t.is(propDef.truthRate, expectedRate)
+    (t, propDef) => t.is(propDef.truthRate, expectedRate)
   );
-});
+}
 
-test(`PropertyBuilder#bool accepts a custom truth rate`, t => {
+{
   const expectedRate = 0.8;
-  testBoth(
+  testBoth('Bool', 'accepts a custom truth rate',
     p => p.bool(expectedRate), Bool(expectedRate),
-    propDef => t.is(propDef.truthRate, expectedRate)
+    (t, propDef) => t.is(propDef.truthRate, expectedRate)
   );
-});
+}
 
-test(`PropertyBuilder#optional defaults the occurrance rate to 50/50`, t => {
+{
   const occurranceRate = 0.5;
-  testBoth(
+  testBoth('Optional', 'defaults the occurrance rate to 50/50',
     p => p.optional(), Optional(),
-    propDef => t.is(propDef.optional, occurranceRate)
+    (t, propDef) => t.is(propDef.optional, occurranceRate)
   );
-});
+}
 
-test(`PropertyBuilder#optional accepts a custom occurrance rate`, t => {
+{
   const occurranceRate = 0.8;
-  testBoth(
+  testBoth('Optional', 'accepts a custom occurrance rate',
     p => p.optional(occurranceRate), Optional(occurranceRate),
-    propDef => t.is(propDef.optional, occurranceRate)
+    (t, propDef) => t.is(propDef.optional, occurranceRate)
   );
-});
+}
 
-test(`PropertyBuilder#integer accepts min and max values`, t => {
-  testBoth(
+{
+  testBoth('Integer', 'defaults to default min/max integer values',
     p => p.integer(), Integer(),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(propDef.decimals, 0);
       t.is(propDef.min, Model.defaults.minInteger);
       t.is(propDef.max, Model.defaults.maxInteger);
     }
   );
+}
 
+{
   const expectedMin = 9;
   const expectedMax = 81;
-  testBoth(
+  testBoth('Integer', 'accepts min/max range',
     p => p.integer(expectedMin, expectedMax), Integer(expectedMin, expectedMax),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(propDef.decimals, 0);
       t.is(propDef.min, expectedMin);
       t.is(propDef.max, expectedMax);
     }
   );
-});
+}
 
-test(`PropertyBuilder#float accepts min and max values`, t => {
-  testBoth(
+{
+  testBoth('Float', 'defaults to default min/max float values',
     p => p.float(), Float(),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(typeof propDef.decimals, 'undefined');
       t.is(propDef.min, Model.defaults.minFloat);
       t.is(propDef.max, Model.defaults.maxFloat);
     }
   );
+}
 
-  let expectedDecimals = 3;
-  testBoth(
+{
+  const expectedDecimals = 3;
+  testBoth('Float', 'accepts exact decimals count',
     p => p.float(expectedDecimals), Float(expectedDecimals),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(propDef.decimals, expectedDecimals);
       t.is(propDef.min, Model.defaults.minFloat);
       t.is(propDef.max, Model.defaults.maxFloat);
     }
   );
+}
 
-  let expectedMin = 0.6;
-  let expectedMax = 0.9;
-  testBoth(
+{
+  const expectedMin = 0.6;
+  const expectedMax = 0.9;
+  testBoth('Float', 'accepts min/max range',
     p => p.float(expectedMin, expectedMax), Float(expectedMin, expectedMax),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(typeof propDef.decimals, 'undefined');
       t.is(propDef.min, expectedMin);
       t.is(propDef.max, expectedMax);
     }
   );
+}
 
-  expectedDecimals = 7;
-  expectedMin = 0.2;
-  expectedMax = 0.4;
-  testBoth(
+{
+  const expectedDecimals = 7;
+  const expectedMin = 0.2;
+  const expectedMax = 0.4;
+  testBoth('Float', 'accepts decimals and min/max range',
     p => p.float(expectedDecimals, expectedMin, expectedMax), Float(expectedDecimals, expectedMin, expectedMax),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(propDef.decimals, expectedDecimals);
       t.is(propDef.min, expectedMin);
       t.is(propDef.max, expectedMax);
     }
   );
-});
+}
 
 test(`PropertyBuilder#date generates random date`, t => {
   const { propDef } = testBuilder(p => p.date());
@@ -331,59 +362,56 @@ test(`@Prop() respected the Date type`, t => {
   t.is(propDef.designType, Date);
 });
 
-test(`PropertyBuilder#guid marks the type as GuidType`, t => {
-  testBoth(
-    p => p.guid(), Guid(),
-    propDef => {
-      t.is(propDef.type, GuidType);
-    }
-  );
-});
+testBoth('Guid', 'marks the type as GuidType',
+  p => p.guid(), Guid(),
+  (t, propDef) => {
+    t.is(propDef.type, GuidType);
+  }
+);
 
-test(`PropertyBuilder#enum tracks a StoredEnum`, t => {
+{
   enum LightSwitch { Off, On }
   const expectedStoredEnum = new StoredEnum(LightSwitch);
 
-  testBoth(
+  testBoth('Enum', 'tracks a StoredEnum',
     p => p.enum(LightSwitch), Enum(LightSwitch),
-    propDef => {
+    (t, propDef) => {
       let lightSwitchStored = propDef.type as StoredEnum;
       t.true(lightSwitchStored instanceof StoredEnum);
       t.deepEqual(lightSwitchStored, expectedStoredEnum);
     }
   );
-  
-});
+}
 
-test(`PropertyBuilder#pick accepts an array of options`, t => {
+{
   const expectedChoices = ['red', 'green', 'blue'];
-  testBoth(
+  testBoth('Pick', 'accepts an array of options',
     p => p.pick(expectedChoices), Pick(expectedChoices),
-    propDef => {
+    (t, propDef) => {
       t.deepEqual(propDef.pick, expectedChoices);
     }
   );
-});
+}
 
-test(`PropertyBuilder#choices accepts a function that returns an array of options`, t => {
+{
   const expectedChoices = () => ['red', 'green', 'blue'];
-  testBoth(
+  testBoth('Pick', 'accepts a function that returns an array of options',
     p => p.pick(expectedChoices), Pick(expectedChoices),
-    propDef => {
+    (t, propDef) => {
       t.deepEqual(propDef.pick, expectedChoices);
     }
   );
-});
+}
 
-test(`PropertyBuilder#custom accepts custom random generators`, t => {
+{
   const expectedCustomRand: CustomGenerator = (c => c.animal());
-  testBoth(
+  testBoth('Custom', 'accepts custom random generators',
     p => p.custom(expectedCustomRand), Custom(expectedCustomRand),
-    propDef => {
+    (t, propDef) => {
       t.is(propDef.custom, expectedCustomRand);
     }
   );
-});
+}
 
 test(`PropertyBuilder can fluently define properties`, t => {
   const expectedName = 'EmployeeId';
@@ -407,10 +435,17 @@ function newPropBuilder(initialDef?: PropertyDefinition): PropertyBuilder {
   return new PropertyBuilder(initialDef);
 }
 
-function testBoth<T=string>(cb: (pb: PropertyBuilder) => PropertyBuilder, decorate: PropertyDecorator, verify: (propDef: PropertyDefinition, testResult: TestResult<T>) => void): void {
-  let results = [testBuilder<T>(cb), testDecorator<T>(decorate)];
+function testBoth<T=string>(name:string, subject: string, cb: (pb: PropertyBuilder) => PropertyBuilder, decorate: PropertyDecorator, verify: (t: GenericTestContext<Context<any>>, propDef: PropertyDefinition, testResult: TestResult<T>) => void): void {
+  
+  test(`PropertyBuilder#${name.toLowerCase()} ${subject}`, t => {
+    const results = testBuilder<T>(cb);
+    verify(t, results.propDef, results);
+  });
 
-  results.forEach((r, i) => verify(r.propDef, r));
+  test(`@${name}() ${subject}`, t => {
+    const results = testDecorator<T>(decorate);
+    verify(t, results.propDef, results);
+  });
 }
 
 interface TestResult<T> {

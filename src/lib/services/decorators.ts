@@ -74,8 +74,8 @@ export function Enum(enumType: any) {
   return PropDecorator(p => p.enum(enumType));
 }
 
-export function Collection(itemType: StoredEnum | TypeReference<any>) {
-  return PropDecorator(p => p.array(itemType));
+export function List(itemType: StoredEnum | TypeReference<any>) {
+  return PropDecorator(p => p.list(itemType));
 }
 
 export function Pick<T>(choices: T[] | (() => T[])) {

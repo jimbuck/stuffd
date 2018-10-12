@@ -1,5 +1,5 @@
 import { EOL } from 'os';
-import { Context, Model, Prop, Key, Integer, Range, Float, Str, Pick, Enum, Collection, Bool, Guid, Ref, Custom } from '.';
+import { Context, Model, Prop, Key, Integer, Range, Float, Str, Pick, Enum, List, Bool, Guid, Ref, Custom } from '.';
 
 const EMPTY_STRING = '';
 
@@ -112,7 +112,7 @@ class Spaceship {
   @Integer() @Range(0, 20)
   secondaryEngineCount: number;
 
-  @Collection(Module) @Range(3, 8)
+  @List(Module) @Range(3, 8)
   modules: Array<Module>;
 
   @Float(3) @Range(5000, 20000)

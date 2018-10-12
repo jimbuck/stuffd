@@ -55,7 +55,7 @@ export class PropertyBuilder {
     return this;
   }
 
-  public array(itemType?: TypeReference): this {
+  public list(itemType?: TypeReference): this {
     return this.type(Array, itemType);
   }
 
