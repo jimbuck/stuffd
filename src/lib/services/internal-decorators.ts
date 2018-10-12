@@ -3,11 +3,11 @@ import { ModelBuilder } from '../builders/model-builder';
 import { PropertyBuilder } from '../builders/property-builder';
 
 // Class Decorator
-export function ModelDecorator(id?: string): ClassDecorator {
+export function ModelDecorator(name?: string): ClassDecorator {
   return function (Target: any) {
-    id = id || Target.name;
+    name = name || Target.name;
     let modelBuilder = getModelBuilder(Target);
-    modelBuilder.id = id;
+    modelBuilder.name = name;
 
     const modelDef = ModelBuilder.build(modelBuilder);
     setModelDef(Target, modelDef);
@@ -17,18 +17,22 @@ export function ModelDecorator(id?: string): ClassDecorator {
 }
 
 // Property Decorator
-export function PropDecorator(act: (mb: PropertyBuilder) => PropertyBuilder): PropertyDecorator {
+export function PropDecorator(act?: (mb: PropertyBuilder) => PropertyBuilder): PropertyDecorator {
 
   return function (target: any, prop: string) {
     const designType = getDesignType(target, prop);
     let modelBuilder = getModelBuilder(target.constructor);
 
-    modelBuilder['_modelDefinition'].props[prop] = modelBuilder['_modelDefinition'].props[prop] || {};
+    let propDef = modelBuilder['_modelDefinition'].props[prop] || {};
 
-    modelBuilder['_modelDefinition'].props[prop].designType = designType;
-    if (!modelBuilder['_modelDefinition'].props[prop].type) modelBuilder['_modelDefinition'].props[prop].type = designType;
+    propDef.designType = designType;
+    if (!propDef.type) {
+      propDef.type = designType;
+    }
 
-    modelBuilder.prop(prop, act);
+    modelBuilder['_modelDefinition'].props[prop] = propDef;
+
+    act && modelBuilder.prop(prop, act);
 
     setModelBuilder(target.constructor, modelBuilder);
   }

@@ -7,12 +7,12 @@ export class ModelBuilder {
 
   private _modelDefinition: ModelDefinition;
 
-  public get id(): string {
-    return this._modelDefinition.id;
+  public get name(): string {
+    return this._modelDefinition.name;
   }
 
-  public set id(value: string) {
-    this._modelDefinition.id = value;
+  public set name(value: string) {
+    this._modelDefinition.name = value;
   }
 
   constructor(modelDefinition: ModelDefinition) {
@@ -37,26 +37,21 @@ export class ModelBuilder {
     return modelDef;
   }
 
-  public name(name: string): this {
-    this._modelDefinition.name = name;
-    return this;
-  }
-
-  public prop(id: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
-    let propDef = this._modelDefinition.props[id] || { id };
-    this._modelDefinition.props[id] = PropertyBuilder.build(cb(new PropertyBuilder(propDef)));
+  public prop(name: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
+    let propDef = this._modelDefinition.props[name] || { name };
+    this._modelDefinition.props[name] = PropertyBuilder.build(cb(new PropertyBuilder(propDef)));
 
     return this;
   }
 
-  public key(id: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
-    this._modelDefinition.primaryKey = id;
-    return this.prop(id, i => cb(i.key()));
+  public key(name: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
+    this._modelDefinition.primaryKey = name;
+    return this.prop(name, i => cb(i.key()));
   }
 
-  public ref(id: string, ref: Constructor, refKey?: string): this {
+  public ref(name: string, ref: Constructor, refKey?: string): this {
     let foreignKey = refKey || getPrimaryKey(ref);
-    return this.prop(id, x => x.ref<any, string>(ref, foreignKey));
+    return this.prop(name, x => x.ref<any, string>(ref, foreignKey));
   }
 
   public inherits<T=any>(model: Constructor<T>): this {    
@@ -64,10 +59,17 @@ export class ModelBuilder {
     return this;
   }
 
+  public child(id: string, typeName: string, buildChild: (mb: ModelBuilder) => ModelBuilder): this {
+    let childModel = new ModelBuilder({ name: typeName });
+    let ChildType = buildChild(childModel).build();
+    this.prop(id, c => c.type(ChildType));
+    return this;
+  }
+
   public build<T=any>(): GeneratedConstructor<T> {
     let modelDef = ModelBuilder.build(this);
 
-    const Type = (new Function(`"use strict";return (function ${this.id}(props){Object.assign(this, props);})`)()) as GeneratedConstructor<T>;
+    const Type = (new Function(`"use strict";return (function ${this.name}(props){Object.assign(this, props);})`)()) as GeneratedConstructor<T>;
     setModelDef(Type, modelDef);
 
     if (this._modelDefinition.inherits) {
@@ -91,11 +93,11 @@ export class ModelBuilder {
       this._modelDefinition.toStringFn = toStringFn;
       return this;
     } else {
-      return `ModelBuilder<${this.id}>`;
+      return `ModelBuilder<${this.name}>`;
     }
   }
 }
 
-export function StaticCreate(id: string) {
-  return new ModelBuilder({ id });
+export function StaticCreate(name: string) {
+  return new ModelBuilder({ name });
 }

@@ -81,10 +81,6 @@ export function Ref<T, K extends keyof T>(ref: Constructor<T>, refKey?: K) {
   return PropDecorator(p => p.ref(ref, refKey));
 }
 
-export function Child() {
-  return PropDecorator(p => p);
-}
-
 export function Custom(custom: CustomGenerator) {
   return PropDecorator(p => p.custom(custom));
 }

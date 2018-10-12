@@ -40,13 +40,13 @@ export class Activator {
       }
 
       let results = Array(count).fill(0).map(() => this._createModel(Type as Constructor<T>, modelDef, constants));
-      this._types[modelDef.id] = Type;
-      return this._data.add(modelDef.id, results);
+      this._types[modelDef.name] = Type;
+      return this._data.add(modelDef.name, results);
     } else {
       let crossed = countOrCrossed;
       let results = crossed.map(cross => this._createModel(Type as Constructor<T>, modelDef, Object.assign({}, cross, constants)));
-      this._types[modelDef.id] = Type;
-      return this._data.add(modelDef.id, results);
+      this._types[modelDef.name] = Type;
+      return this._data.add(modelDef.name, results);
     }
   }
 

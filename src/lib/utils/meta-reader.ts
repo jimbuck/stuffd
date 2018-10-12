@@ -12,7 +12,7 @@ export function getDesignType(target: Object, prop: string) {
 
 export const ModelBuilderKey = Symbol('jimmyboh:stuffd:modelbuilder');
 export function getModelBuilder<T>(Target: Constructor<T>): ModelBuilder {
-  return Reflect.getMetadata(ModelBuilderKey, Target) || new ModelBuilder({ id: null });
+  return Reflect.getMetadata(ModelBuilderKey, Target) || new ModelBuilder({ name: null });
 }
 export function setModelBuilder<T>(Target: Constructor<T>, modelBuilder: ModelBuilder): void {
   Reflect.defineMetadata(ModelBuilderKey, modelBuilder, Target);
@@ -41,7 +41,7 @@ export function getModelId<T>(Target: Constructor<T>): string {
   
   let modelDef = getModelDef(Target);
 
-  if (modelDef && modelDef.id) return modelDef.id;
+  if (modelDef && modelDef.name) return modelDef.name;
 
   throw new Error(`Cannot get model ID for '${Target}'`);
 }

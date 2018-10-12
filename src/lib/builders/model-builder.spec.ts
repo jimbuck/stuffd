@@ -8,16 +8,7 @@ test(`Model#id references the ModelDefinition id`, t => {
   const expectedId = 'TestModelIdentifier';
   const m = newModel(expectedId);
 
-  t.is(m.id, expectedId);
-});
-
-test(`Model#name sets the friendly name`, t => {
-  const expectedName = 'TestModel';
-  const m = newModel('TestModel').name(expectedName).build();
-
-  const modelDef = getModelDef(m);
-
-  t.is(modelDef.name, expectedName);
+  t.is(m.name, expectedId);
 });
 
 test(`Model#prop creates a new Property`, t => {
@@ -142,9 +133,9 @@ test(`StaticCreate creates a new instance with id`, t => {
   const expectedId = 'StaticTest';
   const StaticTest = StaticCreate(expectedId).build();
   const staticTestDef = getModelDef(StaticTest);
-  t.is(staticTestDef.id, expectedId);
+  t.is(staticTestDef.name, expectedId);
 })
 
-function newModel(id: string) {
-  return new ModelBuilder({ id });
+function newModel(name: string) {
+  return new ModelBuilder({ name });
 }

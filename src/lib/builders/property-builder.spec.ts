@@ -6,7 +6,6 @@ import { PropertyDefinition } from '../models/property-definition';
 import { CustomGenerator, GuidType } from '../models/types';
 import { Model } from '../..';
 import { ModelBuilder } from './model-builder';
-import { strict } from 'assert';
 
 class TestClass {
   name: string;
@@ -17,7 +16,7 @@ test(`PropertyBuilder#constructor allows an optional initial definition`, t => {
   t.notThrows(() => newProp());
 
   const expectedDef: PropertyDefinition = {
-    id: 'EmployeeId',
+    name: 'EmployeeId',
     min: 13,
     max: 13,
     type: String
@@ -29,7 +28,7 @@ test(`PropertyBuilder#constructor allows an optional initial definition`, t => {
 
 test(`PropertyBuilder.build retuns a copy of the internal property definition`, t => {
   const expectedDef: PropertyDefinition = {
-    id: 'EmployeeId',
+    name: 'EmployeeId',
     min: 13,
     max: 13,
     type: String
@@ -78,9 +77,9 @@ test(`PropertyBuilder#ref accepts a type and optional foreignKey`, t => {
   t.is(explicitKeyDef.ref, TestClass);
   t.is(explicitKeyDef.foreignKey, expectedExplicitKey);
 
-  const expectedId = 'InferedTestClass';
+  const expectedName = 'InferedTestClass';
   const expectedInferredKey = 'instanceId';
-  const InferedTestClass = new ModelBuilder({ id: expectedId }).key(expectedInferredKey, id => id.guid()).build();
+  const InferedTestClass = new ModelBuilder({ name: expectedName }).key(expectedInferredKey, id => id.guid()).build();
 
   const inferredKeyDef = PropertyBuilder.build(newProp().ref(InferedTestClass));
   t.is(inferredKeyDef.ref, InferedTestClass);
@@ -226,17 +225,17 @@ test(`PropertyBuilder#custom accepts custom random generators`, t => {
 });
 
 test(`PropertyBuilder can fluently define properties`, t => {
-  const expectedId = 'EmployeeId';
+  const expectedName = 'EmployeeId';
   const expectedType = String;
   const expectedLength = 13;
 
   const actualDef = PropertyBuilder.build(
-    newProp({ id: expectedId })
+    newProp({ name: expectedName })
       .key()
       .type(expectedType)
       .length(expectedLength));
   
-  t.is(actualDef.id, expectedId);
+  t.is(actualDef.name, expectedName);
   t.is(actualDef.type, expectedType);
   t.is(actualDef.min, expectedLength);
   t.is(actualDef.max, expectedLength);

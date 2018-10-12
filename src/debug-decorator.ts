@@ -1,5 +1,5 @@
 import { EOL } from 'os';
-import { Context, Model, Key, Integer, Range, Float, Str, Choice, Enum, Collection, Child, Bool, Guid, Ref, Custom } from '.';
+import { Context, Model, Prop, Key, Integer, Range, Float, Str, Choice, Enum, Collection, Bool, Guid, Ref, Custom } from '.';
 
 const EMPTY_STRING = '';
 
@@ -100,13 +100,13 @@ class Spaceship {
   @PersonName()
   captain: string;
 
-  @Child()
+  @Prop()
   primaryEngines: Engine;
 
   @Integer(1, 5)
   primaryEngineCount: number;
 
-  @Child()
+  @Prop()
   secondaryEngines: Engine;
 
   @Integer() @Range(0, 20)

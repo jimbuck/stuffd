@@ -11,18 +11,7 @@ import { StoredEnum } from './stored-enum';
 export interface PropertyDefinition {
   
   /**
-   * The property identifier, usually the type name.
-   * 
-   * @type {string}
-   * @memberOf PropertyDefinition
-   */
-  id?: string;
-
-  /**
-   * The full name of the property, usually used as the column name.
-   * 
-   * @type {string}
-   * @memberOf PropertyDefinition
+   * The property name.
    */
   name?: string;
 

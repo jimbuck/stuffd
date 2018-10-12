@@ -23,19 +23,19 @@ test(`getDesignType gets the TypeScript design type`, t => {
 test(`getModelBuilder/setModelBuilder/removeModelBuilder updates the model defintion on the target`, t => {
   class TargetClass{}
 
-  let expectedModelBuilder = new ModelBuilder({ id: 'TargetClass' });
+  let expectedModelBuilder = new ModelBuilder({ name: 'TargetClass' });
   setModelBuilder(TargetClass, expectedModelBuilder);
   let actualModelBuilder = getModelBuilder(TargetClass);
   t.is(actualModelBuilder, expectedModelBuilder);
   removeModelBuilder(TargetClass);
   actualModelBuilder = getModelBuilder(TargetClass);
-  t.is(actualModelBuilder.id, null);
+  t.is(actualModelBuilder.name, null);
 });
 
 test(`getModelDef/setModelDef/removeModelDef updates the model defintion on the target`, t => {
   class TargetClass{}
 
-  let expectedModelDef: ModelDefinition = { id: 'TargetClass' };
+  let expectedModelDef: ModelDefinition = { name: 'TargetClass' };
   setModelDef(TargetClass, expectedModelDef);
   let actualModelDef = getModelDef(TargetClass);
   t.is(actualModelDef, expectedModelDef);
@@ -50,7 +50,7 @@ test(`getModelId returns the id if it exists`, t => {
 
   t.throws(() => getModelId(TestClass));
 
-  let expectedModelDef: ModelDefinition = { id: expectedId };
+  let expectedModelDef: ModelDefinition = { name: expectedId };
   setModelDef(TestClass, expectedModelDef);
   let actualModelId = getModelId(TestClass);
   t.is(actualModelId, expectedId);
@@ -66,7 +66,7 @@ test(`getPrimaryKey returns the primary key if it exists`, t => {
   t.is(typeof actualPrimaryKey, 'undefined');
 
   // Model definition without primary key...
-  let expectedModelDef: ModelDefinition = { id: expectedId };
+  let expectedModelDef: ModelDefinition = { name: expectedId };
   setModelDef(TestClass, expectedModelDef);
   actualPrimaryKey = getPrimaryKey(TestClass);
   t.is(typeof actualPrimaryKey, 'undefined');

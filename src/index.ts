@@ -4,6 +4,7 @@ import { ModelBuilder, StaticCreate } from './lib/builders/model-builder';
 import { RangeDefaults } from './lib/models/types';
 
 export { Context } from './lib/services/context';
+export { PropDecorator as Prop } from './lib/services/internal-decorators';
 export * from './lib/services/decorators';
 export { CustomGenerator, RangeDefaults } from './lib/models/types';
 
