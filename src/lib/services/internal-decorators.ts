@@ -24,7 +24,8 @@ export function PropDecorator(act?: (mb: PropertyBuilder, designType: Constructo
     let modelBuilder = getModelBuilder(target.constructor);
 
     let propDef = modelBuilder['_modelDefinition'].props[prop] || {};
-
+    
+    propDef.name = propDef.name || prop;
     propDef.designType = designType;
     if (!propDef.type) {
       propDef.type = designType;

@@ -94,15 +94,15 @@ export class Activator {
 
     if (def.ref) {
       let foreignKey = def.foreignKey || getModelDef(def.ref).primaryKey;
-      if (!foreignKey) throw new Error(`No primary key could be inferred for ${def.name} ref to ${def.ref.name}!`);
+      if (!foreignKey) throw new Error(`No primary key could be inferred for '${def.name}' ref to '${def.ref.name}'!`);
       let availableRefs: any[] = refs ? refs.get(def.name) : [];
       if (availableRefs.length === 0) availableRefs = this._data.get(def.ref.name);
 
-      if (availableRefs.length === 0) throw new Error(`No instances available for ${def.name} ref to ${def.ref.name}!`);
+      if (availableRefs.length === 0) throw new Error(`No instances available for '${def.name}' to reference '${def.ref.name}'!`);
       
       let instanceCount = availableRefs.length;
       availableRefs = availableRefs.map(r => r[foreignKey]).filter(k => typeof k !== 'undefined');
-      if (availableRefs.length === 0) throw new Error(`No keys available from ${instanceCount} instances for '${def.name}' ref to '${def.ref.name}'!`);
+      if (availableRefs.length === 0) throw new Error(`No keys available from ${instanceCount} instances for '${def.name}' to reference '${def.ref.name}'!`);
 
       return this._rand.choice(availableRefs);
     }
