@@ -56,6 +56,15 @@ test(`Model#key creates a Property marked as a key`, t => {
   t.true(modelDef.props[expectedPropName].key);
 });
 
+test(`Model#key updates the primary key`, t => {
+  const expectedPropName = 'propName';
+  const m = newModel('TestModel').key(expectedPropName, x => x).build();
+
+  const modelDef = getModelDef(m);
+
+  t.is(modelDef.primaryKey, expectedPropName);
+});
+
 test(`Model#key can only be called once`, t => {
   const modelBuilder = newModel('TestModel').key('propName', x => x).key('otherPropName', x => x);
 

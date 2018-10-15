@@ -34,6 +34,14 @@ export class ModelBuilder<T=any> {
       modelDef.props = Object.assign({}, modelBuilder._modelDefinition.props);
     }
 
+    let keys = Object.keys(modelDef.props).map(p => modelDef.props[p]).filter(propDef => propDef.key);
+    if (keys.length > 1) {
+      throw new Error(`Only one property can be marked as a key!`);
+    }
+    if (keys.length === 1) {
+      modelDef.primaryKey = keys[0].name;
+    }
+
     return modelDef;
   }
 
@@ -70,16 +78,8 @@ export class ModelBuilder<T=any> {
   }
 
   public build(): GeneratedConstructor<T> {
-    this._modelDefinition.props
+    
     let modelDef = ModelBuilder.build<T>(this);
-
-    let keys = Object.keys(modelDef.props).map(p => modelDef.props[p]).filter(propDef => propDef.key);
-    if (keys.length > 1) {
-      throw new Error(`Only one property can be marked as a key!`);
-    }
-    if (keys.length === 1) {
-      modelDef.primaryKey = keys[0].name;
-    }
 
     const Type = (new Function(`"use strict";return (function ${this.name}(props){Object.assign(this, props);})`)()) as GeneratedConstructor<T>;
     setModelDef(Type, modelDef);

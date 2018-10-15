@@ -1,34 +1,61 @@
-import { test } from 'ava';
+import { test, GenericTestContext, Context as AvaContext } from 'ava';
 
-import { Context, Model, Prop, Key, Integer, Range, Float, Str, Pick, Enum, List, Bool, Guid, Custom } from '..';
+import { Context, Model, Prop, Key, Integer, Range, Float, Str, Pick, Enum, List, Bool, Guid, Custom, Ref, Optional } from '..';
 
-const EMPTY_STRING = '';
+enum ModuleType {
+  SleepingQuarters,
+  DiningRoom,
+  RecRoom,
+  Agricultural,
+  MedicalBay,
+  Engineering,
+  FitnessCenter,
+  ResearchStation,
+  NavigationStation,
+  WeaponsBay,
+  ShieldRoom,
+  CargoBay,
+}
 
-test.todo(`Decorators work for relational`);
+enum ModuleSize {
+  Small,
+  Medium,
+  Large
+}
 
-test(`Decorators work for nested`, t => {
+test(`Decorators`, testModels, createModelsFromDecorators);
+test.todo(`Fluent API`);//, testModels, createModelsFromFluentApi);
+
+function testModels(t: GenericTestContext<AvaContext<any>>, creatModels: () => any) {
+  const { Spaceship } = createModelsFromDecorators();
+
+  const ctx1 = new Context(135);
+  const ctx2 = new Context(135);
+
+  const ships1 = ctx1.create(Spaceship, 2);
+  const ships2a = ctx2.create(Spaceship, 1);
+  const ships2b = ctx2.create(Spaceship, 1);
+  const ships2 = [...ships2a, ...ships2b];
+
+  const ctx1Json = ctx1.json();
+  const ctx2Json = ctx2.json();
+
+  ctx2.reset();
+  ctx2.create(Spaceship, 2);
+  const ctx3Json = ctx2.json();
+
+  t.true(ships1.every(s => typeof s.totalMass === 'number'));
+  t.true(ships2.every(s => typeof s.totalMass === 'number'));
+  t.true(ships1.every(s => typeof s.totalThrust === 'number'));
+  t.true(ships2.every(s => typeof s.totalThrust === 'number'));
+
+  t.deepEqual(ships1, ships2);
+  t.is(ctx1Json, ctx2Json);
+  t.is(ctx1Json, ctx3Json);
+}
+
+function createModelsFromDecorators() {
   
-  enum ModuleType {
-    SleepingQuarters,
-    DiningRoom,
-    RecRoom,
-    Agricultural,
-    MedicalBay,
-    Engineering,
-    FitnessCenter,
-    ResearchStation,
-    NavigationStation,
-    WeaponsBay,
-    ShieldRoom,
-    CargoBay,
-  }
-
-  enum ModuleSize {
-    Small,
-    Medium,
-    Large
-  }
-
   // Create custom, re-usable attributes!
   function PersonName() {
     return Custom(c => `${c.first()} ${c.last()}`);
@@ -70,10 +97,6 @@ test(`Decorators work for nested`, t => {
 
     @Float(3) @Range(200, 2000)
     mass: number;
-
-    public toString() {
-      return `${this.manufacturer} ${this.model} (${this.year})`;
-    }
   }
 
   @Model()
@@ -90,10 +113,6 @@ test(`Decorators work for nested`, t => {
 
     @Float(3) @Range(200, 5000)
     mass: number;
-
-    public toString() {
-      return `${ModuleSize[this.size]} ${this.type}${this.operational ? EMPTY_STRING : ' (undergoing maintenance)'}`;
-    }
   }
 
   @Model()
@@ -143,25 +162,18 @@ test(`Decorators work for nested`, t => {
     }
   }
 
-  const ctx1 = new Context(135);
-  const ctx2 = new Context(135);
+  return { Manufacturer, Engine, Module, Spaceship };
+}
 
-  const ships1 = ctx1.create(Spaceship, 2);
-  const ships2a = ctx2.create(Spaceship, 1);
-  const ships2b = ctx2.create(Spaceship, 1);
-  const ships2 = [...ships2a, ...ships2b];
+function createModelsFromFluentApi() {
 
-  const ctx1Json = ctx1.json();
-  const ctx2Json = ctx2.json();
 
-  ctx2.reset();
-  ctx2.create(Spaceship, 2);
-  const ctx3Json = ctx2.json();
+  return {};
+}
 
-  t.true(ships1.every(s => typeof s.totalMass === 'number'));
-  t.true(ships2.every(s => typeof s.totalMass === 'number'));
+function createModelsFromMixedA() {
+  const { } = createModelsFromDecorators();
+  const { } = createModelsFromFluentApi();
 
-  t.deepEqual(ships1, ships2);
-  t.is(ctx1Json, ctx2Json);
-  t.is(ctx1Json, ctx3Json);
-});
+  return { };
+}

@@ -20,7 +20,7 @@ export class PropertyBuilder {
   public ref<T, K extends keyof T>(type: Constructor<T>, refKey?: K): this {
     let foreignKey = typeof refKey === 'string' ? refKey : getPrimaryKey(type);
     if (!foreignKey) {
-      throw new Error('Failed to infer primary key of reference type!');
+      throw new Error(`Failed to infer primary key of reference type '${type.name}'!`);
     }
     
     this._definition.ref = type;

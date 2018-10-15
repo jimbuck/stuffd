@@ -14,7 +14,7 @@ export class Context {
         return this._activator.seed;
     }
 
-    public create<T>(Type: Constructor<T>, count: number, constants: Lookup<any> = {}): GeneratedArray<T> {
+    public create<T=any>(Type: Constructor<T>, count: number, constants: Lookup<any> = {}): GeneratedArray<T> {
         return new CollectionBuilder(this._activator).create<T>(Type, count, constants);
     }
 
