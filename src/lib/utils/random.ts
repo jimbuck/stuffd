@@ -43,7 +43,7 @@ export class Random {
   }
 
   public nextString(length: number = 8): string {
-    return this._chance.string({ length });
+    return this._chance.string({ length, pool: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' });
   }
 
   public chance<T>(fn: (options: Chance.Chance) => T): T {

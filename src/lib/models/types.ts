@@ -22,4 +22,6 @@ export interface RangeDefaults {
   maxStringLength: number;
   minArrayLength: number;
   maxArrayLength: number;
+  minDate: Date;
+  maxDate: Date;
 }

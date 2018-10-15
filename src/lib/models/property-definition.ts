@@ -1,5 +1,5 @@
 
-import { TypeReference, CustomGenerator } from './types';
+import { TypeReference, CustomGenerator, Constructor } from './types';
 import { StoredEnum } from './stored-enum';
 
 /**
@@ -23,7 +23,7 @@ export interface PropertyDefinition {
    */
   key?: boolean;
 
-  ref?: TypeReference;
+  ref?: Constructor;
   foreignKey?: string;
 
   /**

@@ -30,6 +30,10 @@ export class Context {
         this._activator.clear();
     }
 
+    public reset(newSeed?: number): void {
+        this._activator.reset(newSeed);
+    }
+
     public data(): Lookup {
         let copy: Lookup = {};
 

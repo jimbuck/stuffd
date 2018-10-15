@@ -247,6 +247,24 @@ test(`Context#clear empties out the activator's cache`, t => {
   t.is(json, EMPTY_JSON_OBJECT);
 });
 
+test(`Context#reset reverts the activator to the initial state`, t => {
+  const ctx = createContext();
+  const initialSeed = ctx.seed;
+
+  t.plan(2);
+  ctx['_activator'].reset = () => t.pass();
+  ctx.reset();
+  t.is(ctx.seed, initialSeed);
+});
+
+test(`Context#reset accepts a brand new seed`, t => {
+  const ctx = createContext();
+  const expectedNewSeed = -6014;
+  t.plan(1);
+  ctx['_activator'].reset = (actualNewSeed) => t.is(actualNewSeed, expectedNewSeed);
+  ctx.reset(expectedNewSeed);
+});
+
 function createContext(cb?: (Type: Constructor, count?: number | Lookup, constants?: Lookup) => void) {
   const ctx = new Context();
   const activator = new Activator();

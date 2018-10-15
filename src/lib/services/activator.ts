@@ -24,13 +24,13 @@ export class Activator {
     return this._rand.seed;
   }
 
-  public create<T>(Type: Constructor<T>, count: number | Lookup<any>, constants: Lookup<any>, refs: ListBucket): T[];
-  public create<T>(Type: Constructor<T>, crossed: Array<Lookup<any>>, constants: Lookup<any>, refs: ListBucket): T[];
-  public create<T>(Type: Constructor<T>, countOrCrossed: number|Array<Lookup<any>>, constants: Lookup<any>, refs: ListBucket): T[] {
+  public create<T>(Type: Constructor<T>, count: number | Lookup<any>, constants?: Lookup<any>, refs?: ListBucket): T[];
+  public create<T>(Type: Constructor<T>, crossed: Array<Lookup<any>>, constants?: Lookup<any>, refs?: ListBucket): T[];
+  public create<T>(Type: Constructor<T>, countOrCrossed: number | Array<Lookup<any>>, constants: Lookup<any> = {}, refs: ListBucket = null): T[] {
     
     let modelDef = getModelDef(Type);
 
-    if (!modelDef) {
+    if (!modelDef || !modelDef.name) {
       throw new Error(`No model definition found for ${Type.name}`);
     }
 
@@ -64,6 +64,11 @@ export class Activator {
     this._types = {};
   }
 
+  public reset(newSeed?: number) {
+    this.clear();
+    this._rand = new Random(newSeed || this.seed);
+  }
+
   private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any>, refs: ListBucket): T {
     let target: any = new Type();
     for (let prop in modelDef.props) {
@@ -78,9 +83,9 @@ export class Activator {
 
   private _createProp(def: PropertyDefinition, refs: ListBucket): any {
     if (typeof def.pick !== 'undefined') {
-      let choices = def.pick;
-      if (typeof choices === 'function') choices = choices();
-      return this._rand.choice(choices);
+      let pick = def.pick;
+      if (typeof pick === 'function') pick = pick();
+      return this._rand.choice(pick);
     }
 
     if (def.custom) {
@@ -88,15 +93,22 @@ export class Activator {
     }
 
     if (def.ref) {
-      // let availableRefs = refs.get(def.name);
-      // if(!availableRefs || availableRefs.length === 0) availableRefs = this._types[def.ref.name]
-      // let item = this._rand.choice()
-      // return return item[def.foreignKey];
-      return '<TODO>';
+      let foreignKey = def.foreignKey || getModelDef(def.ref).primaryKey;
+      if (!foreignKey) throw new Error(`No primary key could be inferred for ${def.name} ref to ${def.ref.name}!`);
+      let availableRefs: any[] = refs ? refs.get(def.name) : [];
+      if (availableRefs.length === 0) availableRefs = this._data.get(def.ref.name);
+
+      if (availableRefs.length === 0) throw new Error(`No instances available for ${def.name} ref to ${def.ref.name}!`);
+      
+      let instanceCount = availableRefs.length;
+      availableRefs = availableRefs.map(r => r[foreignKey]).filter(k => typeof k !== 'undefined');
+      if (availableRefs.length === 0) throw new Error(`No keys available from ${instanceCount} instances for '${def.name}' ref to '${def.ref.name}'!`);
+
+      return this._rand.choice(availableRefs);
     }
 
     if (def.type instanceof StoredEnum) {
-      return this._createEnum(def.type, def.designType);
+      return this._createEnum(def.type, def.designType || def.secondaryType || Number);
     }
 
     switch (def.type) {
@@ -116,7 +128,7 @@ export class Activator {
         return this._createArray(def);
       default:
         // Complex object...
-        return this.create(def.type as Constructor, 1, {}, new ListBucket())[0];
+        return this.create(def.type as Constructor, 1)[0];
     }
   }
 
@@ -151,8 +163,8 @@ export class Activator {
     if (def.min instanceof Date) min = def.min;
     if (def.max instanceof Date) max = def.max;
     if (!!min !== !!max) throw new Error('Must use both min/max or neither with Dates!');
-    min = min || new Date(0);
-    max = max || new Date();
+    min = min || Model.defaults.minDate;
+    max = max || Model.defaults.maxDate;
 
     return this._rand.nextDate(min, max);
   }
@@ -166,6 +178,7 @@ export class Activator {
     if (typeof def.min === 'number') min = def.min;
     if (typeof def.max === 'number') max = def.max;
     if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with string lengths!');
+    
     if (typeof min !== 'number') {
       min = Model.defaults.minStringLength;
       max = Model.defaults.maxStringLength;
@@ -205,6 +218,10 @@ export class Activator {
       createItem = (() => this._createGuid());
     } else if (isStoredEnum(def.secondaryType)) {
       createItem = (() => this._createEnum(def.secondaryType as StoredEnum, Number));
+    } else if (def.secondaryType === Number) { 
+      createItem = (() => this._createNumber({}));
+    } else if (def.secondaryType === String) { 
+      createItem = (() => this._createString({}));
     } else {
       let childPropDef = getModelDef(def.secondaryType);
       createItem = (() => this._createModel(def.secondaryType as Constructor, childPropDef, {}, new ListBucket()));

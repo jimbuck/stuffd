@@ -63,9 +63,10 @@ export class PropertyBuilder {
     return this.type(GuidType);
   }
 
-  public enum(enumType: any): this {
+  public enum(enumType: any, secondaryType?: Number|String): this {
     const storedEnum = new StoredEnum(enumType);
     this._definition.type = storedEnum;
+    this._definition.secondaryType = (secondaryType || Number) as any;
     return this;
   }
 
