@@ -9,16 +9,6 @@ const Person = Model.create('Person')
     .prop('dateOfBirth', dob => dob.date())
     .build();
 
-const Athlete = Model.create('Athlete')
-    .inherits(Person)
-    .child('stats', 'Stats', s => s
-        .prop('games', g => g.integer(3, 30))
-        .prop('starts', s => s.integer(0, 30))
-        .prop('errs', g => g.integer(0, 15))
-        .prop('yearsPlayed', f => f.integer(1, 7))
-    )
-    .build();
-
 const Student = Model.create('Student')
     .inherits(Person)
     .key('identifier', id => id.guid())
@@ -50,8 +40,6 @@ const Grade = Model.create('Grade')
 
 const ctx = new Context(246);
 
-const athletes = ctx.create(Athlete, 3);
-
 const students = ctx.create(Student, 50);
 
 const historyTeachers = ctx.create(Teacher, 3, { degree: 'History' });
@@ -60,8 +48,8 @@ const scienceTeachers = ctx.create(Teacher, 3, { degree: 'Science' });
 const historyClasses = ctx.using({ 'teacherIdentifier': historyTeachers }).create(Class, 4);
 const scienceClasses = ctx.using({ 'teacherIdentifier': scienceTeachers }).create(Class, 6);
 
-const historyGrades = ctx.cross({ studentIdentifier: students, classIdentifier: historyClasses }).create(Grade);
-const scienceGrades = ctx.cross({ studentIdentifier: students, classIdentifier: scienceClasses }).create(Grade);
+const historyGrades = ctx.cross({ 'studentIdentifier': students, 'classIdentifier': historyClasses }).create(Grade);
+const scienceGrades = ctx.cross({ 'studentIdentifier': students, 'classIdentifier': scienceClasses }).create(Grade);
 
 let data1 = ctx.data();
 // returns:
