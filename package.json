@@ -4,13 +4,13 @@
   "description": "Like a turkey.",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf ./dist/** ./coverage",
+    "clean": "rimraf ./dist/** ./coverage.lcov",
     "build": "tsc",
     "watch": "concurrently npm:watch:*",
     "watch:build": "tsc --watch",
     "watch:test": "ava --watch",
-    "test": "rimraf ./dist/** ./coverage && tsc && nyc --cache --color -a ava -v",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "rimraf ./dist/** ./coverage.lcov && tsc && nyc --cache --color -a ava -v",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
     "preversion": "npm test",
     "version": "git add -A",
     "postversion": "git push && git push --tags && npm publish"
@@ -29,8 +29,8 @@
     "@types/node": "^10.11.4",
     "@types/reflect-metadata": "0.1.0",
     "ava": "^0.25.0",
+    "codecov": "^3.1.0",
     "concurrently": "^4.0.1",
-    "coveralls": "^3.0.2",
     "nyc": "^13.0.1",
     "rimraf": "^2.6.2",
     "typescript": "^3.1.1"
