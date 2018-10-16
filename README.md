@@ -3,7 +3,7 @@
 Like a turkey. :turkey:
 
 [![Build Status](https://img.shields.io/travis/JimmyBoh/stuffd/master.svg?style=flat-square)](https://travis-ci.org/JimmyBoh/stuffd)
-[![Code Coverage](https://img.shields.io/coveralls/JimmyBoh/stuffd/master.svg?style=flat-square)](https://coveralls.io/github/JimmyBoh/stuffd?branch=master)
+[![Codecov](https://img.shields.io/codecov/c/github/JimmyBoh/stuffd.svg?style=flat-square)](https://codecov.io/gh/JimmyBoh/stuffd)
 [![Dependencies](https://img.shields.io/david/JimmyBoh/stuffd.svg?style=flat-square)](https://david-dm.org/JimmyBoh/stuffd)
 [![DevDependencies](https://img.shields.io/david/dev/JimmyBoh/stuffd.svg?style=flat-square)](https://david-dm.org/JimmyBoh/stuffd?type=dev)
 [![npm](https://img.shields.io/npm/v/stuffd.svg?style=flat-square)](https://www.npmjs.com/package/stuffd)
@@ -23,7 +23,7 @@ npm i stuffd
 ```ts
 
 // Coming soon!
-// (in the meantime check out ./src/debug-fluent.ts and ./src/debug-decorator.ts for examples!)
+// (in the meantime check out ./src/e2e for complete use cases!)
 
 ```
 
