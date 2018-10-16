@@ -3,10 +3,7 @@ node_js:
   - "stable"
   - "8"
   - "6"
-after_success: npm run coverage
-# deploy:
-#   provider: npm
-#   api_key: < travis encrypt YOUR_API_KEY --add deploy.api_key  >
-#   skip_cleanup: true
-#   on:
-#     tags: true
+scripts:
+  - npm install codecov -g
+after_success:
+  - codecov
