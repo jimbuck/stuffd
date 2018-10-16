@@ -18,13 +18,11 @@ steps:
 - script: npm run test:azure
   displayName: 'Run Tests'
 
+- script: npm run coverage
+  displayName: 'Publish Code Coverage'
+
 - task: PublishTestResults@2
   inputs:
-    testResultsFormat: 'xUnit'
+    testResultsFormat: 'JUnit'
     testResultsFiles: './test-results.xml'
   displayName: 'Publish Test Results'
-
-- script: |
-    npm run coverage
-    codecov
-  displayName: 'Publish Code Coverage'

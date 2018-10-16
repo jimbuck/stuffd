@@ -1,2 +1,3 @@
 dist/**/*.spec.js
 coverage.lcov
+test-results.xml

@@ -37,3 +37,4 @@ coverage
 
 dist
 coverage.lcov
+test-results.xml
