@@ -12,6 +12,7 @@
     "test": "npm run clean && tsc && nyc --cache --color -a ava -v",
     "test:azure": "npm run clean && tsc && nyc --cache --color -a ava --tap | tap-xunit > ./test-results.xml",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "coverage:azure": "nyc report --reporter=cobertura",
     "preversion": "npm test",
     "version": "git add -A",
     "postversion": "git push && git push --tags && npm publish"

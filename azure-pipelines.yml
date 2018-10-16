@@ -18,11 +18,17 @@ steps:
 - script: npm run test:azure
   displayName: 'Run Tests'
 
-- script: npm run coverage
-  displayName: 'Publish Code Coverage'
+- script: npm run coverage:azure
+  displayName: 'Generate Code Coverage'
 
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: './test-results.xml'
   displayName: 'Publish Test Results'
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: 'cobertura'
+    summaryFileLocation: './coverage/cobertura-coverage.xml'
+  displayName: 'Publish Code Coverage'
