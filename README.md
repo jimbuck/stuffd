@@ -2,7 +2,8 @@
 
 Like a turkey. :turkey:
 
-[![Build Status](https://img.shields.io/travis/JimmyBoh/stuffd/master.svg?style=flat-square)](https://travis-ci.org/JimmyBoh/stuffd)
+[![TravisCI Build Status](https://img.shields.io/travis/JimmyBoh/stuffd/master.svg?style=flat-square)](https://travis-ci.org/JimmyBoh/stuffd)
+[![AzurePipelines Build Status](https://dev.azure.com/jimmyboh/Stuffd/_apis/build/status/CI)](https://dev.azure.com/jimmyboh/Stuffd/_build/latest?definitionId=1)
 [![Codecov](https://img.shields.io/codecov/c/github/JimmyBoh/stuffd.svg?style=flat-square)](https://codecov.io/gh/JimmyBoh/stuffd)
 [![Dependencies](https://img.shields.io/david/JimmyBoh/stuffd.svg?style=flat-square)](https://david-dm.org/JimmyBoh/stuffd)
 [![DevDependencies](https://img.shields.io/david/dev/JimmyBoh/stuffd.svg?style=flat-square)](https://david-dm.org/JimmyBoh/stuffd?type=dev)
