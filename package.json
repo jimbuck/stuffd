@@ -4,12 +4,13 @@
   "description": "Like a turkey.",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf ./dist/** ./coverage.lcov",
+    "clean": "rimraf ./dist/** ./coverage.lcov ./test-results.xml",
     "build": "tsc",
     "watch": "concurrently npm:watch:*",
     "watch:build": "tsc --watch",
     "watch:test": "ava --watch",
-    "test": "rimraf ./dist/** ./coverage.lcov && tsc && nyc --cache --color -a ava -v",
+    "test": "npm run clean && tsc && nyc --cache --color -a ava -v",
+    "test:azure": "npm run clean && tsc && nyc --cache --color -a ava --tap | tap-xunit > test-results.xml",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov",
     "preversion": "npm test",
     "version": "git add -A",
@@ -33,6 +34,7 @@
     "concurrently": "^4.0.1",
     "nyc": "^13.0.1",
     "rimraf": "^2.6.2",
+    "tap-xunit": "^2.3.0",
     "typescript": "^3.1.1"
   },
   "dependencies": {

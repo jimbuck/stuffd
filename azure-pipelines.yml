@@ -12,7 +12,19 @@ steps:
     versionSpec: '8.x'
   displayName: 'Install Node.js'
 
+- script: npm install
+  displayName: 'Install Dependencies'
+
+- script: npm run test:azure
+  displayName: 'Run Tests'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'xUnit'
+    testResultsFiles: './test-results.xml'
+  displayName: 'Publish Test Results'
+
 - script: |
-    npm install
-    npm test
-  displayName: 'npm install and build'
+    npm run coverage
+    codecov
+  displayName: 'Publish Code Coverage'
