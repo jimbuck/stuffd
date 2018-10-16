@@ -24,11 +24,11 @@ steps:
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: './test-results.xml'
+    testResultsFiles: '$(System.DefaultWorkingDirectory)/test-results.xml'
   displayName: 'Publish Test Results'
 
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: 'cobertura'
-    summaryFileLocation: './coverage/cobertura-coverage.xml'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/cobertura-coverage.xml'
   displayName: 'Publish Code Coverage'
