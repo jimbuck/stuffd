@@ -41,7 +41,7 @@ test(`getModelDef/setModelDef/removeModelDef updates the model defintion on the 
   t.is(actualModelDef, expectedModelDef);
   removeModelDef(TargetClass);
   actualModelDef = getModelDef(TargetClass);
-  t.deepEqual(actualModelDef, { props: {} } as any);
+  t.deepEqual(actualModelDef, { props: {}, propList: [], nativeDefinitions: {} } as any);
 });
 
 test(`getModelId returns the id if it exists`, t => {

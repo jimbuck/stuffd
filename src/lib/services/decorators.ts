@@ -26,6 +26,12 @@ interface StringDef {
   (pattern: RegExp): PropertyDecorator;
 }
 
+interface ListDef {
+  (itemType: StoredEnum | TypeReference<any>): PropertyDecorator;
+  (itemType: StoredEnum | TypeReference<any>, length: number): PropertyDecorator;
+  (itemType: StoredEnum | TypeReference<any>, min: number, max: number): PropertyDecorator;
+}
+
 export function Key() {
   return PropDecorator(p => {
     p['_definition'].key = true;
@@ -33,17 +39,9 @@ export function Key() {
   });
 }
 
-export function Length(length: number) {
-  return PropDecorator(p => p.length(length));
-}
-
 export function Optional(occuranceRate?: number) {
   return PropDecorator(p => p.optional(occuranceRate));
 }
-
-export const Range: RangeDef = function Range(min: number | Date, max: number | Date) {
-  return PropDecorator(p => p.range(min as any, max as any));
-};
 
 export const Float: FloatDef = function Float(decimals?: number, min?: number, max?: number) {
   if (arguments.length === 2) {
@@ -52,10 +50,14 @@ export const Float: FloatDef = function Float(decimals?: number, min?: number, m
     decimals = null;
   }
   return PropDecorator(p => p.float(decimals, min, max));
-}
+};
 
 export const Integer: IntegerDef = function Integer(min?: number, max?: number) {
   return PropDecorator(p => p.integer(min, max));
+};
+
+export function Range(min: Date, max: Date) {
+  return PropDecorator(p => p.date(min, max));
 }
 
 export function Bool(truthRate: number = 0.5) {
@@ -74,9 +76,9 @@ export function Enum(enumType: any) {
   return PropDecorator(p => p.enum(enumType));
 }
 
-export function List(itemType: StoredEnum | TypeReference<any>) {
-  return PropDecorator(p => p.list(itemType));
-}
+export const List: ListDef = function List(itemType: StoredEnum | TypeReference<any>, min?: number, max?: number) {
+  return PropDecorator(p => p.list(itemType, min, max));
+};
 
 export function Pick<T>(choices: T[] | (() => T[])) {
   return PropDecorator(p => p.pick(choices));
@@ -84,9 +86,9 @@ export function Pick<T>(choices: T[] | (() => T[])) {
 
 export const Str: StringDef = function Pattern(pattern?: number | RegExp, maxLength?: number) {
   return PropDecorator(p => p.str(pattern as any, maxLength));
-}
+};
 
-export function Ref<T, K extends keyof T>(ref: Constructor<T>, refKey?: K) {
+export function Ref<T, K extends Extract<keyof T, string>>(ref: Constructor<T>, refKey?: K) {
   return PropDecorator(p => p.ref(ref, refKey));
 }
 

@@ -71,7 +71,8 @@ export class Activator {
 
   private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any>, refs: ListBucket): T {
     let target: any = new Type();
-    for (let prop in modelDef.props) {
+    let props = modelDef.propList || Object.keys(modelDef.props);
+    for (let prop of props) {
       let propDef = modelDef.props[prop];
       if (typeof propDef.optional === 'number' && !this._rand.nextBoolean(propDef.optional)) continue;
 

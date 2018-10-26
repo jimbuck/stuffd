@@ -34,17 +34,16 @@ test(`Model#prop creates a new Property`, t => {
 test(`Model#prop mergers existing Properties`, t => {
   const expectedPropName = 'propName';
   const expectedPropType = Date;
-  const expectedLength = 10;
+  const expectedOptRate = 0.89;
   const m = newModel('TestModel')
     .prop(expectedPropName, x => x.type(expectedPropType))
-    .prop(expectedPropName, x => x.length(expectedLength))
+    .prop(expectedPropName, x => x.optional(expectedOptRate))
     .build();
   
   const modelDef = getModelDef(m);
 
   t.is(modelDef.props[expectedPropName].type, expectedPropType);
-  t.is(modelDef.props[expectedPropName].min, expectedLength);
-  t.is(modelDef.props[expectedPropName].max, expectedLength);
+  t.is(modelDef.props[expectedPropName].optional, expectedOptRate);
 });
 
 test(`Model#key creates a Property marked as a key`, t => {
@@ -91,41 +90,62 @@ test(`Model#inherit links models`, t => {
   t.is(eagleDef.inherits, Animal);
 });
 
-test(`Model#child creates a nested type`, t => {
-  const expectedPropName = 'ship';
-  const expectedChildTypeName = 'StarFighter';
-  const expectedSquadChoices = ['red', 'blue', 'yellow', 'green'];
-  let Pilot = newModel('Pilot')
-    .child(expectedPropName, expectedChildTypeName, s => s
-      .prop('name', n => n.str(/[A-Z] Wing [IIVVXCD]{1,2}/))
-      .prop('squadron', s => s.pick(expectedSquadChoices))
-    )
-    .build();
+test(`Model#getter adds a getter function`, t => {
+  const expectedGetterName = 'name';
+  const expcetedGetterResult = 'Baldy';
+  const expectedGetterFunc = function getName() { return expcetedGetterResult; };
+  const Eagle = newModel('Eagle').getter(expectedGetterName, expectedGetterFunc).build();
   
-  const pilotDef = getModelDef(Pilot);
-  const ChildType = pilotDef.props[expectedPropName].type as Constructor;
-  t.is(ChildType.name, expectedChildTypeName);
-  const childDef = getModelDef(ChildType);
-  t.true(childDef.props['name'].pattern instanceof RegExp);
-  t.deepEqual(childDef.props['squadron'].pick, expectedSquadChoices);
-  let child = new ChildType();
-  t.true(child instanceof ChildType);
+  const eagleDef = getModelDef(Eagle);
+  t.is(eagleDef.nativeDefinitions[expectedGetterName].get, expectedGetterFunc);
+
+  const eagle = new Eagle();
+  t.is(eagle.name, expcetedGetterResult);
+});
+
+test(`Model#setter adds a setter function`, t => {
+  const expectedSetterName = 'name';
+  const expectedPrivateProp = '_name';
+  const expectedSetterResult = 'Baldy';
+  const expectedSetterFunc = function getName(value:string) { return this[expectedPrivateProp] = value; };
+  const Eagle = newModel('Eagle').setter(expectedSetterName, expectedSetterFunc).build();
+  
+  const eagleDef = getModelDef(Eagle);
+  t.is(eagleDef.nativeDefinitions[expectedSetterName].set, expectedSetterFunc);
+  const eagle = new Eagle();
+  t.is(typeof eagle[expectedPrivateProp], 'undefined');
+  eagle.name = expectedSetterResult;
+  t.is(eagle[expectedPrivateProp], expectedSetterResult);
+});
+
+test(`Model#func adds a custom method`, t => {
+  const expectedId = 'TestModel';
+  const expectedMethodName = 'testMethod';
+  const expectedMethodResult = 'test 1 2 3';
+  const expectedMethodFn = function () { return this.value };
+  const testModelBuilder = newModel(expectedId).func(expectedMethodName, expectedMethodFn);
+
+  const TestModel = testModelBuilder.build();
+  const testModelDef = getModelDef(TestModel);
+  const testModelInstance = new TestModel();
+  testModelInstance.value = expectedMethodResult;
+
+  t.is(testModelDef.nativeDefinitions[expectedMethodName].value, expectedMethodFn);
+  t.is(testModelInstance[expectedMethodName](), expectedMethodResult);
 });
 
 test(`Model#toString adds custom toString method`, t => {
   const expectedId = 'TestModel';
   const expectedToStringResult = 'test 1 2 3';
-  const expectedToStringFn = (x: any) => expectedToStringResult;
+  const expectedToStringFn = function () { return expectedToStringResult };
   const testModelBuilder = newModel(expectedId).toString(expectedToStringFn);
 
   const expectedModelBuilderToString = `ModelBuilder<${expectedId}>`;
   t.is(testModelBuilder.toString(), expectedModelBuilderToString);
 
   const TestModel = testModelBuilder.build();
-  const testModelDef = getModelDef(TestModel);
   const testModelInstance = new TestModel();
 
-  t.is(testModelDef.toStringFn, expectedToStringFn);
   t.is(testModelInstance.toString(), expectedToStringResult);
 });
 

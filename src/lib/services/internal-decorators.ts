@@ -23,16 +23,15 @@ export function PropDecorator(act?: (mb: PropertyBuilder, designType: Constructo
     const designType = getDesignType(target, prop);
     let modelBuilder = getModelBuilder(target.constructor);
 
-    let propDef = modelBuilder['_modelDefinition'].props[prop] || {};
-    
-    propDef.name = propDef.name || prop;
-    propDef.designType = designType;
-    if (!propDef.type) {
-      propDef.type = designType;
-    }
+    modelBuilder.prop(prop, pb => {
+      pb['_definition'].designType = designType;
 
-    modelBuilder['_modelDefinition'].props[prop] = propDef;
-    modelBuilder.prop(prop, p => act(p, designType));
+      if (!pb['_definition'].type) {
+        pb['_definition'].type = designType;
+      }
+
+      return act(pb, designType);
+    });
 
     setModelBuilder(target.constructor, modelBuilder);
   }

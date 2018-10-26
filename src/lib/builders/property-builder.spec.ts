@@ -5,10 +5,10 @@ import { PropertyBuilder } from './property-builder';
 import { PropertyDefinition } from '../models/property-definition';
 import { CustomGenerator, GuidType, Constructor } from '../models/types';
 import { Model, Prop } from '../..';
-import { Type, List, Key, Ref, Range, Length, Str, Bool, Optional, Integer, Float, Guid, Enum, Pick, Custom } from '../services/decorators';
+import { Type, List, Key, Ref, Range, Str, Bool, Optional, Integer, Float, Guid, Enum, Pick, Custom } from '../services/decorators';
 import { ModelBuilder } from './model-builder';
 import { StoredEnum } from '../models/stored-enum';
-import { getModelBuilder } from '../utils/meta-reader';
+import { getModelBuilder, getModelDef } from '../utils/meta-reader';
 import { ModelDefinition } from '../models/model-definition';
 
 class TestClass {
@@ -65,6 +65,30 @@ testBoth('Type', 'accepts a primary type as well as secondary type',
   }
 );
 
+{
+  const expectedChildTypeName = 'StarFighter';
+  const expectedSquadChoices = ['red', 'blue', 'yellow', 'green'];
+
+  const StarFighter = Model.create(expectedChildTypeName)
+    .prop('name', n => n.str(/[A-Z] Wing [IIVVXCD]{1,2}/))
+    .prop('squadron', s => s.pick(expectedSquadChoices))
+    .build();
+  
+  testBoth('Type', 'accepts generated classes',
+    p => p.type(StarFighter), Type(StarFighter),
+    (t, propDef) => {
+      t.is(propDef.type, StarFighter);
+      const ChildType = propDef.type as Constructor;
+      t.is(ChildType.name, expectedChildTypeName);
+      const childDef = getModelDef(ChildType);
+      t.true(childDef.props['name'].pattern instanceof RegExp);
+      t.deepEqual(childDef.props['squadron'].pick, expectedSquadChoices);
+      let child = new ChildType();
+      t.true(child instanceof ChildType);
+    }
+  );
+}
+
 testBoth('List', 'accepts simple types',
   p => p.list(String), List(String),
   (t, propDef) => {
@@ -80,6 +104,33 @@ testBoth('List', 'accepts complex types',
     t.is(propDef.secondaryType, TestClass);
   }
 );
+
+{
+  const expectedLength = 7;
+  testBoth('List', 'accepts length',
+    p => p.list(TestClass, expectedLength), List(TestClass, expectedLength),
+    (t, propDef) => {
+      t.is(propDef.type, Array);
+      t.is(propDef.secondaryType, TestClass);
+      t.is(propDef.min, expectedLength);
+      t.is(propDef.max, expectedLength);
+    }
+  );
+}
+
+{
+  const expectedMinLength = 7;
+  const expectedMaxLength = 7;
+  testBoth('List', 'accepts min/max length',
+    p => p.list(TestClass, expectedMinLength, expectedMaxLength), List(TestClass, expectedMinLength, expectedMaxLength),
+    (t, propDef) => {
+      t.is(propDef.type, Array);
+      t.is(propDef.secondaryType, TestClass);
+      t.is(propDef.min, expectedMinLength);
+      t.is(propDef.max, expectedMaxLength);
+    }
+  );
+}
 
 test(`PropertyBuilder#ref requires a known type or explicit foreignKey`, t => {
   t.throws(() => newPropBuilder().ref(TestClass));
@@ -115,63 +166,21 @@ test(`@Ref() requires a known type or explicit foreignKey`, t => {
   );
 }
 
-{ 
-  const expectedMin = 3;
-  const expectedMax = 12;
-
-  test(`PropertyBuilder#range requires min to be less than or equal to max`, t => {
-    t.throws(() => newPropBuilder().range(expectedMax, expectedMin));
-    t.notThrows(() => newPropBuilder().range(expectedMax, expectedMax));
-    t.notThrows(() => newPropBuilder().range(expectedMin, expectedMax));
-  });
-
-  test(`@Range() requires min to be less than or equal to max`, t => {
-    t.throws(() => testDecorator(Range(expectedMax, expectedMin)));
-    t.notThrows(() => testDecorator(Range(expectedMax, expectedMax)));
-    t.notThrows(() => testDecorator(Range(expectedMin, expectedMax)));
-  });
-
-  testBoth('Range', 'marks the min/max for numbers',
-    p => p.range(expectedMin, expectedMax), Range(expectedMin, expectedMax),
-    (t, propDef) => {
-      t.is(propDef.min, expectedMin);
-      t.is(propDef.max, expectedMax);
-    }
-  );
-}
-
-{ 
-  const expectedMin = new Date('03/11/1994');
-  const expectedMax = new Date('4/16/1999');
-
-  test(`PropertyBuilder#range requires min to be less than or equal to max`, t => {
-    t.throws(() => newPropBuilder().range(expectedMax, expectedMin));
-    t.notThrows(() => newPropBuilder().range(expectedMax, expectedMax));
-    t.notThrows(() => newPropBuilder().range(expectedMin, expectedMax));
-  });
-
-  test(`@Range() requires min to be less than or equal to max`, t => {
-    t.throws(() => testDecorator(Range(expectedMax, expectedMin)));
-    t.notThrows(() => testDecorator(Range(expectedMax, expectedMax)));
-    t.notThrows(() => testDecorator(Range(expectedMin, expectedMax)));
-  });
-
-  testBoth('Range', 'marks the min/max for dates',
-    p => p.range(expectedMin, expectedMax), Range(expectedMin, expectedMax),
-    (t, propDef) => {
-      t.is(propDef.min, expectedMin);
-      t.is(propDef.max, expectedMax);
-    }
-  );
-}
-
 {
-  const expectedLength = 7;
-  testBoth('Length', 'sets an equal min/max',
-    p => p.length(expectedLength), Length(expectedLength),
+  const expectedMinDate = new Date('03/11/1994');
+  const expectedMaxDate = new Date('4/16/1999');
+
+  test(`@Range() requires min to be less than or equal to max`, t => {
+    t.throws(() => testDecorator(Range(expectedMaxDate, expectedMinDate)));
+    t.notThrows(() => testDecorator(Range(expectedMaxDate, expectedMaxDate)));
+    t.notThrows(() => testDecorator(Range(expectedMinDate, expectedMaxDate)));
+  });
+
+  testBoth('Range', 'acts the same as PropertyBuilder#date',
+    p => p.date(expectedMinDate, expectedMaxDate), Range(expectedMinDate, expectedMaxDate),
     (t, propDef) => {
-      t.is(propDef.min, expectedLength);
-      t.is(propDef.max, expectedLength);
+      t.is(propDef.min, expectedMinDate);
+      t.is(propDef.max, expectedMaxDate);
     }
   );
 }
@@ -422,7 +431,7 @@ test(`PropertyBuilder can fluently define properties`, t => {
     newPropBuilder({ name: expectedName })
       .optional()
       .type(expectedType)
-      .length(expectedLength));
+      .str(expectedLength));
   
   t.is(actualDef.name, expectedName);
   t.is(actualDef.type, expectedType);
@@ -467,7 +476,7 @@ function testBuilder<T>(cb: (pb: PropertyBuilder) => PropertyBuilder): TestResul
 }
 
 function testDecorator<T=string>(decorate: PropertyDecorator): TestResult<T> {
-  const propName = 'testProp';
+  const propName = 'prop';
   const { GeneratedClass, model } = createNewClass<T>();
 
   decorate(model, propName);

@@ -17,7 +17,7 @@ export class PropertyBuilder {
     return Object.assign({}, propBuilder._definition);
   }
 
-  public ref<T, K extends keyof T>(type: Constructor<T>, refKey?: K): this {
+  public ref<T, K extends Extract<keyof T, string>>(type: Constructor<T>, refKey?: K): this {
     let foreignKey = typeof refKey === 'string' ? refKey : getPrimaryKey(type);
     if (!foreignKey) {
       throw new Error(`Failed to infer primary key of reference type '${type.name}'!`);
@@ -26,20 +26,6 @@ export class PropertyBuilder {
     this._definition.ref = type;
     this._definition.foreignKey = foreignKey;
     return this;
-  }
-
-  public range(min: number, max: number): this;
-  public range(min: Date, max: Date): this;
-  public range(min: number | Date, max: number | Date): this {
-    if (max < min) throw new Error(`max must be equal to or greater than min!`);
-
-    this._definition.min = min;
-    this._definition.max = max;
-    return this;
-  }
-
-  public length(len: number): this {
-    return this.range(len, len);
   }
 
   public pick<T>(choices: T[] | (() => T[])): this {
@@ -55,15 +41,24 @@ export class PropertyBuilder {
     return this;
   }
 
-  public list(itemType?: TypeReference): this {
-    return this.type(Array, itemType);
+  public list(itemType: TypeReference): this;
+  public list(itemType: TypeReference, length: number): this;
+  public list(itemType: TypeReference, minLength: number, maxLength: number): this;
+  public list(itemType: TypeReference, minLength?: number, maxLength?: number): this {
+    this.type(Array, itemType);
+
+    if (typeof minLength === 'number') {
+      this._range(minLength, maxLength);
+    }
+
+    return this;
   }
 
   public guid(): this {
     return this.type(GuidType);
   }
 
-  public enum(enumType: any, secondaryType?: Number|String): this {
+  public enum(enumType: any, secondaryType?: typeof Number | typeof String): this {
     const storedEnum = new StoredEnum(enumType);
     this._definition.type = storedEnum;
     this._definition.secondaryType = (secondaryType || Number) as any;
@@ -81,7 +76,7 @@ export class PropertyBuilder {
       this._definition.pattern = pattern;
     } else if (typeof pattern === 'number') {
       maxLength = maxLength || pattern;
-      this.range(pattern, maxLength);
+      this._range(pattern, maxLength);
     }
     
     return this;
@@ -105,7 +100,7 @@ export class PropertyBuilder {
     
     return this
       .type(Number)
-      .range(min, max);
+      ._range(min, max);
   }
 
   public float(): this;
@@ -131,7 +126,7 @@ export class PropertyBuilder {
 
     return this
       .type(Number)
-      .range(min, max);
+      ._range(min, max);
   }
 
   public date(): this;
@@ -139,11 +134,25 @@ export class PropertyBuilder {
   public date(min?: Date, max?: Date): this {
     return this
       .type(Date)
-      .range(min, max)
+      ._range(min, max)
   }
 
   public custom(fn: CustomGenerator): this {
     this._definition.custom = fn;
+    return this;
+  }
+
+  private _range(length: number): this;
+  private _range(min: number, max: number): this;
+  private _range(min: Date, max: Date): this;
+  private _range(min: number | Date, max?: number | Date): this {
+    if (typeof min !== 'undefined' && typeof max === 'undefined') {
+      max = min;
+    }
+    if (max < min) throw new Error(`max must be equal to or greater than min!`);
+
+    this._definition.min = min;
+    this._definition.max = max;
     return this;
   }
 }

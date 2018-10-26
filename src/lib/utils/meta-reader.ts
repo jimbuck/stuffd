@@ -10,30 +10,31 @@ export function getDesignType(target: Object, prop: string) {
 
 //#region Model Builder Methods
 
-const ModelBuilderKey = Symbol('jimmyboh:stuffd:modelbuilder');
-export function getModelBuilder<T>(Target: Constructor<T>): ModelBuilder<T> {
-  return Reflect.getMetadata(ModelBuilderKey, Target) || new ModelBuilder({ name: null });
+const ModelBuilderKey = '_modelbuilder';
+export function getModelBuilder<T=any>(Target: Constructor<T>): ModelBuilder<T> {
+  return (Target as any)[ModelBuilderKey] || new ModelBuilder({ name: null });
 }
 export function setModelBuilder<T>(Target: Constructor<T>, modelBuilder: ModelBuilder<T>): void {
-  Reflect.defineMetadata(ModelBuilderKey, modelBuilder, Target);
+  
+  Object.defineProperty(Target, ModelBuilderKey, { value: modelBuilder, enumerable: false, configurable: true });
 }
 export function removeModelBuilder<T>(Target: Constructor<T>): void {
-  Reflect.deleteMetadata(ModelBuilderKey, Target);
+  delete (Target as any)[ModelBuilderKey];
 }
 
 //#endregion
 
 //#region Model Definition Methods
 
-const ModelDefinitionKey = Symbol('jimmyboh:stuffd:modeldef');
+const ModelDefinitionKey = '_modeldef';
 export function getModelDef<T>(Target: Constructor<T>): ModelDefinition<T> {
-  return Reflect.getMetadata(ModelDefinitionKey, Target) || { props: {} };
+  return (Target as any)[ModelDefinitionKey] || { props: {}, propList: [], nativeDefinitions: {} };
 }
 export function setModelDef<T>(Target: Constructor<T>, modelDef: ModelDefinition<T>): void {
-  Reflect.defineMetadata(ModelDefinitionKey, modelDef, Target);
+  Object.defineProperty(Target, ModelDefinitionKey, { value: modelDef, enumerable: false, configurable: true });
 }
 export function removeModelDef<T>(Target: Constructor<T>): void {
-  Reflect.deleteMetadata(ModelDefinitionKey, Target);
+  delete (Target as any)[ModelDefinitionKey];
 }
 //#endregion
 

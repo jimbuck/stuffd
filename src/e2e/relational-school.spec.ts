@@ -80,8 +80,8 @@ function createModelsFromDecorators() {
     @Key() @Guid()
     identifier: string;
 
-    @Range((new Date().getFullYear()), (new Date().getFullYear()) + 4)
-    graduationYear: Date;
+    @Integer(2000, (new Date().getFullYear()) + 4)
+    graduationYear: number;
   }
 
   @Model()
@@ -165,7 +165,7 @@ function createModelsFromFluentApi() {
     .prop('period', st => st.type(Number).integer(1, 9))
     .prop('name', s => s.str())
     .ref('teacherIdentifier', Teacher)
-    .toString((c) => `#${c.period} Period ${c.name} (${c.teacherIdentifier})`)
+    .toString(function () { return `#${this.period} Period ${this.name} (${this.teacherIdentifier})` })
     .build();
 
   const Grade = Model.create('Grade')
@@ -173,7 +173,7 @@ function createModelsFromFluentApi() {
     .prop('grade', g => g.float(2, 65, 100))
     .ref('studentIdentifier', Student)
     .ref('classIdentifier', Class)
-    .toString((c) => `${c.studentIdentifier} recieved ${c.grade}% in ${c.classIdentifier}`)
+    .func('toString', function () { return `${this.studentIdentifier} recieved ${this.grade}% in ${this.classIdentifier}` })
     .build();
   
   return { Person, Student, Teacher, Class, Grade };

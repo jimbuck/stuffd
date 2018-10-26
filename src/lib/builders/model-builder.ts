@@ -18,6 +18,8 @@ export class ModelBuilder<T=any> {
   constructor(modelDefinition: ModelDefinition<T>) {
     this._modelDefinition = modelDefinition;
     this._modelDefinition.props = this._modelDefinition.props || {};
+    this._modelDefinition.propList = this._modelDefinition.propList || [];
+    this._modelDefinition.nativeDefinitions = this._modelDefinition.nativeDefinitions || {};
   }
 
   public static build<T=any>(modelBuilder: ModelBuilder<T>): ModelDefinition<T> {
@@ -29,9 +31,13 @@ export class ModelBuilder<T=any> {
       modelDef = Object.assign({}, parentModelDef, modelBuilder._modelDefinition);
       
       modelDef.props = Object.assign({}, parentModelDef.props, modelBuilder._modelDefinition.props);
+      modelDef.propList = [...parentModelDef.propList, ...modelBuilder._modelDefinition.propList];
+      modelDef.nativeDefinitions = Object.assign({}, parentModelDef.nativeDefinitions, modelBuilder._modelDefinition.nativeDefinitions);
     } else {
       modelDef = Object.assign({}, modelBuilder._modelDefinition);
       modelDef.props = Object.assign({}, modelBuilder._modelDefinition.props);
+      modelDef.propList = [...modelBuilder._modelDefinition.propList];
+      modelDef.nativeDefinitions = Object.assign({}, modelBuilder._modelDefinition.nativeDefinitions);
     }
 
     let keys = Object.keys(modelDef.props).map(p => modelDef.props[p]).filter(propDef => propDef.key);
@@ -45,14 +51,18 @@ export class ModelBuilder<T=any> {
     return modelDef;
   }
 
-  public prop(name: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
-    let propDef = this._modelDefinition.props[name] || { name };
+  public prop(name: Extract<keyof T, string>, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
+    let propDef = this._modelDefinition.props[name];
+    if (!propDef) {
+      this._addToPropList(name);
+      propDef = { name };
+    }
     this._modelDefinition.props[name] = PropertyBuilder.build(cb(new PropertyBuilder(propDef)));
 
     return this;
   }
 
-  public key(name: string, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
+  public key(name: Extract<keyof T, string>, cb: (propBuilder: PropertyBuilder) => PropertyBuilder): this {
     this._modelDefinition.primaryKey = name;
     return this.prop(name, i => {
       i['_definition'].key = true;
@@ -60,20 +70,35 @@ export class ModelBuilder<T=any> {
     });
   }
 
-  public ref<T, K extends keyof T>(name: string, ref: Constructor<T>, refKey?: K): this {
-    let foreignKey = refKey || getPrimaryKey(ref);
-    return this.prop(name, x => x.ref<T, K>(ref, foreignKey as any));
+  public ref<K extends Extract<keyof T, string>>(name: Extract<keyof T, string>, ref: Constructor<T>, refKey?: K): this {
+    let foreignKey = refKey || getPrimaryKey<K>(ref) as Extract<keyof T, string>;
+    return this.prop(name, x => x.ref(ref, foreignKey));
   }
 
-  public inherits<T=any>(model: Constructor<T>): this {    
+  public inherits<T=any>(model: Constructor<T>): this {
     this._modelDefinition.inherits = model;
     return this;
   }
+  
+  public getter(name: Extract<keyof T, string>, getterFn: (this: T) => any): this {
+    let nativeDef = this._modelDefinition.nativeDefinitions[name] || {};
+    nativeDef.get = getterFn;
+    this._modelDefinition.nativeDefinitions[name] = nativeDef;
+    return this;
+  }
 
-  public child<T=any>(id: string, typeName: string, buildChild: (mb: ModelBuilder<T>) => ModelBuilder<T>): this {
-    let childModel = new ModelBuilder({ name: typeName });
-    let ChildType = buildChild(childModel).build();
-    this.prop(id, c => c.type(ChildType));
+  public setter(name: Extract<keyof T, string>, setterFn: (this: T, value: any) => void): this {
+    let nativeDef = this._modelDefinition.nativeDefinitions[name] || {};
+    nativeDef.set = setterFn;
+    this._modelDefinition.nativeDefinitions[name] = nativeDef;
+    return this;
+  }
+
+  public func(name: string, func: (...args: any[]) => any): this {
+    let nativeDef = this._modelDefinition.nativeDefinitions[name] || {};
+    nativeDef.value = func;
+    nativeDef.enumerable = false;
+    this._modelDefinition.nativeDefinitions[name] = nativeDef;
     return this;
   }
 
@@ -89,24 +114,26 @@ export class ModelBuilder<T=any> {
       Type.prototype.constructor = Type;
     }
 
-    if (modelDef.toStringFn) {
-      Type.prototype.toString = function () {
-        return modelDef.toStringFn(this);
-      };
-    }
+    // Assign getters and setters...
+    Object.defineProperties(Type.prototype, modelDef.nativeDefinitions);
     
     return Type;
   }
 
   public toString(): string;
-  public toString(toStringFn: (x:any) => string): this;
-  public toString(toStringFn?: (x:any) => string): this|string {
+  public toString(toStringFn: () => string): this;
+  public toString(toStringFn?: () => string): this|string {
     if (toStringFn) {
-      this._modelDefinition.toStringFn = toStringFn;
-      return this;
+      return this.func('toString', toStringFn);
     } else {
       return `ModelBuilder<${this.name}>`;
     }
+  }
+
+  private _addToPropList(propName: string): void {
+    let temp = this._modelDefinition.propList.filter(v => v !== propName);
+    temp.push(propName);
+    this._modelDefinition.propList = temp;
   }
 }
 

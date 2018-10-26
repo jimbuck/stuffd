@@ -9,29 +9,10 @@ import { StoredEnum } from './stored-enum';
  * @interface PropertyDefinition
  */
 export interface PropertyDefinition {
-  
-  /**
-   * The property name.
-   */
   name?: string;
-
-  /**
-   * Is this property the primary key?
-   * 
-   * @type {boolean}
-   * @memberOf PropertyDefinition
-   */
   key?: boolean;
-
   ref?: Constructor;
   foreignKey?: string;
-
-  /**
-   * The minimum indicator, for numbers, dates, etc.
-   * 
-   * @type {number | Date}
-   * @memberOf PropertyDefinition
-   */
   min?: number | Date;
   max?: number | Date;
   pattern?: RegExp;
