@@ -1,7 +1,7 @@
 import { ModelDefinition } from '../models/model-definition';
 import { PropertyBuilder } from './property-builder';
 import { setModelDef, getPrimaryKey, getModelDef } from '../utils/meta-reader';
-import { Constructor, GeneratedConstructor } from '../models/types';
+import { Constructor, GeneratedConstructor, Lookup } from '../models/types';
 
 export class ModelBuilder<T=any> {
 
@@ -139,4 +139,42 @@ export class ModelBuilder<T=any> {
 
 export function StaticCreate(name: string) {
   return new ModelBuilder({ name });
+}
+
+export interface CreateEnumMethod {
+  (...labels: string[]): any;
+  (labels: string[]): any;
+  (obj: Lookup<number>): any;
+}
+
+export const StaticCreateEnum: CreateEnumMethod = function (obj: string | string[] | Lookup<number>) {
+  let newEnum = {};
+
+  if (typeof obj === 'string' || Array.isArray(obj)) {
+    let args = typeof obj === 'string' ? [...arguments] : obj;
+    obj = {};
+    for (let i = 0; i < args.length; i++) {
+      obj[args[i]] = i;
+    }
+  }
+
+  for (let label in obj) {
+    let value = obj[label];
+
+    Object.defineProperty(newEnum, label, {
+      value,
+      writable: false,
+      configurable: false,
+      enumerable: false
+    });
+    
+    Object.defineProperty(newEnum, value, {
+      value: label,
+      writable: false,
+      configurable: false,
+      enumerable: true
+    });
+  }
+
+  return newEnum;
 }
