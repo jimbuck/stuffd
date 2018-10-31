@@ -1,4 +1,4 @@
-import { Stuffd, Integer, Str, Custom, List, Enum } from '../..';
+import { Stuffd, Integer, Str, Custom, List, Enum } from '../dist';
 
 enum Region {
   North,
@@ -10,7 +10,7 @@ enum Region {
 @Stuffd()
 export class Player {
   
-  @Custom(c => `${c.first} ${c.last}`)
+  @Custom(c => `${c.first()} ${c.last()}`)
   name: string;
 
   @Integer(1, 99)
@@ -23,7 +23,7 @@ export class Player {
 @Stuffd()
 export class Team {
   
-  @List(Player, 40, 50)
+  @List(Player, 3)
   players: Array<Player>;
 
   @Custom(c => `${c.first()} ${c.last()}`)
@@ -42,17 +42,18 @@ export class Team {
 @Stuffd()
 export class League {
   
-  @List(Team, 12, 20)
+  @List(Team, 4, 8)
   teams: Array<Team>;
 
-  @Custom(c => `${c.first} ${c.letter({ casing: 'upper' })}. ${c.last}`)
+  @Custom(c => `${c.first()} ${c.letter({ casing: 'upper' })}. ${c.last()}`)
   chairmen: string;
 }
 
-Stuffd.task('simpleTask', (ctx) => {
+Stuffd.task('default', (ctx) => {
   ctx.create(League, 1);
 
   const json = ctx.json();
 
+  console.log(`this is the json:`);
   console.log(json);
 });

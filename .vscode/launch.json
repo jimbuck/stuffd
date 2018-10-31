@@ -42,6 +42,72 @@
     },
     {
       "type": "node",
+      "request": "launch",
+      "name": "Launch bin create TS",
+      "program": "${workspaceFolder}/dist/bin/stuffd.js",
+      "cwd": "${workspaceFolder}/examples",
+      "outputCapture": "std",
+      "args": [
+        "--config", "./stuffd.typescript.ts",
+        "--seed", "246",
+        "create",
+        "League", "1"
+      ],
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch bin run TS",
+      "program": "${workspaceFolder}/dist/bin/stuffd.js",
+      "cwd": "${workspaceFolder}/examples",
+      "outputCapture": "std",
+      "args": [
+        "--config", "./stuffd.typescript.ts",
+        "--seed", "246",
+        "run", "default"
+      ],
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch bin create JS",
+      "program": "${workspaceFolder}/dist/bin/stuffd.js",
+      "cwd": "${workspaceFolder}/examples",
+      "outputCapture": "std",
+      "args": [
+        "--config", "./stuffd.javascript.js",
+        "--seed", "246",
+        "create",
+        "League", "1"
+      ],
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch bin run JS",
+      "program": "${workspaceFolder}/dist/bin/stuffd.js",
+      "cwd": "${workspaceFolder}/examples",
+      "outputCapture": "std",
+      "args": [
+        "--config", "./stuffd.javascript.js",
+        "--seed", "246",
+        "run", "default"
+      ],
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
       "request": "attach",
       "name": "Attach by Process ID",
       "processId": "${command:PickProcess}"

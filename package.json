@@ -48,7 +48,8 @@
     "commander": "^2.19.0",
     "randexp": "^0.5.3",
     "reflect-metadata": "^0.1.12",
-    "require-from-string": "^2.0.2"
+    "require-from-string": "^2.0.2",
+    "ts-node": "^7.0.1"
   },
   "ava": {
     "files": [

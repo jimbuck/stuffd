@@ -108,7 +108,7 @@ export class Activator {
       return this._rand.choice(availableRefs);
     }
 
-    if (def.type instanceof StoredEnum) {
+    if (isStoredEnum(def.type)) {
       return this._createEnum(def.type, def.designType || def.secondaryType || Number);
     }
 

@@ -1,50 +1,77 @@
+#!/usr/bin/env node
+
 import { join as joinPath } from 'path';
 import { existsSync as fileExistsSync } from 'fs';
-import commander from 'commander';
+import * as commander from 'commander';
 
-import { Stuffd, Context } from '..';
-import { loadFile } from '../lib/services/file-loader';
+import { Stuffd, Context } from '../index';
+import { breakPromise } from '../lib/utils/extensions';
 import { Lookup } from '../lib/models/types';
+
+const packageJson = require('../../package.json');
 
 const currDir = process.cwd();
 
+require('ts-node').register({
+  transpileOnly: true,
+  skipProject: true,
+  compilerOptions: {
+    target: 'es6',
+    module: 'commonjs',
+    experimentalDecorators: true,
+    emitDecoratorMetadata: true,
+    inlineSourceMap: true,
+    removeComments: false,
+    allowJs: false,
+    lib: ['es2016']
+  }
+});
+
 commander
-  .command('[options] run <task>')
-  .option('-c, --config <config>', 'Path to the js/ts config file.')
+  .version(packageJson.version, '-V, --version');
+
+commander.command('run <task>')
+  .option('-c, --config <path>', 'Path to the js/ts config file.')
   .option('-s, --seed <seed>', 'The starting seed for the PRNG.')
-  .option('-v, --verbose', 'Enable verbose logging.')
-  .action(async (task, { config, seed, verbose }) => {
-    configureAndLoad(config, verbose);
+  .action(async (task, { config, seed }) => {
+    configureAndLoad(config);
     await Stuffd.run(task, { seed });
   });
 
-commander
-  .command('[options] create <pairs...>')
-  .option('-c, --config', 'Path to the js/ts config file.')
+commander.command('create <pairs...>')
+  .option('-c, --config <path>', 'Path to the js/ts config file.')
   .option('-s, --seed <seed>', 'The starting seed for the PRNG.')
-  .option('-v, --verbose', 'Enable verbose logging.')
-  .action(async (pairs, { config, seed, verbose }) => {
+  .option('-f, --formatted', 'Format the JSON.')
+  .action(async (pairs, { config, seed, formatted }) => {
     const models = toPairs(pairs);
 
-    const moduleExports = configureAndLoad(config, verbose);
+    const moduleExports = configureAndLoad(config);
 
     const ctx = new Context(seed);
 
     models.forEach(entry => {
       const Model = moduleExports[entry.type];
-      ctx.create(Model, entry.count);
+      // Only create models
+      if (typeof Model === 'function') {
+        ctx.create(Model, entry.count);
+      }
     });
 
-    process.stdout.write(ctx.json());
+    const { promise, resolve, reject } = breakPromise();
+
+    process.stdout.write(ctx.json(formatted ? '  ': null), (err: any) => err ? reject(err) : resolve());
+
+    await promise;
   });
 
 commander.parse(process.argv);
 
-function configureAndLoad(config: string, verbose: boolean) {
-  config = config || joinPath(currDir, 'stuffd.ts');
+function configureAndLoad(config: string) {
+  config = joinPath(currDir, config || 'stuffd.ts');
 
-    if (fileExistsSync(config)) console.error(`No config file found at '${config}'!`);
-    return loadFile<Lookup<any>>(config, verbose);
+  if (!fileExistsSync(config)) throw new Error(`No config file found at '${config}'!`);
+  
+  return require(config) as Lookup<any>;
 }
 
 function toPairs(arr: string[]) {

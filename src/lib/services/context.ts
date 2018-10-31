@@ -65,41 +65,49 @@ export class Context {
     public stream(Type: Constructor<any>): NodeJS.ReadableStream;
     public stream(Type?: Constructor<any>): NodeJS.ReadableStream {
         if (Type) {
-            let items = this._activator.data.get<any>(Type.name);
-            const stream = new ReadableStream({
-                objectMode: true,
-                read() {
-                    const item = items.shift();
-                    this.push(!item ? null : item);
-                }
-            });
-            return stream;
+            return this._streamType(Type);
         } else {
-            const types = Object.keys(this._activator.types);
-            const data = this._activator.data;
-            let currentType = types.shift();
-            let items = data.get(currentType);
-            const stream = new ReadableStream({
-                objectMode: true,
-                read() {
-                    let item = items.shift();
-                    while (!item && types.length > 0) {
-                        currentType = types.shift();
-                        items = data.get(currentType);
-                    }
-
-                    if (item) {
-                        return this.push({
-                            type: currentType,
-                            value: item
-                        });
-                    }
-
-                    return this.push(null);
-                }
-            });
-
-            return stream;
+            return this._streamAll();
         }
+    }
+
+    private _streamType(Type: Constructor<any>): NodeJS.ReadableStream {
+        let items = this._activator.data.get<any>(Type.name);
+        const stream = new ReadableStream({
+            objectMode: true,
+            read() {
+                const item = items.shift();
+                this.push(!item ? null : item);
+            }
+        });
+        return stream;
+    }
+
+    private _streamAll(): NodeJS.ReadableStream {
+        const types = Object.keys(this._activator.types);
+        const data = this._activator.data;
+        let currentType = types.shift();
+        let items = data.get(currentType);
+        const stream = new ReadableStream({
+            objectMode: true,
+            read() {
+                let item = items.shift();
+                while (!item && types.length > 0) {
+                    currentType = types.shift();
+                    items = data.get(currentType);
+                }
+
+                if (item) {
+                    return this.push({
+                        type: currentType,
+                        value: item
+                    });
+                }
+
+                return this.push(null);
+            }
+        });
+
+        return stream;
     }
 }

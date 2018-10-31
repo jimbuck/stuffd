@@ -4,18 +4,18 @@ export class ListBucket {
   
   private _data: Lookup<any[]> = {};
 
-  public get<T>(key: string): T[] {
+  public get<T=any>(key: string): T[] {
     return (this._data[key] || []).slice();
   }
 
-  public add<T>(key: string, items: T[]): T[] {
+  public add<T=any>(key: string, items: T[]): T[] {
     let savedData = this.get<T>(key);
     savedData.push(...items);
     this._data[key] = savedData;
     return items;
   }
 
-  public set<T>(key: string, items: T[]): T[] {
+  public set<T=any>(key: string, items: T[]): T[] {
     this._data[key] = (items || []).slice();
     return items;
   }
