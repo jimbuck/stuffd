@@ -4,9 +4,9 @@ import { PropertyDefinition } from '../models/property-definition';
 import { ModelDefinition } from '../models/model-definition';
 import { getModelDef } from '../utils/meta-reader';
 import { Random } from '../utils/random';
-import { ListBucket } from '../models/list-bucket';
-import { Model } from '../..';
 import { isStoredEnum } from '../utils/type-guards';
+import { ListBucket } from '../models/list-bucket';
+import { defaults } from '../models/defaults';
 
 export class Activator {
 
@@ -141,17 +141,17 @@ export class Activator {
 
     if (typeof def.decimals === 'number' && def.decimals === 0) {
       if (typeof min !== 'number') {
-        min = Model.defaults.minInteger;
-        max = Model.defaults.maxInteger;
+        min = defaults.minInteger;
+        max = defaults.maxInteger;
       }
       return this._rand.nextInt(min, max);
     }
 
     if (typeof min !== 'number') {
-      min = Model.defaults.minFloat;
-      max = Model.defaults.maxFloat;
+      min = defaults.minFloat;
+      max = defaults.maxFloat;
     }
-    let decimals = def.decimals || Model.defaults.maxFloatDecimals;
+    let decimals = def.decimals || defaults.maxFloatDecimals;
     return this._rand.nextFloat(min, max, decimals);
   }
 
@@ -164,8 +164,8 @@ export class Activator {
     if (def.min instanceof Date) min = def.min;
     if (def.max instanceof Date) max = def.max;
     if (!!min !== !!max) throw new Error('Must use both min/max or neither with Dates!');
-    min = min || Model.defaults.minDate;
-    max = max || Model.defaults.maxDate;
+    min = min || defaults.minDate;
+    max = max || defaults.maxDate;
 
     return this._rand.nextDate(min, max);
   }
@@ -181,8 +181,8 @@ export class Activator {
     if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with string lengths!');
     
     if (typeof min !== 'number') {
-      min = Model.defaults.minStringLength;
-      max = Model.defaults.maxStringLength;
+      min = defaults.minStringLength;
+      max = defaults.maxStringLength;
     }
 
     let length = this._rand.nextInt(min, max);
@@ -208,8 +208,8 @@ export class Activator {
     if (typeof def.max === 'number') max = def.max;
     if (typeof min !== typeof max) throw new Error('Must use both min/max or neither with Lists!');
     if (typeof min !== 'number') {
-      min = Model.defaults.minArrayLength;
-      max = Model.defaults.maxArrayLength;
+      min = defaults.minArrayLength;
+      max = defaults.maxArrayLength;
     }
 
     length = this._rand.nextInt(min, max);

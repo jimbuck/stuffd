@@ -2,7 +2,7 @@ import { test, GenericTestContext, Context } from 'ava';
 import { Activator } from './activator';
 import { PropertyDefinition } from '../models/property-definition';
 import { setModelDef } from '../utils/meta-reader';
-import { Model } from '../..';
+import { Stuffd } from '../..';
 import { GuidType } from '../models/types';
 import { StoredEnum } from '../models/stored-enum';
 import { crossProps } from '../utils/extensions';
@@ -256,8 +256,8 @@ test(`Activator optionally accepts a seed`, t => {
     name: 'integers (without min/max)',
     propDef: { designType: Number, type: Number, decimals: 0 } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: number) {
-      t.true(value >= Model.defaults.minInteger, `Expected: >=${Model.defaults.minInteger}, actual: ${value}`);
-      t.true(value <= Model.defaults.maxInteger, `Expected: <=${Model.defaults.maxInteger}, actual: ${value}`);
+      t.true(value >= Stuffd.defaults.minInteger, `Expected: >=${Stuffd.defaults.minInteger}, actual: ${value}`);
+      t.true(value <= Stuffd.defaults.maxInteger, `Expected: <=${Stuffd.defaults.maxInteger}, actual: ${value}`);
       t.is(value, Math.floor(value));
     }
   },
@@ -275,8 +275,8 @@ test(`Activator optionally accepts a seed`, t => {
     name: 'floats (with fixed decimals)',
     propDef: { designType: Number, type: Number, decimals: 6 } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: number) {
-      t.true(value >= Model.defaults.minFloat, `Expected: >=${Model.defaults.minFloat}, actual: ${value}`);
-      t.true(value <= Model.defaults.maxFloat, `Expected: <=${Model.defaults.maxFloat}, actual: ${value}`);
+      t.true(value >= Stuffd.defaults.minFloat, `Expected: >=${Stuffd.defaults.minFloat}, actual: ${value}`);
+      t.true(value <= Stuffd.defaults.maxFloat, `Expected: <=${Stuffd.defaults.maxFloat}, actual: ${value}`);
       t.true(getDecimalCount(value) <= 6);
     }
   },
@@ -284,9 +284,9 @@ test(`Activator optionally accepts a seed`, t => {
     name: 'floats (with min/max)',
     propDef: { designType: Number, type: Number, min: 4, max: 24 } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: number) {
-      t.true(value >= Model.defaults.minFloat, `Expected: >=${Model.defaults.minFloat}, actual: ${value}`);
-      t.true(value <= Model.defaults.maxFloat, `Expected: <=${Model.defaults.maxFloat}, actual: ${value}`);
-      t.true(getDecimalCount(value) <= Model.defaults.maxFloatDecimals);
+      t.true(value >= Stuffd.defaults.minFloat, `Expected: >=${Stuffd.defaults.minFloat}, actual: ${value}`);
+      t.true(value <= Stuffd.defaults.maxFloat, `Expected: <=${Stuffd.defaults.maxFloat}, actual: ${value}`);
+      t.true(getDecimalCount(value) <= Stuffd.defaults.maxFloatDecimals);
     }
   },
   {
@@ -313,8 +313,8 @@ test(`Activator optionally accepts a seed`, t => {
     propDef: { type: Date } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: Date) {
       t.true(value instanceof Date);
-      t.true(value >= Model.defaults.minDate, `Expected: >=${Model.defaults.minDate}, actual: ${value}`);
-      t.true(value <= Model.defaults.maxDate, `Expected: <=${Model.defaults.maxDate}, actual: ${value}`);
+      t.true(value >= Stuffd.defaults.minDate, `Expected: >=${Stuffd.defaults.minDate}, actual: ${value}`);
+      t.true(value <= Stuffd.defaults.maxDate, `Expected: <=${Stuffd.defaults.maxDate}, actual: ${value}`);
     }
   },
   {
@@ -340,8 +340,8 @@ test(`Activator optionally accepts a seed`, t => {
     name: 'strings (without min/max)',
     propDef: { type: String } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: string) {
-      t.true(value.length >= Model.defaults.minStringLength, `Expected: >= ${Model.defaults.minStringLength}, actual: ${value}`);
-      t.true(value.length <= Model.defaults.maxStringLength, `Expected: <= ${Model.defaults.maxStringLength}, actual: ${value}`);
+      t.true(value.length >= Stuffd.defaults.minStringLength, `Expected: >= ${Stuffd.defaults.minStringLength}, actual: ${value}`);
+      t.true(value.length <= Stuffd.defaults.maxStringLength, `Expected: <= ${Stuffd.defaults.maxStringLength}, actual: ${value}`);
     }
   },
   {
@@ -375,16 +375,16 @@ test(`Activator optionally accepts a seed`, t => {
     validate(t: GenericTestContext<Context<any>>, value: Number[]) {
       t.true(value.length >= 3000, `Expected: >= 3000, actual: ${value.length}`);
       t.true(value.length <= 8000, `Expected: <= 8000, actual: ${value.length}`);
-      t.true(value.every(num => num >= Model.defaults.minFloat && num <= Model.defaults.maxFloat));
+      t.true(value.every(num => num >= Stuffd.defaults.minFloat && num <= Stuffd.defaults.maxFloat));
     }
   },
   {
     name: 'number arrays (without min/max)',
     propDef: { type: Array, secondaryType: Number } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: Number[]) {
-      t.true(value.length >= Model.defaults.minArrayLength, `Expected: >= ${Model.defaults.minArrayLength}, actual: ${value.length}`);
-      t.true(value.length <= Model.defaults.maxArrayLength, `Expected: <= ${Model.defaults.maxArrayLength}, actual: ${value.length}`);
-      t.true(value.every(num => num >= Model.defaults.minFloat && num <= Model.defaults.maxFloat));
+      t.true(value.length >= Stuffd.defaults.minArrayLength, `Expected: >= ${Stuffd.defaults.minArrayLength}, actual: ${value.length}`);
+      t.true(value.length <= Stuffd.defaults.maxArrayLength, `Expected: <= ${Stuffd.defaults.maxArrayLength}, actual: ${value.length}`);
+      t.true(value.every(num => num >= Stuffd.defaults.minFloat && num <= Stuffd.defaults.maxFloat));
     }
   },
   {
@@ -410,8 +410,8 @@ test(`Activator optionally accepts a seed`, t => {
     name: 'guid arrays (without min/max)',
     propDef: { type: Array, secondaryType: GuidType } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: string[]) {
-      t.true(value.length >= Model.defaults.minArrayLength, `Expected: >= ${Model.defaults.minArrayLength}, actual: ${value.length}`);
-      t.true(value.length <= Model.defaults.maxArrayLength, `Expected: <= ${Model.defaults.maxArrayLength}, actual: ${value.length}`);
+      t.true(value.length >= Stuffd.defaults.minArrayLength, `Expected: >= ${Stuffd.defaults.minArrayLength}, actual: ${value.length}`);
+      t.true(value.length <= Stuffd.defaults.maxArrayLength, `Expected: <= ${Stuffd.defaults.maxArrayLength}, actual: ${value.length}`);
       t.true(value.every(guid => guid.length === 36));
     }
   },
@@ -435,8 +435,8 @@ test(`Activator optionally accepts a seed`, t => {
     name: 'enum arrays (without min/max)',
     propDef: { type: Array, secondaryType: lightSwitchEnum } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: LightSwitch[]) {
-      t.true(value.length >= Model.defaults.minArrayLength, `Expected: >= ${Model.defaults.minArrayLength}, actual: ${value.length}`);
-      t.true(value.length <= Model.defaults.maxArrayLength, `Expected: <= ${Model.defaults.maxArrayLength}, actual: ${value.length}`);
+      t.true(value.length >= Stuffd.defaults.minArrayLength, `Expected: >= ${Stuffd.defaults.minArrayLength}, actual: ${value.length}`);
+      t.true(value.length <= Stuffd.defaults.maxArrayLength, `Expected: <= ${Stuffd.defaults.maxArrayLength}, actual: ${value.length}`);
       t.true(value.every(ls => ls === LightSwitch.Off || ls === LightSwitch.On));
     }
   },
@@ -446,7 +446,7 @@ test(`Activator optionally accepts a seed`, t => {
     validate(t: GenericTestContext<Context<any>>, value: string[]) {
       t.true(value.length >= 20, `Expected: >= 20, actual: ${value.length}`);
       t.true(value.length <= 70, `Expected: <= 70, actual: ${value.length}`);
-      t.true(value.every(str => str.length >= Model.defaults.minStringLength && str.length <= Model.defaults.maxStringLength));
+      t.true(value.every(str => str.length >= Stuffd.defaults.minStringLength && str.length <= Stuffd.defaults.maxStringLength));
     }
   },
   {
@@ -462,8 +462,8 @@ test(`Activator optionally accepts a seed`, t => {
     name: 'complex arrays (without min/max)',
     propDef: { type: Array, secondaryType: TestClass } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: TestClass[]) {
-      t.true(value.length >= Model.defaults.minArrayLength, `Expected: >=${Model.defaults.minArrayLength}, actual: ${value.length}`);
-      t.true(value.length <= Model.defaults.maxArrayLength, `Expected: <=${Model.defaults.maxArrayLength}, actual: ${value.length}`);
+      t.true(value.length >= Stuffd.defaults.minArrayLength, `Expected: >=${Stuffd.defaults.minArrayLength}, actual: ${value.length}`);
+      t.true(value.length <= Stuffd.defaults.maxArrayLength, `Expected: <=${Stuffd.defaults.maxArrayLength}, actual: ${value.length}`);
       value.forEach(item => validateTestClass(t, item));
     }
   },

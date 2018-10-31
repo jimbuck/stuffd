@@ -4,7 +4,7 @@ import { PropertyBuilder } from './property-builder';
 
 import { PropertyDefinition } from '../models/property-definition';
 import { CustomGenerator, GuidType, Constructor } from '../models/types';
-import { Model, Prop } from '../..';
+import { Stuffd, Prop } from '../..';
 import { Type, List, Key, Ref, Range, Str, Bool, Optional, Integer, Float, Guid, Enum, Pick, Custom } from '../services/decorators';
 import { ModelBuilder } from './model-builder';
 import { StoredEnum } from '../models/stored-enum';
@@ -69,7 +69,7 @@ testBoth('Type', 'accepts a primary type as well as secondary type',
   const expectedChildTypeName = 'StarFighter';
   const expectedSquadChoices = ['red', 'blue', 'yellow', 'green'];
 
-  const StarFighter = Model.create(expectedChildTypeName)
+  const StarFighter = Stuffd.create(expectedChildTypeName)
     .prop('name', n => n.str(/[A-Z] Wing [IIVVXCD]{1,2}/))
     .prop('squadron', s => s.pick(expectedSquadChoices))
     .build();
@@ -270,8 +270,8 @@ test(`@Ref() requires a known type or explicit foreignKey`, t => {
     (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(propDef.decimals, 0);
-      t.is(propDef.min, Model.defaults.minInteger);
-      t.is(propDef.max, Model.defaults.maxInteger);
+      t.is(propDef.min, Stuffd.defaults.minInteger);
+      t.is(propDef.max, Stuffd.defaults.maxInteger);
     }
   );
 }
@@ -296,8 +296,8 @@ test(`@Ref() requires a known type or explicit foreignKey`, t => {
     (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(typeof propDef.decimals, 'undefined');
-      t.is(propDef.min, Model.defaults.minFloat);
-      t.is(propDef.max, Model.defaults.maxFloat);
+      t.is(propDef.min, Stuffd.defaults.minFloat);
+      t.is(propDef.max, Stuffd.defaults.maxFloat);
     }
   );
 }
@@ -309,8 +309,8 @@ test(`@Ref() requires a known type or explicit foreignKey`, t => {
     (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(propDef.decimals, expectedDecimals);
-      t.is(propDef.min, Model.defaults.minFloat);
-      t.is(propDef.max, Model.defaults.maxFloat);
+      t.is(propDef.min, Stuffd.defaults.minFloat);
+      t.is(propDef.max, Stuffd.defaults.maxFloat);
     }
   );
 }

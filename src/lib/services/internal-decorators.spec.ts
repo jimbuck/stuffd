@@ -1,5 +1,5 @@
 import { test } from 'ava';
-import { Model, Prop } from '../..';
+import { Stuffd, Prop } from '../..';
 import { getModelBuilder, getModelDef } from '../utils/meta-reader';
 import { GuidType } from '../models/types';
 
@@ -61,9 +61,9 @@ test(`@Prop() uses the design type if no type has been specified`, t => {
   t.is(propDef2.type, String);
 });
 
-test(`@Model() builds the associated model definition`, t => {
+test(`@Stuffd() builds the associated model definition`, t => {
   
-  @Model()
+  @Stuffd()
   class TestClass {
     @Prop(p => p.guid().optional())
     thing: string;

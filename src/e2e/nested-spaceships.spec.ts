@@ -1,7 +1,6 @@
 import { test, GenericTestContext, Context as AvaContext } from 'ava';
 
-import { Context, Model, Prop, Key, Integer, Float, Range, Str, Pick, Enum, List, Bool, Guid, Custom, Ref, Optional } from '..';
-import { CustomGenerator } from '../lib/models/types';
+import { Context, Stuffd, Prop, Key, Integer, Float, Range, Str, Pick, Enum, List, Bool, Guid, Custom, Ref, Optional, CustomGenerator } from '..';
 
 const NOW = new Date();
 
@@ -54,7 +53,7 @@ test(`Decorators and Fluent API are the same`, t => {
   t.deepEqual(decoratorShips, fluentShips);
   t.is(ctx1Json, ctx2Json);
   t.is(ctx1Json, ctx3Json);
-  t.log(ctx1Json);
+  //t.log(ctx1Json);
 });
 
 function testModels(t: GenericTestContext<AvaContext<any>>, creatModels: () => any) {
@@ -92,7 +91,7 @@ function createModelsFromDecorators() {
     return Custom(c => `${c.first()} ${c.last()}`);
   }
 
-  @Model()
+  @Stuffd()
   class Manufacturer {
 
     @Key() @Guid()
@@ -111,7 +110,7 @@ function createModelsFromDecorators() {
     founder: string;
   }
 
-  @Model()
+  @Stuffd()
   class Engine {
 
     @Str(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/)
@@ -130,7 +129,7 @@ function createModelsFromDecorators() {
     manufacturer: Manufacturer;
   }
 
-  @Model()
+  @Stuffd()
   class Module {
 
     @Enum(ModuleType)
@@ -146,7 +145,7 @@ function createModelsFromDecorators() {
     mass: number;
   }
 
-  @Model()
+  @Stuffd()
   class Spaceship {
 
     @Str(/((Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus|Falcon|[A-Z] Wing) [XXIIVVCD]{2,3})/)
@@ -222,7 +221,7 @@ function createModelsFromFluentApi() {
   // Create custom, re-usable attributes!
   const personName: CustomGenerator = (c) => `${c.first()} ${c.last()}`;
 
-  const Manufacturer = Model.create('Manufacturer')
+  const Manufacturer = Stuffd.create('Manufacturer')
     .key('id', id => id.guid())
     .prop('name', n => n.pick(['Rocketdyne', 'Areojet', 'Boeing', 'Lockheed', 'SpaceX', 'Kerbal']))
     .prop('operatingSince', os => os.date(new Date('01/01/1950'), NOW))
@@ -230,7 +229,7 @@ function createModelsFromFluentApi() {
     .prop('founder', f => f.custom(personName))
     .build();
 
-  const Engine = Model.create('Engine')
+  const Engine = Stuffd.create('Engine')
     .prop('model', m => m.str(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/))
     .prop('year', y => y.integer(1967, 2020))
     .prop('thrust', t => t.float(1, 5, 12))
@@ -238,14 +237,14 @@ function createModelsFromFluentApi() {
     .prop('manufacturer', m => m.type(Manufacturer))
     .build();
 
-  const Module = Model.create<Module>('Module')
+  const Module = Stuffd.create<Module>('Module')
     .prop('type', t => t.enum(ModuleType, String))
     .prop('size', s => s.enum(ModuleSize, Number))
     .prop('operational', op => op.bool(3 / 4))
     .prop('mass', m => m.float(3, 200, 5000))
     .build();
   
-  const Spaceship = Model.create<Spaceship>('Spaceship')
+  const Spaceship = Stuffd.create<Spaceship>('Spaceship')
     .prop('name', n => n.str(/((Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus|Falcon|[A-Z] Wing) [XXIIVVCD]{2,3})/))
     .prop('captain', m => m.custom(personName))
     .prop('primaryEngines', pe => pe.type(Engine))

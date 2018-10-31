@@ -12,7 +12,7 @@ export type TypeReference<T=any> = Constructor<T> | StoredEnum | GuidType;
 
 export type CustomGenerator = (c: Chance.Chance) => any;
 
-export interface RangeDefaults {
+export interface GenerationDefaults {
   minInteger: number;
   maxInteger: number;
   minFloat: number;
@@ -24,4 +24,8 @@ export interface RangeDefaults {
   maxArrayLength: number;
   minDate: Date;
   maxDate: Date;
+}
+
+export interface TaskOptions {
+  seed?: number;
 }

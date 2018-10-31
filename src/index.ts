@@ -1,35 +1,27 @@
 import 'reflect-metadata';
 import { ModelDecorator } from './lib/services/internal-decorators';
 import { ModelBuilder, StaticCreate } from './lib/builders/model-builder';
-import { RangeDefaults } from './lib/models/types';
+import { GenerationDefaults, TaskOptions } from './lib/models/types';
+import { TaskRunner, TaskAction } from './lib/services/task-runner';
+import { defaults } from './lib/models/defaults';
 
 export { Context } from './lib/services/context';
 export { PropDecorator as Prop } from './lib/services/internal-decorators';
 export * from './lib/services/decorators';
-export { CustomGenerator, RangeDefaults } from './lib/models/types';
+export { CustomGenerator, GenerationDefaults } from './lib/models/types';
 
-interface Model {
-  defaults: RangeDefaults;
+interface Stuffd {
   (name?: string): ClassDecorator;
+  defaults: GenerationDefaults;
   create<T=any>(name: string): ModelBuilder<T>;
+  task(taskName: string, action: TaskAction): void;
+  run(taskName: string, options?: TaskOptions): Promise<void>;
 }
 
-export const Model: Model = Object.assign(
-  ModelDecorator,
-  {
-    defaults: {
-      minInteger: 0,
-      maxInteger: 999999999,
-      minFloat: -9999999,
-      maxFloat: 9999999,
-      maxFloatDecimals: 8,
-      minStringLength: 1,
-      maxStringLength: 16,
-      minArrayLength: 1,
-      maxArrayLength: 10,
-      minDate: new Date(0),
-      maxDate: new Date()
-    },
-    create: StaticCreate
-  }
-);
+const taskRunner = new TaskRunner();
+
+export const Stuffd = ModelDecorator as Stuffd;
+Stuffd.defaults = defaults;
+Stuffd.create = StaticCreate;
+Stuffd.task = taskRunner.task.bind(taskRunner);
+Stuffd.run = taskRunner.run.bind(taskRunner);

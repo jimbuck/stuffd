@@ -1,5 +1,5 @@
 import { test, GenericTestContext, Context as AvaContext } from 'ava';
-import { Context, Model, CustomGenerator, Custom, Str, Optional, Prop, Key, Guid, Pick, Range, Float, Integer, Ref } from '..';
+import { Context, Stuffd, CustomGenerator, Custom, Str, Optional, Prop, Key, Guid, Pick, Range, Float, Integer, Ref } from '..';
 
 test(`Decorators`, testModels, createModelsFromDecorators);
 test(`Fluent API`, testModels, createModelsFromFluentApi);
@@ -74,7 +74,7 @@ function createModelsFromDecorators() {
     dateOfBirth: Date;
   }
 
-  @Model()
+  @Stuffd()
   class Student extends Person {
 
     @Key() @Guid()
@@ -84,7 +84,7 @@ function createModelsFromDecorators() {
     graduationYear: number;
   }
 
-  @Model()
+  @Stuffd()
   class Teacher {
     @Key() @Guid()
     identifier: string;
@@ -96,7 +96,7 @@ function createModelsFromDecorators() {
     salary: number;
   }
 
-  @Model()
+  @Stuffd()
   class Class {
     @Key() @Guid()
     identifier: string;
@@ -115,7 +115,7 @@ function createModelsFromDecorators() {
     }
   }
 
-  @Model()
+  @Stuffd()
   class Grade {
     @Key() @Guid()
     identifier: string;
@@ -140,27 +140,27 @@ function createModelsFromDecorators() {
 function createModelsFromFluentApi() {
   const lastName: CustomGenerator = (c) => c.last();
 
-  const Person = Model.create('Person')
+  const Person = Stuffd.create('Person')
     .prop('firstName', fn => fn.custom(c => c.first()))
     .prop('middleInitial', ln => ln.str(1))
     .prop('lastName', ln => ln.custom(lastName))
     .prop('dateOfBirth', dob => dob.date())
     .build();
 
-  const Student = Model.create('Student')
+  const Student = Stuffd.create('Student')
     .inherits(Person)
     .key('identifier', id => id.guid())
     .prop('graduationYear', t => t.integer(2000, (new Date().getFullYear()) + 4))
     .build();
 
-  const Teacher = Model.create('Teacher')
+  const Teacher = Stuffd.create('Teacher')
     .inherits(Person)
     .key('identifier', id => id.guid())
     .prop('degree', d => d.pick(['Science', 'History', 'Math']))
     .prop('salary', s => s.float(2, 30000, 80000))
     .build();
 
-  const Class = Model.create('Class')
+  const Class = Stuffd.create('Class')
     .key('identifier', id => id.guid())
     .prop('period', st => st.type(Number).integer(1, 9))
     .prop('name', s => s.str())
@@ -168,7 +168,7 @@ function createModelsFromFluentApi() {
     .toString(function () { return `#${this.period} Period ${this.name} (${this.teacherIdentifier})` })
     .build();
 
-  const Grade = Model.create('Grade')
+  const Grade = Stuffd.create('Grade')
     .key('identifier', id => id.guid())
     .prop('grade', g => g.float(2, 65, 100))
     .ref('studentIdentifier', Student)

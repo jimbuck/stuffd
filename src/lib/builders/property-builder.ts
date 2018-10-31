@@ -2,8 +2,8 @@
 import { TypeReference, GuidType, CustomGenerator, Constructor } from '../models/types';
 import { getPrimaryKey } from '../utils/meta-reader';
 import { PropertyDefinition } from '../models/property-definition';
-import { Model } from '../..';
 import { StoredEnum } from '../models/stored-enum';
+import { defaults } from '../models/defaults';
 
 export class PropertyBuilder {
 
@@ -95,7 +95,7 @@ export class PropertyBuilder {
 
   public integer(): this;
   public integer(min: number, max: number): this;
-  public integer(min: number = Model.defaults.minInteger, max: number = Model.defaults.maxInteger): this {
+  public integer(min: number = defaults.minInteger, max: number = defaults.maxInteger): this {
     this._definition.decimals = 0;
     
     return this
@@ -116,8 +116,8 @@ export class PropertyBuilder {
     }
 
     if (typeof min === 'undefined') {
-      min = Model.defaults.minFloat;
-      max = Model.defaults.maxFloat;
+      min = defaults.minFloat;
+      max = defaults.maxFloat;
     }
 
     if (typeof decimals === 'number') {
