@@ -20,14 +20,16 @@ function testModels(t: GenericTestContext<AvaContext<any>>, creatModels: () => a
   const historyClasses = ctx.using({ 'teacherIdentifier': historyTeachers }).create(Class, 4);
   const scienceClasses = ctx.using({ 'teacherIdentifier': scienceTeachers }).create(Class, 6);
   
-  const historyGrades = ctx.cross({ 'studentIdentifier': students, 'classIdentifier': historyClasses }).create(Grade);
-  const scienceGrades = ctx.cross({ 'studentIdentifier': students, 'classIdentifier': scienceClasses }).create(Grade);
+  const historyGrades = ctx.cross({ 'studentIdentifier': students, }).using({ 'classIdentifier': historyClasses }).create(Grade);
+  const scienceGrades = ctx.cross({ 'studentIdentifier': students, }).using({ 'classIdentifier': scienceClasses }).create(Grade);
   
   const data = ctx.data();
   const json = ctx.json();
   
   const historyTeacherIds = historyTeachers.map(ht => ht.identifier);
   const scienceTeacherIds = scienceTeachers.map(st => st.identifier);
+  const historyClassIds = historyClasses.map(hc => hc.identifier);
+  const scienceClassIds = scienceClasses.map(sc => sc.identifier);
   
   t.is(students.length, 50);
   t.true(students.every(s => s instanceof Student && s instanceof Person));
@@ -38,20 +40,18 @@ function testModels(t: GenericTestContext<AvaContext<any>>, creatModels: () => a
   t.is(scienceClasses.length, 6);
   t.true(historyClasses.every(hc => historyTeacherIds.includes(hc.teacherIdentifier)));
   t.true(scienceClasses.every(sc => scienceTeacherIds.includes(sc.teacherIdentifier)));
+  t.true(historyGrades.every(hg => historyClassIds.includes(hg.classIdentifier)));
+  t.true(scienceGrades.every(sg => scienceClassIds.includes(sg.classIdentifier)));
   for (let student of students) {
-    for (let historyClass of historyClasses) {
-      let matchingGrade = historyGrades.filter(g => g.studentIdentifier === student.identifier && g.classIdentifier === historyClass.identifier);
-      t.is(matchingGrade.length, 1);
-    }
-    for (let scienceClass of scienceClasses) {
-      let matchingGrade = scienceGrades.filter(g => g.studentIdentifier === student.identifier && g.classIdentifier === scienceClass.identifier);
-      t.is(matchingGrade.length, 1);
-    }
+    let scienceGrade = scienceGrades.filter(sg => sg.studentIdentifier === student.identifier);
+    let historyGrade = historyGrades.filter(hg => hg.studentIdentifier === student.identifier);
+    t.is(scienceGrade.length, 1);
+    t.is(historyGrade.length, 1);
   }
   t.is(data.Student.length, 50);
   t.is(data.Teacher.length, 6);
   t.is(data.Class.length, 10);
-  t.is(data.Grade.length, 500);
+  t.is(data.Grade.length, 100);
   t.true(json.length > 0);
 }
 
