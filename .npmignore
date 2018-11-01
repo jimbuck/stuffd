@@ -3,3 +3,6 @@ coverage.lcov
 test-results.xml
 coverage
 .nyc
+.nyc_output
+examples
+.vscode
