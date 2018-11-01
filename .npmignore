@@ -1,3 +1,5 @@
 dist/**/*.spec.js
 coverage.lcov
 test-results.xml
+coverage
+.nyc
