@@ -88,6 +88,11 @@ test(`Random#chance allows for custom randoms`, t => {
   });
 });
 
+test(`Random#choice requires at least one item in the list`, t => {
+  const rand = new Random();
+  const choices: any[] = [];
+  t.throws(() => rand.choice(choices));
+});
 test(`Random#choice picks one item from a list`, t => {
   const rand = new Random();
   const choices = [1, 'red', false];

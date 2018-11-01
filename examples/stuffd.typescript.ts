@@ -16,7 +16,7 @@ export class Player {
   @Integer(1, 99)
   number: number;
 
-  @Str(/[IORW][RB]/i)
+  @Str(/[IORW][RB]/)
   position: string;
 }
 

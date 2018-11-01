@@ -165,14 +165,14 @@ export const StaticCreateEnum: CreateEnumMethod = function (obj: string | string
       value,
       writable: false,
       configurable: false,
-      enumerable: false
+      enumerable: true
     });
     
     Object.defineProperty(newEnum, value, {
       value: label,
       writable: false,
       configurable: false,
-      enumerable: true
+      enumerable: false
     });
   }
 

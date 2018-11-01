@@ -51,6 +51,7 @@ export class Random {
   }
 
   public choice<T>(choices: T[]): T {
+    if (choices.length < 1) throw new Error(`No choices available to pick from!`);
     return choices[this._chance.integer({ min: 0, max: (choices.length - 1) })];
   }
 
