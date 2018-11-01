@@ -1,5 +1,5 @@
 import { test, TestContext } from 'ava';
-import { isDefined, getVal, mergeDeep, crossProps } from './extensions';
+import { isDefined, getVal, mergeDeep, crossProps, breakPromise } from './extensions';
 
 test(`isDefined returns true for primitives`, t => {
   [true, false, 0, 1, 2, Number.POSITIVE_INFINITY, Number.NaN, '', 'hello']
@@ -151,6 +151,29 @@ test(`mergeDeep combines multiple arrays`, t => {
   
   const actualResult = crossProps(lookup);
   areEqual(t, actualResult, expectedResult);
+});
+
+test(`breakPromise provides an exploded promise object that rejects`, async (t) => {
+  t.plan(1);
+  const expectedReason = 'Test Purposes Only';
+  const brokenPromise = breakPromise();
+  
+  let result = brokenPromise.promise.catch(reason => {
+    t.is(reason, expectedReason);
+  });
+  brokenPromise.reject(expectedReason);
+  await result;
+});
+
+test(`breakPromise provides an exploded promise object that resolves`, async (t) => {
+  t.plan(1);
+  const expectedValue = new Date();
+  const brokenPromise = breakPromise();
+  brokenPromise.promise.then(val => {
+    t.is(val, expectedValue);
+  });
+  brokenPromise.resolve(expectedValue);
+  await brokenPromise.promise;
 });
 
 function areEqual<T>(t: TestContext, actual: Array<T>, expected: Array<T>): void {

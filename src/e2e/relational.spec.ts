@@ -25,6 +25,7 @@ function testModels(t: GenericTestContext<AvaContext<any>>, creatModels: () => a
   
   const data = ctx.data();
   const json = ctx.json();
+  const ledger = ctx['_activator'].data.ledger;
   
   const historyTeacherIds = historyTeachers.map(ht => ht.identifier);
   const scienceTeacherIds = scienceTeachers.map(st => st.identifier);

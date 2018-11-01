@@ -49,11 +49,6 @@ export class League {
   chairmen: string;
 }
 
-Stuffd.task('default', (ctx) => {
-  ctx.create(League, 1);
-
-  const json = ctx.json();
-
-  console.log(`this is the json:`);
-  console.log(json);
+Stuffd.task('default', (ctx) => {  
+  ctx.create(League, 4);
 });

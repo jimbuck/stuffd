@@ -59,6 +59,11 @@ test(`Activator optionally accepts a seed`, t => {
   t.is(activator.seed, expectedSeed);
 });
 
+test(`Activator's data keeps a ledger`, t => {
+  const activator = new Activator();
+  t.true(Array.isArray(activator.data.ledger));
+});
+
 [
   {
     name: 'regular expressions',

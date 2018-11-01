@@ -1,8 +1,7 @@
 import { test } from 'ava';
 
-import { ModelBuilder, StaticCreate } from './model-builder';
+import { ModelBuilder, StaticCreate, StaticCreateEnum } from './model-builder';
 import { getModelDef } from '../utils/meta-reader';
-import { Constructor } from '../models/types';
 
 test(`Model#name returns the ModelDefinition name`, t => {
   const expectedName = 'TestModelIdentifier';
@@ -213,7 +212,43 @@ test(`StaticCreate creates a new instance with id`, t => {
   const StaticTest = StaticCreate(expectedId).build();
   const staticTestDef = getModelDef(StaticTest);
   t.is(staticTestDef.name, expectedId);
-})
+});
+
+test(`StaticCreateEnum creates enums from objects`, t => {
+  const offLabel = 'Off';
+  const onLabel = 'On';
+  const expectedValues = {
+    [offLabel]: 0,
+    [onLabel]: 1
+  };
+  const LightSwitch = StaticCreateEnum(expectedValues);
+  t.is(expectedValues.Off, LightSwitch.Off);
+  t.is(expectedValues.On, LightSwitch.On);
+  t.is(offLabel, LightSwitch[LightSwitch.Off]);
+  t.is(onLabel, LightSwitch[LightSwitch.On]);
+});
+
+test(`StaticCreateEnum creates enums from array`, t => {
+  const offLabel = 'Off';
+  const onLabel = 'On';
+  const expectedValues = [offLabel, onLabel];
+  const LightSwitch = StaticCreateEnum(expectedValues);
+  t.is(expectedValues.indexOf(offLabel), LightSwitch.Off);
+  t.is(expectedValues.indexOf(onLabel), LightSwitch.On);
+  t.is(offLabel, LightSwitch[LightSwitch.Off]);
+  t.is(onLabel, LightSwitch[LightSwitch.On]);
+});
+
+test(`StaticCreateEnum creates enums from string params`, t => {
+  const offLabel = 'Off';
+  const onLabel = 'On';
+  const expectedValues = [offLabel, onLabel];
+  const LightSwitch = StaticCreateEnum(...expectedValues);
+  t.is(expectedValues.indexOf(offLabel), LightSwitch.Off);
+  t.is(expectedValues.indexOf(onLabel), LightSwitch.On);
+  t.is(offLabel, LightSwitch[LightSwitch.Off]);
+  t.is(onLabel, LightSwitch[LightSwitch.On]);
+});
 
 function newModel(name: string) {
   return new ModelBuilder({ name });

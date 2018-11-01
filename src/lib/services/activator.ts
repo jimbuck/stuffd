@@ -15,7 +15,7 @@ export class Activator {
   private _types: Lookup<GeneratedConstructor>;
 
   constructor(seed?: number) {
-    this._data = new ListBucket();
+    this._data = new ListBucket(true);
     this._types = {};
     this._rand = new Random(seed);
   }
