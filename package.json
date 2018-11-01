@@ -1,6 +1,6 @@
 {
   "name": "stuffd",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Like a turkey.",
   "main": "index.js",
   "bin": {
