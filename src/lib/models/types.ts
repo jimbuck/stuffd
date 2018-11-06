@@ -1,4 +1,5 @@
 import { StoredEnum } from './stored-enum';
+import yargs = require('yargs');
 
 export type Lookup<T=any> = { [key: string]: T };
 
@@ -26,6 +27,12 @@ export interface GenerationDefaults {
   maxDate: Date;
 }
 
+export interface TaskArguments {
+  _: string[];
+  [name: string]: any;
+}
+
 export interface TaskOptions {
   seed?: number;
+  args?: TaskArguments;
 }

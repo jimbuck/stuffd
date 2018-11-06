@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { ModelDecorator } from './lib/services/internal-decorators';
 import { ModelBuilder, StaticCreate, StaticCreateEnum, CreateEnumMethod } from './lib/builders/model-builder';
-import { GenerationDefaults, TaskOptions } from './lib/models/types';
+import { GenerationDefaults, TaskOptions, Lookup } from './lib/models/types';
 import { TaskRunner, TaskAction } from './lib/services/task-runner';
 import { defaults } from './lib/models/defaults';
 

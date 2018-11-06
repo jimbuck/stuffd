@@ -206,7 +206,7 @@ test(`Readme fluent api example works`, t => {
 
   const fleet = ctx.create(Spaceship, 10);
 
-  console.log(fleet.map(ship => ship.toString()).join(''));
+  //console.log(fleet.map(ship => ship.toString()).join(''));
   // Prints out all the ship details...
 
   t.pass();

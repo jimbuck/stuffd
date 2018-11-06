@@ -1,4 +1,4 @@
-import { Stuffd, Integer, Str, Custom, List, Enum } from '../dist';
+import { Stuffd, Integer, Str, Custom, List, Enum } from '..';
 
 enum Region {
   North,
@@ -49,6 +49,12 @@ export class League {
   chairmen: string;
 }
 
-Stuffd.task('default', (ctx) => {  
-  ctx.create(League, 4);
+Stuffd.task('default', (ctx, args) => {
+  console.log(`The args are: ${JSON.stringify(args)}`);
+  ctx.create(League, 1);
+  
+  const json = ctx.json();
+
+  console.log(`this is the json:`);
+  console.log(json);
 });

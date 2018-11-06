@@ -33,11 +33,15 @@
       "name": "Launch Test",
       "program": "${workspaceFolder}/node_modules/ava/profile.js",
       "args": [
+        "--require", "ts-node/register",
         "--serial",
-        "${workspaceFolder}/dist/e2e/readme.spec.js"
+        "${workspaceFolder}/dist/e2e/bin.spec.js"
       ],
       "skipFiles": [
         "<node_internals>/**/*.js"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/src/**/*.ts"
       ]
     },
     {

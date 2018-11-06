@@ -1,7 +1,7 @@
 import { Context } from './context';
-import { Lookup, TaskOptions } from '../models/types';
+import { Lookup, TaskOptions, TaskArguments } from '../models/types';
 
-export type TaskAction = (ctx: Context) => void | Promise<void>;
+export type TaskAction = (ctx: Context, args: TaskArguments) => void | Promise<any>;
 
 export class TaskRunner {
 
@@ -22,7 +22,7 @@ export class TaskRunner {
     if (!task) throw new Error(`No task '${taskName}' is registered!`);
 
     let ctx = new Context(options.seed);
-    await task(ctx);
+    await task(ctx, options.args);
 
     ctx.reset();
     ctx = null;

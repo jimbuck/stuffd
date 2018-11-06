@@ -53,7 +53,6 @@ test(`Decorators and Fluent API are the same`, t => {
   t.deepEqual(decoratorShips, fluentShips);
   t.is(ctx1Json, ctx2Json);
   t.is(ctx1Json, ctx3Json);
-  //t.log(ctx1Json);
 });
 
 function testModels(t: GenericTestContext<AvaContext<any>>, creatModels: () => any) {

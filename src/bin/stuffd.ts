@@ -1,16 +1,14 @@
 #!/usr/bin/env node
 
-import { join as joinPath } from 'path';
-import { existsSync as fileExistsSync } from 'fs';
-import * as commander from 'commander';
+import { resolve as resolvePath } from 'path';
+import { existsSync as fileExistsSync, writeFileSync } from 'fs';
+import * as yargs from 'yargs';
 
 import { Stuffd, Context } from '../index';
 import { breakPromise } from '../lib/utils/extensions';
 import { Lookup } from '../lib/models/types';
 
-const packageJson = require('../../package.json');
-
-const currDir = process.cwd();
+const DEFAULT_CONFIG_FILENAME = 'stuffd.ts';
 
 require('ts-node').register({
   transpileOnly: true,
@@ -27,47 +25,110 @@ require('ts-node').register({
   }
 });
 
-commander
-  .version(packageJson.version, '-V, --version');
+yargs
+  .scriptName('stuffd')
+  .wrap(120)
+  .usage('$0 <cmd> [args]')
+  .command('init [file]', 'Creates a new stuffd file.', init =>
+    init.positional('file', {
+      type: 'string',
+      normalize: true,
+      default: DEFAULT_CONFIG_FILENAME,
+      describe: 'The name of the stuffd config file.'
+    }), ({ file }) => {
+      if (file.toLowerCase().endsWith('.js')) {
+        writeFileSync(file, `
+const { Stuffd } = require('stuffd');
 
-commander.command('run <task>')
-  .option('-c, --config <path>', 'Path to the js/ts config file.')
-  .option('-s, --seed <seed>', 'The starting seed for the PRNG.')
-  .action(async (task, { config, seed }) => {
-    configureAndLoad(config);
-    await Stuffd.run(task, { seed });
-  });
+Stuffd.task('default', (ctx, args) => {
 
-commander.command('create <pairs...>')
-  .option('-c, --config <path>', 'Path to the js/ts config file.')
-  .option('-s, --seed <seed>', 'The starting seed for the PRNG.')
-  .option('-f, --formatted', 'Format the JSON.')
-  .action(async (pairs, { config, seed, formatted }) => {
-    const models = toPairs(pairs);
+});
+`);
+      } else {
+        writeFileSync(file, `
+import { Stuffd } from 'stuffd';
 
-    const moduleExports = configureAndLoad(config);
+Stuffd.task('default', (ctx, args) => {
 
-    const ctx = new Context(seed);
-
-    models.forEach(entry => {
-      const Model = moduleExports[entry.type];
-      // Only create models
-      if (typeof Model === 'function') {
-        ctx.create(Model, entry.count);
+});
+`);
       }
-    });
+    })
+  .command('run [task]', 'Executes the specified task.', run => run
+    .positional('task', {
+      type: 'string',
+      describe: 'The name of the task defined in the stuffd configuration file.'
+    })
+    .option('config', {
+      type: 'string',
+      alias: 'c',
+      normalize: true,
+      default: DEFAULT_CONFIG_FILENAME,
+      describe: 'Path to the stuffd configuration file.'
+    })
+    .option('seed', {
+      type: 'number',
+      alias: 's',
+      describe: 'The starting seed for the PRNG.'
+    }),
+    async ({ config, task, seed, _ }) => {
+      configureAndLoad(config);
+      let args = yargs(_.slice(1)).argv;
+      delete args['$0'];
+      await Stuffd.run(task, { seed, args });
+    }
+  )
+  .command('create', 'Creates the specifics models.', create => create
+    .option('models', {
+      alias: 'm',
+      type: 'array',
+      describe: 'The name of the task defined in the stuffd configuration file.',
+      demand: 'You must specify at least one model to generate!'
+    })
+    .option('config', {
+      type: 'string',
+      alias: 'c',
+      normalize: true,
+      default: DEFAULT_CONFIG_FILENAME,
+      describe: 'Path to the stuffd configuration file.'
+    })
+    .option('seed', {
+      type: 'number',
+      alias: 's',
+      describe: 'The starting seed for the PRNG.'
+    })
+    .option('formatted', {
+      type: 'boolean',
+      alias: 'f',
+      describe: 'Format the JSON.'
+    }),
+    async ({ config, seed, models, formatted, _ }) => {
+      const entries = toPairs(models);
 
-    const { promise, resolve, reject } = breakPromise();
+      const moduleExports = configureAndLoad(config);
 
-    process.stdout.write(ctx.json(formatted ? '  ': null), (err: any) => err ? reject(err) : resolve());
+      const ctx = new Context(seed);
 
-    await promise;
-  });
+      entries.forEach(entry => {
+        const Model = moduleExports[entry.type];
+        // Only create models
+        if (typeof Model === 'function') {
+          ctx.create(Model, entry.count);
+        }
+      });
 
-commander.parse(process.argv);
+      const { promise, resolve, reject } = breakPromise();
+
+      process.stdout.write(ctx.json(formatted ? '  ' : null), (err: any) => err ? reject(err) : resolve());
+
+      await promise;
+    }
+  )
+  .help()
+  .argv;
 
 function configureAndLoad(config: string) {
-  config = joinPath(currDir, config || 'stuffd.ts');
+  config = resolvePath(config || DEFAULT_CONFIG_FILENAME);
 
   if (!fileExistsSync(config)) throw new Error(`No config file found at '${config}'!`);
   
