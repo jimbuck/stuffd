@@ -26,10 +26,6 @@ export function PropDecorator(act?: (mb: PropertyBuilder, designType: Constructo
     modelBuilder.prop(prop, pb => {
       pb['_definition'].designType = designType;
 
-      if (!pb['_definition'].type) {
-        pb['_definition'].type = designType;
-      }
-
       return act(pb, designType);
     });
 

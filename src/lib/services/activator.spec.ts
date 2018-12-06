@@ -75,12 +75,24 @@ test(`Activator exposes random utility instance`, t => {
 test(`Activator provides property name upon error`, t => {
   const expectedModelName = 'SomeCoolModel';
   const expectedPropName = 'AVeryUniqueAndDescriptivePropertyName';
-  const propDef: PropertyDefinition = {name: expectedPropName, designType: String, ref: NonDefinedClass }
+  const propDef: PropertyDefinition = { name: expectedPropName, designType: String, ref: NonDefinedClass };
   const modelDef: ModelDefinition = { name: expectedModelName, propList: [expectedPropName], props: { [expectedPropName]: propDef } };
   const FakeType: Constructor<any> = function () { } as any;
   setModelDef(FakeType, modelDef);
   const activator = new Activator();
   t.throws(() => activator.create(FakeType, 1), (err: Error) => err.message.includes(expectedPropName) && err.message.includes(expectedModelName))
+});
+
+test(`Activator sets keys without explicit types to null`, t => {
+  const expectedModelName = 'SomeCoolModel';
+  const expectedPropName = 'AVeryUniqueAndDescriptivePropertyName';
+  const propDef: PropertyDefinition = { name: expectedPropName, designType: String, key: true };
+  const modelDef: ModelDefinition = { name: expectedModelName, propList: [expectedPropName], props: { [expectedPropName]: propDef } };
+  const FakeType: Constructor<any> = function () { } as any;
+  setModelDef(FakeType, modelDef);
+  const activator = new Activator();
+  const instance = activator.create(FakeType, 1)[0];
+  t.is(instance[expectedPropName], null);
 });
 
 [

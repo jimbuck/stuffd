@@ -49,7 +49,7 @@ test(`@Prop() uses the design type if no type has been specified`, t => {
 
   const propDef1 = getModelBuilder(TestClass1)['_modelDefinition'].props.thing;
   t.is(propDef1.designType, ComplexThing);
-  t.is(propDef1.type, ComplexThing);
+  t.is(typeof propDef1.type, 'undefined');
 
   class TestClass2 {
     @Prop(p => p.optional()) @Prop(p => p.type(String))

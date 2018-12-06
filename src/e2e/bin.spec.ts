@@ -4,7 +4,7 @@ import { exec } from 'child_process';
 
 import { test } from 'ava';
 
-import { League } from './bin.config';
+import { League, Shopper, Department, Product, CartItem } from './bin.config';
 
 type CreationPair = [string, number];
 const EMPTY_STRING = '';
@@ -87,7 +87,23 @@ test(`create command generates nested data`, async (t) => {
   t.truthy(leagues[0].teams[0].owner);
   t.truthy(leagues[0].teams[0].players.length > 0);
 });
-test.todo(`create command generates relational data`);
+test(`create command generates relational data`, async (t) => {
+  const seed = Math.floor(Math.random() * 99999);
+  const result: {
+    'Shopper': Shopper[],
+    'Department': Department[],
+    'Product': Product[],
+    'CartItem': CartItem[],
+  } = await runStuffdCreate(seed, [['Shopper', 6], ['Department', 3], ['Product', 20], ['CartItem', 25]]);
+  const { Shopper: shoppers, Department: departments, Product: products, CartItem: cartItems } = result;
+  
+  t.is(shoppers.length, 6);
+  t.is(departments.length, 3);
+  t.is(products.length, 20);
+  t.is(cartItems.length, 25);
+  t.true(products.some(p => p.id === cartItems[0].productId));
+  t.true(shoppers.some(s => s.id === cartItems[0].shopperId));
+});
 
 function runStuffdInit(filename?: string) {
   return _execAsync(filename ? `init "${filename}"` : 'init', tempDir);

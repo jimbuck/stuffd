@@ -124,7 +124,12 @@ ${err.toString()}`);
       return this._createEnum(def.type, def.designType || def.secondaryType || Number);
     }
 
-    switch (def.type) {
+    if (def.key && !def.type) {
+      // This is a key, most likely set externally (database)
+      return null;
+    }
+
+    switch (def.type || def.designType) {
       case (RegExp as any):
         throw new Error('RegExp cannot be generated randomly!');
       case Boolean:
@@ -139,9 +144,9 @@ ${err.toString()}`);
         return this._createGuid();
       case Array:
         return this._createArray(def);
-      default:
+      default:        
         // Complex object...
-        return this.create(def.type as Constructor, 1)[0];
+        return this.create((def.type || def.designType) as Constructor, 1)[0];
     }
   }
 

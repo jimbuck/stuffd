@@ -1,5 +1,7 @@
 import { writeFile } from 'fs';
 import { Stuffd, Int, Str, Custom, List, Enum, Context } from '..';
+import { Key, Float, Ref, Guid } from '../lib/services/decorators';
+import { GuidType } from '../lib/models/types';
 
 //#region Nested
 
@@ -61,9 +63,41 @@ Stuffd.task('nested', async (ctx, args) => {
 
 //#region Relational
 
-Stuffd.task('relational', (ctx) => {  
-  
-});
+@Stuffd()
+export class Department {
+  @Key() id: string;
+  @Str(8, 20) name: string;
+}
+
+@Stuffd()
+export class Shopper {
+  @Key() @Guid() id: string;
+  @Custom(c => c.first({ nationality: 'en' }) + ' ' + c.last({ nationality: 'en' })) name: string;
+  @Str(/[\d]{4}-[\d]{4}-[\d]{4}-[\d]{4}/) creditCard: string;
+}
+
+@Stuffd()
+export class Product {
+  @Key() id: string;
+  @Str(8, 16) name: string;
+  @Float(2, 8, 100) price: number;
+  @Ref(Department) departmentId: string;
+}
+
+@Stuffd()
+export class CartItem {
+  @Ref(Shopper) shopperId: string;
+  @Ref(Product) productId: string;
+}
+
+// Stuffd.task('relational', async (ctx, args) => {  
+//   const shoppers = ctx.create(Shopper, 6);
+//   const departments = ctx.create(Department, 3);
+//   const products = ctx.using({ 'departmentId': departments }).create(Product, 20);
+//   const cartItems = ctx.using({ 'shopperId': shoppers, 'productId': products }).create(CartItem, 25);
+
+//   await writeToFile(ctx.json(), args.file);
+// });
 
 //#endregion
 
@@ -80,7 +114,6 @@ Stuffd.task('default', async (ctx, args) => {
 
 function writeToFile(content: string, filename: string) {
   return new Promise<string>((resolve, reject) => {
-
     writeFile(filename, content, { flag: 'w' }, (err => err ? reject(err) : resolve(filename)));
   });
 }

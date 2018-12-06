@@ -367,7 +367,7 @@ test(`@Prop() respected the Date type`, t => {
   const modelDef = getModelBuilder(CustomDateTestClass)['_modelDefinition'];
   const propDef = modelDef.props.dateProp;
 
-  t.is(propDef.type, Date);
+  t.is(typeof propDef.type, 'undefined');
   t.is(propDef.designType, Date);
 });
 

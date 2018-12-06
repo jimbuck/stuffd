@@ -22,7 +22,7 @@ function testModels(t: GenericTestContext<AvaContext<any>>, creatModels: () => a
   
   const historyGrades = ctx.cross({ 'studentIdentifier': students, }).using({ 'classIdentifier': historyClasses }).create(Grade);
   const scienceGrades = ctx.cross({ 'studentIdentifier': students, }).using({ 'classIdentifier': scienceClasses }).create(Grade);
-  
+
   const data = ctx.data();
   const json = ctx.json();
   const ledger = ctx['_activator'].data.ledger;
