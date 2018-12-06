@@ -65,6 +65,7 @@
       "dist/**/*.js"
     ],
     "exclude": [
+      "src/**/*.spec.ts",
       "dist/**/*.spec.js",
       "dist/debug-*.js",
       "dist/index.js",

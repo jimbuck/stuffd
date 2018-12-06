@@ -158,11 +158,11 @@ test(`Model#build properly inherits properties from parent`, t => {
 
   const Animal = newModel('Animal')
     .prop(dietKey, x => x.pick(dietChoices))
-    .prop(lifespanKey, x => x.integer(0, 200).optional())
+    .prop(lifespanKey, x => x.int(0, 200).optional())
     .build();
 
   const Eagle = newModel('Eagle').inherits(Animal)
-    .prop(lifespanKey, x => x.integer(lifespanMin, lifespanMax))
+    .prop(lifespanKey, x => x.int(lifespanMin, lifespanMax))
     .build();
 
   const eagleDef = getModelDef(Eagle);
@@ -175,15 +175,20 @@ test(`Model#build properly inherits properties from parent`, t => {
 });
 
 test(`Model#build returns a working class with inheritence`, t => {
+  const EAGLE_NAME = 'Eagle';
+  const BALDEAGLE_NAME = 'BaldEagle';
   const Animal = newModel('Animal')
     .prop('id', id => id.guid())
     .build();
 
-  const Eagle = newModel('Eagle').inherits(Animal).build();
-  const BaldEagle = newModel('BaldEagle').inherits(Eagle).build();
+  const Eagle = newModel(EAGLE_NAME).inherits(Animal).build();
+  const BaldEagle = newModel(BALDEAGLE_NAME).inherits(Eagle).build();
   
   let eagle = new Eagle();
   let baldEagle = new BaldEagle();
+
+  t.is(eagle.constructor.name, EAGLE_NAME);
+  t.is(baldEagle.constructor.name, BALDEAGLE_NAME);
 
   t.true(eagle instanceof Eagle);
   t.true(eagle instanceof Animal);

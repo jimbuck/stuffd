@@ -24,6 +24,10 @@ export class Activator {
     return this._rand.seed;
   }
 
+  public get rand() {
+    return this._rand;
+  }
+
   public create<T>(Type: Constructor<T>, count: number | Lookup<any>, constants?: Lookup<any>, refs?: ListBucket): T[];
   public create<T>(Type: Constructor<T>, crossed: Array<Lookup<any>>, constants?: Lookup<any>, refs?: ListBucket): T[];
   public create<T>(Type: Constructor<T>, countOrCrossed: number | Array<Lookup<any>>, constants: Lookup<any> = {}, refs: ListBucket = null): T[] {
@@ -72,13 +76,21 @@ export class Activator {
   private _createModel<T>(Type: Constructor<T>, modelDef: ModelDefinition, constants: Lookup<any>, refs: ListBucket): T {
     let target: any = new Type();
     let props = modelDef.propList || Object.keys(modelDef.props);
-    for (let prop of props) {
-      let propDef = modelDef.props[prop];
-      if (typeof propDef.optional === 'number' && !this._rand.nextBoolean(propDef.optional)) continue;
-
-      target[prop] = this._createProp(propDef, refs);
-    }
     Object.assign(target, constants);
+    for (let prop of props) {
+      if (constants[prop]) continue;
+
+      let propDef = modelDef.props[prop];
+      if (typeof propDef.optional === 'number' && !this._rand.bool(propDef.optional)) continue;
+
+      try {
+        target[prop] = this._createProp(propDef, refs);
+      } catch (err) {
+        throw new Error(`Error creating property '${prop}' on '${modelDef.name}'!
+${err.toString()}`);
+      }
+    }
+
     return target;
   }
 
@@ -86,11 +98,11 @@ export class Activator {
     if (typeof def.pick !== 'undefined') {
       let pick = def.pick;
       if (typeof pick === 'function') pick = pick();
-      return this._rand.choice(pick);
+      return this._rand.pick(pick);
     }
 
     if (def.custom) {
-      return this._rand.chance(def.custom);
+      return this._rand.custom(def.custom);
     }
 
     if (def.ref) {
@@ -105,7 +117,7 @@ export class Activator {
       availableRefs = availableRefs.map(r => r[foreignKey]).filter(k => typeof k !== 'undefined');
       if (availableRefs.length === 0) throw new Error(`No keys available from ${instanceCount} instances for '${def.name}' to reference '${def.ref.name}'!`);
 
-      return this._rand.choice(availableRefs);
+      return this._rand.pick(availableRefs);
     }
 
     if (isStoredEnum(def.type)) {
@@ -116,7 +128,7 @@ export class Activator {
       case (RegExp as any):
         throw new Error('RegExp cannot be generated randomly!');
       case Boolean:
-        return this._rand.nextBoolean(def.truthRate);
+        return this._rand.bool(def.truthRate);
       case Number:
         return this._createNumber(def);
       case Date:
@@ -144,7 +156,7 @@ export class Activator {
         min = defaults.minInteger;
         max = defaults.maxInteger;
       }
-      return this._rand.nextInt(min, max);
+      return this._rand.int(min, max);
     }
 
     if (typeof min !== 'number') {
@@ -152,11 +164,11 @@ export class Activator {
       max = defaults.maxFloat;
     }
     let decimals = def.decimals || defaults.maxFloatDecimals;
-    return this._rand.nextFloat(min, max, decimals);
+    return this._rand.float(min, max, decimals);
   }
 
   private _createGuid() {
-    return this._rand.nextGuid();
+    return this._rand.guid();
   }
 
   private _createDate(def: PropertyDefinition): Date {
@@ -167,12 +179,12 @@ export class Activator {
     min = min || defaults.minDate;
     max = max || defaults.maxDate;
 
-    return this._rand.nextDate(min, max);
+    return this._rand.date(min, max);
   }
 
   private _createString(def: PropertyDefinition): string {
     if (def.pattern) {
-      return this._rand.nextPattern(def.pattern);
+      return this._rand.string(def.pattern);
     }
 
     let min, max;
@@ -185,16 +197,16 @@ export class Activator {
       max = defaults.maxStringLength;
     }
 
-    let length = this._rand.nextInt(min, max);
-    return this._rand.nextString(length);
+    let length = this._rand.int(min, max);
+    return this._rand.string(length);
   }
 
   private _createEnum(EnumType: StoredEnum, designType: typeof String | typeof Number): any {
     switch (designType) {
       case String:
-        return this._rand.choice(EnumType.names);
+        return this._rand.pick(EnumType.names);
       case Number:
-        return this._rand.choice(EnumType.values);
+        return this._rand.pick(EnumType.values);
       default:
         throw new Error('Enum can only be used with number or string properties!');
     }
@@ -212,7 +224,7 @@ export class Activator {
       max = defaults.maxArrayLength;
     }
 
-    length = this._rand.nextInt(min, max);
+    length = this._rand.int(min, max);
 
     let createItem: () => any;
     if (def.secondaryType === GuidType) {

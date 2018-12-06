@@ -3,6 +3,7 @@ import { Readable as ReadableStream } from 'stream';
 import { Activator } from './activator';
 import { Lookup, Constructor, GeneratedArray } from '../models/types';
 import { CollectionBuilder } from '../builders/collection-builder';
+import { Random } from '../utils/random';
 
 /**
  * Used to generate instances of models and export the data.
@@ -24,6 +25,13 @@ export class Context {
      */
     public get seed(): number {
         return this._activator.seed;
+    }
+
+    /**
+     * Gets the random utility instance used to generate values.
+     */
+    public get rand(): Random {
+        return this._activator.rand;
     }
 
     /**

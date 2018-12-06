@@ -1,6 +1,6 @@
 import { test, GenericTestContext, Context as AvaContext } from 'ava';
 
-import { Context, Stuffd, Prop, Key, Integer, Float, Range, Str, Pick, Enum, List, Bool, Guid, Custom, Ref, Optional, CustomGenerator } from '..';
+import { Context, Stuffd, Prop, Key, Int, Float, Range, Str, Pick, Enum, List, Bool, Guid, Custom, Ref, Optional, CustomGenerator } from '..';
 
 const NOW = new Date();
 
@@ -115,7 +115,7 @@ function createModelsFromDecorators() {
     @Str(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/)
     model: string;
 
-    @Integer(1967, 2020)
+    @Int(1967, 2020)
     year: number;
 
     @Float(1, 5, 12)
@@ -156,13 +156,13 @@ function createModelsFromDecorators() {
     @Prop()
     primaryEngines: Engine;
 
-    @Integer(1, 5)
+    @Int(1, 5)
     primaryEngineCount: number;
 
     @Prop()
     secondaryEngines: Engine;
 
-    @Integer(0, 20)
+    @Int(0, 20)
     secondaryEngineCount: number;
 
     @List(Module, 3, 8)
@@ -230,7 +230,7 @@ function createModelsFromFluentApi() {
 
   const Engine = Stuffd.create('Engine')
     .prop('model', m => m.str(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/))
-    .prop('year', y => y.integer(1967, 2020))
+    .prop('year', y => y.int(1967, 2020))
     .prop('thrust', t => t.float(1, 5, 12))
     .prop('mass', m => m.float(3, 200, 2000))
     .prop('manufacturer', m => m.type(Manufacturer))
@@ -247,9 +247,9 @@ function createModelsFromFluentApi() {
     .prop('name', n => n.str(/((Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus|Falcon|[A-Z] Wing) [XXIIVVCD]{2,3})/))
     .prop('captain', m => m.custom(personName))
     .prop('primaryEngines', pe => pe.type(Engine))
-    .prop('primaryEngineCount', pec => pec.integer(1, 5))
+    .prop('primaryEngineCount', pec => pec.int(1, 5))
     .prop('secondaryEngines', se => se.type(Engine))
-    .prop('secondaryEngineCount', sec => sec.integer(0, 20))
+    .prop('secondaryEngineCount', sec => sec.int(0, 20))
     .prop('modules', m => m.list(Module, 3, 8))
     .prop('hullMass', m => m.float(3, 5000, 20000))
     .getter('totalThrust', function() {

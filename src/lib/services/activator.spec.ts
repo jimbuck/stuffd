@@ -3,10 +3,11 @@ import { Activator } from './activator';
 import { PropertyDefinition } from '../models/property-definition';
 import { setModelDef } from '../utils/meta-reader';
 import { Stuffd } from '../..';
-import { GuidType } from '../models/types';
+import { GuidType, Constructor } from '../models/types';
 import { StoredEnum } from '../models/stored-enum';
 import { crossProps } from '../utils/extensions';
 import { ListBucket } from '../models/list-bucket';
+import { ModelDefinition } from '../models/model-definition';
 
 const sillyNameRegex = new RegExp(/[JKTSMP][aeiou][mnpd]/);
 class TestClass {
@@ -62,6 +63,24 @@ test(`Activator optionally accepts a seed`, t => {
 test(`Activator's data keeps a ledger`, t => {
   const activator = new Activator();
   t.true(Array.isArray(activator.data.ledger));
+});
+
+test(`Activator exposes random utility instance`, t => {
+  const expectedSeed = 123;
+  const activator = new Activator(expectedSeed);
+  t.is(typeof activator.rand.seed, 'number');
+  t.is(activator.rand.seed, expectedSeed);
+});
+
+test(`Activator provides property name upon error`, t => {
+  const expectedModelName = 'SomeCoolModel';
+  const expectedPropName = 'AVeryUniqueAndDescriptivePropertyName';
+  const propDef: PropertyDefinition = {name: expectedPropName, designType: String, ref: NonDefinedClass }
+  const modelDef: ModelDefinition = { name: expectedModelName, propList: [expectedPropName], props: { [expectedPropName]: propDef } };
+  const FakeType: Constructor<any> = function () { } as any;
+  setModelDef(FakeType, modelDef);
+  const activator = new Activator();
+  t.throws(() => activator.create(FakeType, 1), (err: Error) => err.message.includes(expectedPropName) && err.message.includes(expectedModelName))
 });
 
 [

@@ -93,9 +93,9 @@ export class PropertyBuilder {
     return this;
   }
 
-  public integer(): this;
-  public integer(min: number, max: number): this;
-  public integer(min: number = defaults.minInteger, max: number = defaults.maxInteger): this {
+  public int(): this;
+  public int(min: number, max: number): this;
+  public int(min: number = defaults.minInteger, max: number = defaults.maxInteger): this {
     this._definition.decimals = 0;
     
     return this

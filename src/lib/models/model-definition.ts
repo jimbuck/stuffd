@@ -1,6 +1,6 @@
 
 import { PropertyDefinition } from './property-definition';
-import { Constructor, Lookup  } from './types';
+import { Constructor  } from './types';
 
 
 export interface ModelDefinition<T=any> {

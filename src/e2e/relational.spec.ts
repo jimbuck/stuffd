@@ -1,5 +1,5 @@
 import { test, GenericTestContext, Context as AvaContext } from 'ava';
-import { Context, Stuffd, CustomGenerator, Custom, Str, Optional, Prop, Key, Guid, Pick, Range, Float, Integer, Ref } from '..';
+import { Context, Stuffd, CustomGenerator, Custom, Str, Optional, Prop, Key, Guid, Pick, Range, Float, Int, Ref } from '..';
 
 test(`Decorators`, testModels, createModelsFromDecorators);
 test(`Fluent API`, testModels, createModelsFromFluentApi);
@@ -81,7 +81,7 @@ function createModelsFromDecorators() {
     @Key() @Guid()
     identifier: string;
 
-    @Integer(2000, (new Date().getFullYear()) + 4)
+    @Int(2000, (new Date().getFullYear()) + 4)
     graduationYear: number;
   }
 
@@ -102,7 +102,7 @@ function createModelsFromDecorators() {
     @Key() @Guid()
     identifier: string;
 
-    @Integer(1, 9)
+    @Int(1, 9)
     period: number;
 
     @Str()
@@ -151,7 +151,7 @@ function createModelsFromFluentApi() {
   const Student = Stuffd.create('Student')
     .inherits(Person)
     .key('identifier', id => id.guid())
-    .prop('graduationYear', t => t.integer(2000, (new Date().getFullYear()) + 4))
+    .prop('graduationYear', t => t.int(2000, (new Date().getFullYear()) + 4))
     .build();
 
   const Teacher = Stuffd.create('Teacher')
@@ -163,7 +163,7 @@ function createModelsFromFluentApi() {
 
   const Class = Stuffd.create('Class')
     .key('identifier', id => id.guid())
-    .prop('period', st => st.type(Number).integer(1, 9))
+    .prop('period', st => st.type(Number).int(1, 9))
     .prop('name', s => s.str())
     .ref('teacherIdentifier', Teacher)
     .toString(function () { return `#${this.period} Period ${this.name} (${this.teacherIdentifier})` })

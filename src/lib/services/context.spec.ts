@@ -7,7 +7,7 @@ import { StaticCreate } from '../builders/model-builder';
 
 const EMPTY_JSON_OBJECT = '{}';
 
-test(`Optionally accepts a seed`, t => {
+test(`Context optionally accepts a seed`, t => {
   const ctx1 = new Context();
   t.true(ctx1 instanceof Context);
   t.is(typeof ctx1.seed, 'number');
@@ -16,6 +16,13 @@ test(`Optionally accepts a seed`, t => {
   const ctx2 = new Context(EXPECTED_SEED);
   t.true(ctx2 instanceof Context);
   t.is(ctx2.seed, EXPECTED_SEED);
+});
+
+test(`Context exposes random utility instance`, t => {
+  const expectedSeed = 123;
+  const ctx = new Context(expectedSeed);
+  t.is(typeof ctx.rand.seed, 'number');
+  t.is(ctx.rand.seed, expectedSeed);
 });
 
 test(`Context#using returns a populated CollectionBuilder`, t => {
@@ -134,7 +141,7 @@ test(`Context#create accepts an override of constants`, t => {
 
 test(`Context#json returns a string of the generated data`, t => {
   const Num = StaticCreate('Num')
-    .key('id', id => id.integer(1, 3))
+    .key('id', id => id.int(1, 3))
     .prop('name', n => n.str(30))
     .build();
   
@@ -156,7 +163,7 @@ test(`Context#json returns a string of the generated data`, t => {
 
 test(`Context#json accepts a format flag`, t => {
   const Num = StaticCreate('Num')
-    .key('id', id => id.integer(1, 3))
+    .key('id', id => id.int(1, 3))
     .prop('name', n => n.str(30))
     .build();
   
@@ -178,7 +185,7 @@ test(`Context#json accepts a format flag`, t => {
 
 test(`Context#json accepts a format character`, t => {
   const Num = StaticCreate('Num')
-    .key('id', id => id.integer(1, 3))
+    .key('id', id => id.int(1, 3))
     .prop('name', n => n.str(30))
     .build();
   
@@ -201,7 +208,7 @@ test(`Context#json accepts a format character`, t => {
 
 test(`Context#data returns a raw clone of the generated data`, t => {
   const Num = StaticCreate('Num')
-    .key('id', id => id.integer(1, 3))
+    .key('id', id => id.int(1, 3))
     .prop('name', n => n.str(30))
     .build();
 
@@ -223,7 +230,7 @@ test(`Context#data returns a raw clone of the generated data`, t => {
 
 test(`Context#clear empties out the activator's cache`, t => {
   const Num = StaticCreate('Num')
-    .key('id', id => id.integer(1, 3))
+    .key('id', id => id.int(1, 3))
     .prop('name', n => n.str(30))
     .build();
   

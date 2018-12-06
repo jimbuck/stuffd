@@ -1,6 +1,6 @@
 import { EOL } from 'os';
 import { test } from 'ava';
-import { Stuffd, Key, Integer, Custom, Range, Str, Ref, Guid, Float } from '..';
+import { Stuffd, Key, Int, Custom, Range, Str, Ref, Guid, Float } from '..';
 import { Context } from '../lib/services/context';
 
 function createFakeStream() {
@@ -53,7 +53,7 @@ test('Readme decorator example works', t => {
     @Ref(Teacher)
     teacherId: string;
   
-    @Integer(1, 9)
+    @Int(1, 9)
     period: number;
   }
   
@@ -142,7 +142,7 @@ test(`Readme fluent api example works`, t => {
 
   const Engine = Stuffd.create('Engine')
     .prop('model', m => m.str(/[A-Z]{1,3}-\d{1,3}[DXS]{0,1}/))
-    .prop('year', y => y.integer(1967, 2020))
+    .prop('year', y => y.int(1967, 2020))
     .prop('thrust', t => t.float(1, 5, 12))
     .prop('mass', m => m.float(3, 200, 2000))
     .prop('manufacturer', m => m.type(Manufacturer))
@@ -165,9 +165,9 @@ test(`Readme fluent api example works`, t => {
     .prop('name', n => n.str(/((Ares|Athena|Hermes|Icarus|Jupiter|Odyssey|Orion|Daedalus|Falcon|[A-Z] Wing) [XXIIVVCD]{2,3})/))
     .prop('captain', m => m.custom(personName))
     .prop('primaryEngines', pe => pe.type(Engine))
-    .prop('primaryEngineCount', pec => pec.integer(1, 5))
+    .prop('primaryEngineCount', pec => pec.int(1, 5))
     .prop('secondaryEngines', se => se.type(Engine))
-    .prop('secondaryEngineCount', sec => sec.integer(0, 20))
+    .prop('secondaryEngineCount', sec => sec.int(0, 20))
     .prop('modules', m => m.list(Module, 3, 8))
     .prop('hullMass', m => m.float(3, 5000, 20000))
     .getter('totalThrust', function () {

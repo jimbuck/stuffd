@@ -7,7 +7,7 @@ interface RangeDef {
   (min: Date, max: Date): PropertyDecorator;
 }
 
-interface IntegerDef {
+interface IntDef {
   (): PropertyDecorator;
   (min: number, max: number): PropertyDecorator;
 }
@@ -52,8 +52,8 @@ export const Float: FloatDef = function Float(decimals?: number, min?: number, m
   return PropDecorator(p => p.float(decimals, min, max));
 };
 
-export const Integer: IntegerDef = function Integer(min?: number, max?: number) {
-  return PropDecorator(p => p.integer(min, max));
+export const Int: IntDef = function Int(min?: number, max?: number) {
+  return PropDecorator(p => p.int(min, max));
 };
 
 export function Range(min: Date, max: Date) {

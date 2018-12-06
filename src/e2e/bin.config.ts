@@ -1,5 +1,5 @@
 import { writeFile } from 'fs';
-import { Stuffd, Integer, Str, Custom, List, Enum, Context } from '..';
+import { Stuffd, Int, Str, Custom, List, Enum, Context } from '..';
 
 //#region Nested
 
@@ -16,7 +16,7 @@ export class Player {
   @Custom(c => `${c.first()} ${c.last()}`)
   name: string;
 
-  @Integer(1, 99)
+  @Int(1, 99)
   number: number;
 
   @Str(/[IORW][RB]/)

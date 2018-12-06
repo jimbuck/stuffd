@@ -5,7 +5,7 @@ import { PropertyBuilder } from './property-builder';
 import { PropertyDefinition } from '../models/property-definition';
 import { CustomGenerator, GuidType, Constructor } from '../models/types';
 import { Stuffd, Prop } from '../..';
-import { Type, List, Key, Ref, Range, Str, Bool, Optional, Integer, Float, Guid, Enum, Pick, Custom } from '../services/decorators';
+import { Type, List, Key, Ref, Range, Str, Bool, Optional, Int, Float, Guid, Enum, Pick, Custom } from '../services/decorators';
 import { ModelBuilder } from './model-builder';
 import { StoredEnum } from '../models/stored-enum';
 import { getModelBuilder, getModelDef } from '../utils/meta-reader';
@@ -265,8 +265,8 @@ test(`@Ref() requires a known type or explicit foreignKey`, t => {
 }
 
 {
-  testBoth('Integer', 'defaults to default min/max integer values',
-    p => p.integer(), Integer(),
+  testBoth('Int', 'defaults to default min/max integer values',
+    p => p.int(), Int(),
     (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(propDef.decimals, 0);
@@ -279,8 +279,8 @@ test(`@Ref() requires a known type or explicit foreignKey`, t => {
 {
   const expectedMin = 9;
   const expectedMax = 81;
-  testBoth('Integer', 'accepts min/max range',
-    p => p.integer(expectedMin, expectedMax), Integer(expectedMin, expectedMax),
+  testBoth('Int', 'accepts min/max range',
+    p => p.int(expectedMin, expectedMax), Int(expectedMin, expectedMax),
     (t, propDef) => {
       t.is(propDef.type, Number);
       t.is(propDef.decimals, 0);
