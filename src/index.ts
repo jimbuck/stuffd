@@ -1,14 +1,12 @@
 import 'reflect-metadata';
 import { ModelDecorator } from './lib/services/internal-decorators';
 import { ModelBuilder, StaticCreate, StaticCreateEnum, CreateEnumMethod } from './lib/builders/model-builder';
-import { GenerationDefaults, TaskOptions, Lookup } from './lib/models/types';
+import { GenerationDefaults, TaskOptions } from './lib/models/types';
 import { TaskRunner, TaskAction } from './lib/services/task-runner';
 import { defaults } from './lib/models/defaults';
 
 export { Context } from './lib/services/context';
-export { PropDecorator as Prop } from './lib/services/internal-decorators';
-export * from './lib/services/decorators';
-export { CustomGenerator, GenerationDefaults } from './lib/models/types';
+export { Chance } from './lib/models/types';
 
 interface Stuffd {
   (name?: string): ClassDecorator;

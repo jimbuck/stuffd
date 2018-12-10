@@ -1,4 +1,4 @@
-import { TypeReference, CustomGenerator, Constructor } from '../models/types';
+import { TypeReference, Chance, Constructor } from '../models/types';
 import { StoredEnum } from '../models/stored-enum';
 import { PropDecorator } from './internal-decorators';
 
@@ -92,6 +92,6 @@ export function Ref<T, K extends Extract<keyof T, string>>(ref: Constructor<T>, 
   return PropDecorator(p => p.ref(ref, refKey));
 }
 
-export function Custom(custom: CustomGenerator) {
+export function Custom(custom: (custom: Chance) => any) {
   return PropDecorator(p => p.custom(custom));
 }

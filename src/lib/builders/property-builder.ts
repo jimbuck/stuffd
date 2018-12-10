@@ -1,5 +1,5 @@
 
-import { TypeReference, GuidType, CustomGenerator, Constructor } from '../models/types';
+import { TypeReference, GuidType, Chance, Constructor } from '../models/types';
 import { getPrimaryKey } from '../utils/meta-reader';
 import { PropertyDefinition } from '../models/property-definition';
 import { StoredEnum } from '../models/stored-enum';
@@ -137,7 +137,7 @@ export class PropertyBuilder {
       ._range(min, max)
   }
 
-  public custom(fn: CustomGenerator): this {
+  public custom(fn: (chance: Chance) => any): this {
     this._definition.custom = fn;
     return this;
   }

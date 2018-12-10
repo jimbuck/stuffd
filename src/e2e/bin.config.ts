@@ -1,7 +1,7 @@
 import { writeFile } from 'fs';
-import { Stuffd, Int, Str, Custom, List, Enum, Context } from '..';
+import { Stuffd, Context } from '..';
+import { Int, Str, Custom, List, Enum } from '../decorators';
 import { Key, Float, Ref, Guid } from '../lib/services/decorators';
-import { GuidType } from '../lib/models/types';
 
 //#region Nested
 

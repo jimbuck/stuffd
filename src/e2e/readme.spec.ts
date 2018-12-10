@@ -1,7 +1,7 @@
 import { EOL } from 'os';
 import { test } from 'ava';
-import { Stuffd, Key, Int, Custom, Range, Str, Ref, Guid, Float } from '..';
-import { Context } from '../lib/services/context';
+import { Stuffd, Context } from '..';
+import { Key, Int, Custom, Range, Str, Ref, Guid, Float } from '../decorators';
 
 function createFakeStream() {
   return {

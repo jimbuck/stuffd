@@ -1,5 +1,6 @@
 import { test, GenericTestContext, Context as AvaContext } from 'ava';
-import { Context, Stuffd, CustomGenerator, Custom, Str, Optional, Prop, Key, Guid, Pick, Range, Float, Int, Ref } from '..';
+import { Stuffd, Context, Chance } from '..';
+import { Custom, Str, Optional, Prop, Key, Guid, Pick, Range, Float, Int, Ref } from '../decorators';
 
 test(`Decorators`, testModels, createModelsFromDecorators);
 test(`Fluent API`, testModels, createModelsFromFluentApi);
@@ -139,7 +140,7 @@ function createModelsFromDecorators() {
 }
 
 function createModelsFromFluentApi() {
-  const lastName: CustomGenerator = (c) => c.last();
+  const lastName = (c: Chance) => c.last();
 
   const Person = Stuffd.create('Person')
     .prop('firstName', fn => fn.custom(c => c.first()))

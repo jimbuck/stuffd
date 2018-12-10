@@ -3,9 +3,9 @@ import { test, Context, GenericTestContext } from 'ava';
 import { PropertyBuilder } from './property-builder';
 
 import { PropertyDefinition } from '../models/property-definition';
-import { CustomGenerator, GuidType, Constructor } from '../models/types';
-import { Stuffd, Prop } from '../..';
-import { Type, List, Key, Ref, Range, Str, Bool, Optional, Int, Float, Guid, Enum, Pick, Custom } from '../services/decorators';
+import { Chance, Constructor, GuidType } from '../models/types';
+import { Stuffd } from '../..';
+import { Prop, Type, List, Key, Ref, Range, Str, Bool, Optional, Int, Float, Guid, Enum, Pick, Custom } from '../../decorators';
 import { ModelBuilder } from './model-builder';
 import { StoredEnum } from '../models/stored-enum';
 import { getModelBuilder, getModelDef } from '../utils/meta-reader';
@@ -413,7 +413,7 @@ testBoth('Guid', 'marks the type as GuidType',
 }
 
 {
-  const expectedCustomRand: CustomGenerator = (c => c.animal());
+  const expectedCustomRand = ((c: Chance) => c.animal());
   testBoth('Custom', 'accepts custom random generators',
     p => p.custom(expectedCustomRand), Custom(expectedCustomRand),
     (t, propDef) => {

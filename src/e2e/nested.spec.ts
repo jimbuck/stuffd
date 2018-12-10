@@ -1,6 +1,7 @@
 import { test, GenericTestContext, Context as AvaContext } from 'ava';
 
-import { Context, Stuffd, Prop, Key, Int, Float, Range, Str, Pick, Enum, List, Bool, Guid, Custom, Ref, Optional, CustomGenerator } from '..';
+import { Stuffd, Context, Chance } from '..';
+import { Prop, Key, Int, Float, Range, Str, Pick, Enum, List, Bool, Guid, Custom, Ref, Optional } from '../decorators';
 
 const NOW = new Date();
 
@@ -218,7 +219,7 @@ function createModelsFromFluentApi() {
   }
 
   // Create custom, re-usable attributes!
-  const personName: CustomGenerator = (c) => `${c.first()} ${c.last()}`;
+  const personName = (c: Chance) => `${c.first()} ${c.last()}`;
 
   const Manufacturer = Stuffd.create('Manufacturer')
     .key('id', id => id.guid())

@@ -28,100 +28,6 @@ npm i stuffd
 
 ## Examples
 
-### Basic (Relational with Decorators)
-
-```ts
-import { Stuffd, Context, Key, Guid, Custom, Range, Str, Ref, Integer, Float } from 'stuffd';
-
-@Stuffd()
-class Student {
-
-  @Key() @Guid()
-  id: string;
-
-  @Custom(c => `${c.first()} ${c.last()}`)
-  name: string;
-  
-  @Range(new Date('01/01/1950'), new Date('12/31/2010'))
-  dateOfBirth: Date;
-
-  @Str(/\(\d{3}\)\d{3}-\d{4}/)
-  phone: string;
-}
-
-@Stuffd()
-class Teacher {
-
-  @Key() @Guid()
-  id: string;
-
-  @Custom(c => `${c.first()} ${c.last()}`)
-  name: string;
-}
-
-@Stuffd()
-class Class {
-  
-  @Str(/[A-Z]{2}-\d{4}-[a-e]/)
-  id: string;
-
-  @Ref(Teacher)
-  teacherId: string;
-
-  @Integer(1, 9)
-  period: number;
-}
-
-@Stuffd()
-class Grade {
-
-  @Ref(Student)
-  studentId: string;
-
-  @Ref(Class, 'id')
-  classId: string;
-
-  @Float(1, 60, 100)
-  grade: number;
-}
-
-const ctx = new Context(246);
-
-// Create array of 50 students...
-const students = ctx.create(Student, 50);
-// [...]
-
-const teachers = ctx.create(Teacher, 3);
-// [...]
-
-// Create array of 5 classes referencing a teacher's id from the 3 in that list...
-const classes = ctx.using({ 'teacherId': teachers }).create(Class, 5);
-// [...]
-
-// Create array of grades, using the 3 classes above for the classId and making one for each student.
-const grades = ctx.using({ 'classId': classes }).cross({ 'studentId': students }).create(Grade);
-// [...]
-
-const isStudent = students[0] instanceof Student;
-// true
-
-// Get an object with all the instances created...
-const allData = ctx.data();
-// { "Student": [...], "Teacher": [...], etc. }
-
-const allJson = ctx.json(true); // Formatted
-// '{ "Student": [...], "Teacher": [...], etc. }'
-
-// Pipe the data somewhere!
-ctx.stream().pipe(myDbInserter);
-// { "type": "Student", "value": { ... } }
-
-// Pipe the JSON somewhere!
-ctx.stream().pipe(myFileInserter);
-// (same as above but 1 per line)
-
-```
-
 ### Basic (Nested with Fluent API)
 
 ```js
@@ -228,6 +134,101 @@ cosnt { Stuffd, Context } = require('stuffd');
 
 ```
  
+### Basic (Relational with Decorators)
+
+```ts
+import { Stuffd, Context } from 'stuffd';
+import { Key, Guid, Custom, Range, Str, Ref, Integer, Float } from 'stuffd/decorators';
+
+@Stuffd()
+class Student {
+
+  @Key() @Guid()
+  id: string;
+
+  @Custom(c => `${c.first()} ${c.last()}`)
+  name: string;
+  
+  @Range(new Date('01/01/1950'), new Date('12/31/2010'))
+  dateOfBirth: Date;
+
+  @Str(/\(\d{3}\)\d{3}-\d{4}/)
+  phone: string;
+}
+
+@Stuffd()
+class Teacher {
+
+  @Key() @Guid()
+  id: string;
+
+  @Custom(c => `${c.first()} ${c.last()}`)
+  name: string;
+}
+
+@Stuffd()
+class Class {
+  
+  @Str(/[A-Z]{2}-\d{4}-[a-e]/)
+  id: string;
+
+  @Ref(Teacher)
+  teacherId: string;
+
+  @Integer(1, 9)
+  period: number;
+}
+
+@Stuffd()
+class Grade {
+
+  @Ref(Student)
+  studentId: string;
+
+  @Ref(Class, 'id')
+  classId: string;
+
+  @Float(1, 60, 100)
+  grade: number;
+}
+
+const ctx = new Context(246);
+
+// Create array of 50 students...
+const students = ctx.create(Student, 50);
+// [...]
+
+const teachers = ctx.create(Teacher, 3);
+// [...]
+
+// Create array of 5 classes referencing a teacher's id from the 3 in that list...
+const classes = ctx.using({ 'teacherId': teachers }).create(Class, 5);
+// [...]
+
+// Create array of grades, using the 3 classes above for the classId and making one for each student.
+const grades = ctx.using({ 'classId': classes }).cross({ 'studentId': students }).create(Grade);
+// [...]
+
+const isStudent = students[0] instanceof Student;
+// true
+
+// Get an object with all the instances created...
+const allData = ctx.data();
+// { "Student": [...], "Teacher": [...], etc. }
+
+const allJson = ctx.json(true); // Formatted
+// '{ "Student": [...], "Teacher": [...], etc. }'
+
+// Pipe the data somewhere!
+ctx.stream().pipe(myDbInserter);
+// { "type": "Student", "value": { ... } }
+
+// Pipe the JSON somewhere!
+ctx.stream().pipe(myFileInserter);
+// (same as above but 1 per line)
+
+```
+
 ### CLI
 
 ```ts

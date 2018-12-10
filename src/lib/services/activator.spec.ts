@@ -2,8 +2,8 @@ import { test, GenericTestContext, Context } from 'ava';
 import { Activator } from './activator';
 import { PropertyDefinition } from '../models/property-definition';
 import { setModelDef } from '../utils/meta-reader';
-import { Stuffd } from '../..';
-import { GuidType, Constructor } from '../models/types';
+import { Stuffd, Chance } from '../..';
+import { Constructor, GuidType } from '../models/types';
 import { StoredEnum } from '../models/stored-enum';
 import { crossProps } from '../utils/extensions';
 import { ListBucket } from '../models/list-bucket';
@@ -117,7 +117,7 @@ test(`Activator sets keys without explicit types to null`, t => {
   },
   {
     name: 'custom generators',
-    propDef: { custom: (c => c.d20()) } as PropertyDefinition,
+    propDef: { custom: ((c: Chance) => c.d20()) } as PropertyDefinition,
     validate(t: GenericTestContext<Context<any>>, value: number) {
       t.true(value >= 1 && value <= 20);
     }

@@ -1,5 +1,4 @@
 import { StoredEnum } from './stored-enum';
-import yargs = require('yargs');
 
 export type Lookup<T=any> = { [key: string]: T };
 
@@ -11,7 +10,7 @@ export type GeneratedConstructor<T=any> = Constructor<T> & { new(props: Lookup):
 export type GeneratedArray<T=any> = Array<T>;
 export type TypeReference<T=any> = Constructor<T> | StoredEnum | GuidType;
 
-export type CustomGenerator = (c: Chance.Chance) => any;
+export type Chance = Chance.Chance;
 
 export interface GenerationDefaults {
   minInteger: number;

@@ -1,5 +1,5 @@
 
-import { TypeReference, CustomGenerator, Constructor } from './types';
+import { TypeReference, Chance, Constructor } from './types';
 import { StoredEnum } from './stored-enum';
 
 /**
@@ -23,5 +23,5 @@ export interface PropertyDefinition {
   decimals?: number,
   pick?: any[] | (() => any[]);
   truthRate?: number;
-  custom?: CustomGenerator; 
+  custom?: (chance: Chance) => any; 
 }

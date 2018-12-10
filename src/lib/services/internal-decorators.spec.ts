@@ -1,7 +1,9 @@
 import { test } from 'ava';
-import { Stuffd, Prop } from '../..';
-import { getModelBuilder, getModelDef } from '../utils/meta-reader';
+import { Stuffd } from '../..';
+import { Prop } from '../../decorators';
 import { GuidType } from '../models/types';
+
+import { getModelBuilder, getModelDef } from '../utils/meta-reader';
 
 test(`@Prop() updates the design type`, t => {
   class TestClass {
