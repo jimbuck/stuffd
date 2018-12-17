@@ -1,6 +1,6 @@
 {
   "name": "stuffd",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Like a turkey.",
   "main": "index.js",
   "types": "./dist/index.d.ts",
