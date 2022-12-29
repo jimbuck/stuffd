@@ -35,7 +35,7 @@
     "@types/node": "^10.11.4",
     "@types/reflect-metadata": "0.1.0",
     "@types/yargs": "^12.0.1",
-    "ava": "^0.25.0",
+    "ava": "^5.1.0",
     "codecov": "^3.1.0",
     "concurrently": "^4.0.1",
     "nyc": "^13.0.1",
